@@ -117,7 +117,7 @@ services:
     volumes:
       - ./:/src/
       - /src/node_modules
-    command: [ "/bin/tailwindcss", "-i", "/src/web/static/src/css/main.css", "-o", "/src/web/static/public/css/main.css", "--watch=always", "--content", "/src/web/ui/**/*.templ", "/src/web/static/src/css/**.css" ]
+    command: [ "/bin/tailwindcss", "-i", "/src/internal/pkg/web/static/src/css/main.css", "-o", "/src/internal/pkg/web/static/public/css/main.css", "--watch=always", "--content", "/src/internal/pkg/web/ui/**/*.templ", "/src/internal/pkg/web/static/src/css/**.css" ]
 
 volumes:
   go_modules:

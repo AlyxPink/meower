@@ -1,0 +1,25 @@
+package custom_errors
+
+import "github.com/AlyxPink/meower/internal/pkg/web/ui/layouts"
+
+templ Error500() {
+	@layouts.Main() {
+		<section>
+			<div class="max-w-3xl mx-auto text-center lg:py-32">
+				<p class="text-3xl lg:text-5xl font-medium text-black max-w-4xl mx-auto">
+					500 - Internal Server Error
+				</p>
+				<p class="mt-4 xl:text-xl tracking-wide text-black">
+					We're sorry, but something went wrong. We've been notified about
+					this issue and we'll take a look at it shortly.
+				</p>
+				<div class="mt-8">
+					<a
+						class="text-black text-lg py-3 h-16"
+						href="/"
+					>Go back home</a>
+				</div>
+			</div>
+		</section>
+	}
+}

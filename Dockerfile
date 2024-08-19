@@ -34,7 +34,7 @@ RUN --mount=rw,type=bind,target=. \
     sqlc generate -f ./internal/db/sqlc.yaml
 
 RUN --mount=rw,type=bind,target=. \
-    templ generate --path="./web/ui"
+    templ generate --path="./internal/pkg/web/ui"
 
 RUN --mount=type=cache,target=/go/pkg/mod/ \
     --mount=rw,type=bind,target=. \
@@ -64,7 +64,7 @@ RUN --mount=type=cache,target=/tmp/bun/cache \
     --frozen-lockfile \
     --production
 
-RUN --mount=rw,type=bind,source=./web/,target=/usr/src/tailwind/ \
+RUN --mount=rw,type=bind,source=./internal/pkg/web/,target=/usr/src/tailwind/ \
     /bin/tailwindcss \
     -i /usr/src/tailwind/static/src/css/main.css \
     -o /usr/src/main.css \

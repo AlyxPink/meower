@@ -1,0 +1,12 @@
+package ui
+
+import "github.com/AlyxPink/meower/internal/pkg/web/ui/layouts"
+
+templ New() {
+	@layouts.Main() {
+		<form action="/meow/" method="post">
+			<input type="text" name="name" placeholder="Enter your name :3" class="border border-1 border-black"/>
+			<button type="submit">Meow!</button>
+		</form>
+	}
+}

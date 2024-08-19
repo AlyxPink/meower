@@ -66,4 +66,4 @@ tmp/
 *_templ.go
 
 # Generated CSS
-web/static/public/css/**.css
+internal/pkg/web/static/public/css/**.css

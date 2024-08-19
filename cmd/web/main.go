@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 
-	"github.com/AlyxPink/meower/internal/pkg/web"
+	"github.com/AlyxPink/meower/internal/pkg/web/handlers"
 	"github.com/joho/godotenv"
 )
 
@@ -13,6 +13,6 @@ func main() {
 		log.Fatal("Error loading .env file")
 	}
 
-	app := web.NewServer()
+	app := handlers.NewServer()
 	app.Listen("0.0.0.0:3000")
 }

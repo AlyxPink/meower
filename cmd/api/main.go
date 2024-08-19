@@ -5,7 +5,7 @@ import (
 	"log"
 	"net"
 
-	"github.com/AlyxPink/meower/internal/pkg/services"
+	"github.com/AlyxPink/meower/internal/pkg/handlers"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/health"
 	"google.golang.org/grpc/health/grpc_health_v1"
@@ -34,7 +34,7 @@ func main() {
 	grpc_health_v1.RegisterHealthServer(s, health.NewServer())
 
 	// Register V1 services
-	services.RegisterV1(ctx, s)
+	handlers.RegisterV1(ctx, s)
 
 	// Serve the gRPC server
 	log.Printf("API server listening at %v", lis.Addr())

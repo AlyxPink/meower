@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package meower.v1;
+
+option go_package = "github.com/AlyxPink/meower/internal/pkg/grpc/v1/meower";
+
+message Meow { string meow = 1; }
+
+service MeowerSvc {
+  rpc Salutation(SalutationRequest) returns (SalutationResponse) {}
+  rpc Create(CreateRequest) returns (CreateResponse) {}
+  rpc List(ListRequest) returns (ListResponse) {}
+}
+
+// Salutation
+message SalutationRequest { string name = 1; }
+message SalutationResponse { string meow = 1; }
+
+// Create
+message CreateRequest { string name = 1; }
+message CreateResponse { string meow = 1; }
+
+// List
+message ListRequest {}
+message ListResponse { repeated Meow meows = 1; }

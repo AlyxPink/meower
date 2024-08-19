@@ -1,0 +1,22 @@
+package web
+
+import (
+	"github.com/AlyxPink/meower/web/ui/pages/homepage"
+	"github.com/gofiber/fiber/v2"
+)
+
+type Homepage struct{ *Server }
+
+func NewHomepage(server *Server) *Homepage {
+	homepage := &Homepage{server}
+	homepage.registerRoutes()
+	return homepage
+}
+
+func (h *Homepage) registerRoutes() {
+	h.Get("/", h.index)
+}
+
+func (h *Homepage) index(c *fiber.Ctx) error {
+	return renderTempl(c, homepage.Index())
+}

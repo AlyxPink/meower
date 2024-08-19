@@ -19,6 +19,25 @@ Meower is a Go boilerplate that moves the logic of your web application to an in
 - [x] **Mailpit** - Local webmail client to receive emails from your app
 - [x] **pgWeb** - Web-based database browser for PostgreSQL
 
+## Purpose
+
+This framework helps you to clearly set where everything should lives.
+
+- **protobuf**: Define the data structure and methods, including their input/output
+- **sqlc**: Define the SQL queries and schema, generating type safe Go code that you can use
+- **gRPC implementation**: Implement the methods defined in the protobuf file. Your logic will lives here. It gives you the freedom to expose the generated files to the public, or the gRPC endpoint. Your app will consume it internally. The DB connection will only be created here.
+- **web app**: The web app will consume the gRPC server, and will be responsible for the web interface. It will also serve the static files, and the generated HTML, using templ.
+
+When a web request is made, the web app will call the gRPC server, which will handle the logic and the database connection. The web app will only be responsible for the web interface.
+
+user => web app => gRPC server => database
+
+This separation of concerns will make your application more maintainable, scalable, and testable. You can more easily change some pieces of the stack without affecting the others.
+
+The latency overhead of interally using gRPC is minimal. You can scale the web app and the gRPC server independently, and even use different languages for each.
+
+This boilerplate is only an example of a stack I like to use, but it's far more flexible than that. You can use it as a base for your own stack, changing the tools and the structure as you see fit.
+
 ## Getting Started
 
 ### Prerequisites
@@ -50,3 +69,5 @@ You can now access the various services:
 - gRPC UI: [http://localhost:50050](http://localhost:50050)
 - Mailpit: [http://localhost:8025](http://localhost:8025)
 - pgWeb: [http://localhost:5430](http://localhost:5430)
+
+Feel free to open the web app and create a "Meow" to see the application in action. You can create and list them.

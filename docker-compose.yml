@@ -7,7 +7,7 @@ services:
     tty: true
     stop_signal: SIGINT # Graceful shutdown will cleanup the txt files created
     stop_grace_period: 3s
-    restart: on-failure
+    restart: always
     environment:
       API_ENDPOINT: "api:50051"
     ports:
@@ -26,7 +26,7 @@ services:
     tty: true
     restart: on-failure
     environment:
-      DATABASE_URL: "postgres://github.com/AlyxPink/meower:github.com/AlyxPink/meower@db:5432/github.com/AlyxPink/meower?sslmode=disable"
+      DATABASE_URL: "postgres://meower:meower@db:5432/meower?sslmode=disable"
     ports:
       - "50051:50051"
     volumes:

@@ -1,25 +1,27 @@
+// Definition of the Meower service and its messages
 syntax = "proto3";
 
 package meower.v1;
 
 option go_package = "github.com/AlyxPink/meower/internal/pkg/grpc/v1/meower";
 
-message Meow { string meow = 1; }
+message Meow {
+  string id = 1;
+  string name = 2;
+  string created_at = 3;
+}
 
 service MeowerSvc {
-  rpc Salutation(SalutationRequest) returns (SalutationResponse) {}
   rpc Create(CreateRequest) returns (CreateResponse) {}
   rpc List(ListRequest) returns (ListResponse) {}
 }
 
-// Salutation
-message SalutationRequest { string name = 1; }
-message SalutationResponse { string meow = 1; }
-
 // Create
+// This will create a new meow, a short message
 message CreateRequest { string name = 1; }
-message CreateResponse { string meow = 1; }
+message CreateResponse { Meow meow = 1; }
 
 // List
+// This will list all the meows
 message ListRequest {}
 message ListResponse { repeated Meow meows = 1; }

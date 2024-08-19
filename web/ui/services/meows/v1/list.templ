@@ -1,0 +1,21 @@
+package ui
+
+import (
+	"fmt"
+	meowerv1 "github.com/AlyxPink/meower/internal/pkg/api/meower/v1"
+	"github.com/AlyxPink/meower/web/ui/layouts"
+)
+
+templ List(r *meowerv1.ListResponse) {
+	@layouts.Main() {
+		<h1>{ fmt.Sprint(len(r.Meows)) } Meows found</h1>
+		<ul>
+			for _, m := range r.Meows {
+				<li class="py-2">
+					<span class="font-mono rounded bg-pink-200 p-2">#{ m.Id } { `@` } { m.CreatedAt }</span>
+					<span class="font-bold">Meow { m.Name } :3</span>
+				</li>
+			}
+		</ul>
+	}
+}

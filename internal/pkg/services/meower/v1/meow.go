@@ -9,19 +9,19 @@ import (
 	v1 "github.com/AlyxPink/meower/internal/pkg/api/meower/v1"
 )
 
-func (s *meower) Salutation(ctx context.Context, req *v1.SalutationRequest) (*v1.SalutationResponse, error) {
-	meow := fmt.Sprintf("Meow %s :3", req.Name)
-
-	return &v1.SalutationResponse{Meow: meow}, nil
-}
-
 func (s *meower) Create(ctx context.Context, req *v1.CreateRequest) (*v1.CreateResponse, error) {
 	meow, err := db.New(s.db).CreateMeow(ctx, req.Name)
 	if err != nil {
 		return nil, err
 	}
 
-	return &v1.CreateResponse{Meow: meow.Name}, nil
+	return &v1.CreateResponse{
+		Meow: &v1.Meow{
+			Id:        fmt.Sprintf("%x", meow.ID.Bytes),
+			Name:      meow.Name,
+			CreatedAt: meow.CreatedAt.Time.String(),
+		},
+	}, nil
 }
 
 func (s *meower) List(ctx context.Context, req *v1.ListRequest) (*v1.ListResponse, error) {
@@ -32,7 +32,11 @@ func (s *meower) List(ctx context.Context, req *v1.ListRequest) (*v1.ListRespons
 
 	var resp []*v1.Meow
 	for _, meow := range meows {
-		resp = append(resp, &v1.Meow{Meow: meow.Name})
+		resp = append(resp, &v1.Meow{
+			Id:        fmt.Sprintf("%x", meow.ID.Bytes),
+			Name:      meow.Name,
+			CreatedAt: meow.CreatedAt.Time.String(),
+		})
 	}
 
 	return &v1.ListResponse{Meows: resp}, nil

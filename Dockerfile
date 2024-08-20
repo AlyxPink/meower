@@ -142,7 +142,7 @@ ENTRYPOINT [ "/opt/meower/api" ]
 # Create a development image that includes what's required to generate the protoc and CSS files
 FROM build AS development
 RUN apk add --no-cache \
-    protobuf
+    protobuf-dev
 
 # Copy the executables from the "build" stage.
 COPY --chown=meower:meower --from=build /bin/web /opt/meower/

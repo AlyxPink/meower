@@ -49,7 +49,7 @@ RUN if [ "${TARGETARCH}" = "amd64" ]; then \
     fi && \
     wget https://github.com/tailwindlabs/tailwindcss/releases/latest/download/tailwindcss-${TARGETOS}-${TARGETARCH} && \
     chmod +x tailwindcss-${TARGETOS}-${TARGETARCH} && \
-    mv tailwindcss-${TARGETOS}-${TARGETARCH} /bin/tailwindcss
+    mv tailwindcss-${TARGETOS}-${TARGETARCH} /usr/local/bin/tailwindcss
 
 RUN --mount=type=cache,target=/tmp/bun/cache \
     --mount=type=bind,source=package.json,target=package.json \
@@ -61,7 +61,7 @@ RUN --mount=type=cache,target=/tmp/bun/cache \
     --production
 
 RUN --mount=rw,type=bind,source=./internal/pkg/web/,target=/usr/src/tailwind/ \
-    /bin/tailwindcss \
+    /usr/local/bin/tailwindcss \
     -i /usr/src/tailwind/static/src/css/main.css \
     -o /usr/src/main.css \
     --content /usr/src/tailwind/ui/**/*.templ \
@@ -150,7 +150,7 @@ RUN --mount=type=cache,target=/go/pkg/mod/ go install github.com/grpc-ecosystem/
 RUN --mount=type=cache,target=/go/pkg/mod/ go install github.com/bokwoon95/wgo@latest
 
 # Copy tailwind CLI binary from the "assets" stage.
-COPY --from=assets /bin/tailwindcss /bin/tailwindcss
+COPY --from=assets /usr/local/bin/tailwindcss /usr/local/bin/tailwindcss
 # Copy the production node_modules from the "assets" stage.
 COPY --from=assets /usr/src/node_modules node_modules
 

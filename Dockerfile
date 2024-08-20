@@ -30,14 +30,10 @@ COPY --from=ghcr.io/a-h/templ:v0.2.747 /ko-app/templ /usr/local/bin/templ
 # Leverage a cache mount to /go/pkg/mod/ to speed up subsequent builds.
 # Leverage a bind mount to the current directory to avoid having to copy the
 # source code into the container.
-RUN --mount=rw,type=bind,target=. \
-    sqlc generate -f ./internal/db/sqlc.yaml
-
-RUN --mount=rw,type=bind,target=. \
-    templ generate --path="./internal/pkg/web/ui"
-
 RUN --mount=type=cache,target=/go/pkg/mod/ \
     --mount=rw,type=bind,target=. \
+    sqlc generate -f ./internal/db/sqlc.yaml && \
+    templ generate -path ./internal/pkg/web/ui && \
     go build -o /bin/api ./cmd/api && \
     go build -o /bin/web ./cmd/web
 

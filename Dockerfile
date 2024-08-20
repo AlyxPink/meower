@@ -148,10 +148,10 @@ RUN apk add --no-cache \
 COPY --chown=meower:meower --from=build /bin/web /opt/meower/
 COPY --chown=meower:meower --from=build /bin/api /opt/meower/
 
-RUN go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
-RUN go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
-RUN go install github.com/grpc-ecosystem/grpc-health-probe@latest
-RUN go install github.com/bokwoon95/wgo@latest
+RUN --mount=type=cache,target=/go/pkg/mod/ go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
+RUN --mount=type=cache,target=/go/pkg/mod/ go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
+RUN --mount=type=cache,target=/go/pkg/mod/ go install github.com/grpc-ecosystem/grpc-health-probe@latest
+RUN --mount=type=cache,target=/go/pkg/mod/ go install github.com/bokwoon95/wgo@latest
 
 # Copy tailwind CLI binary from the "assets" stage.
 COPY --from=assets /bin/tailwindcss /bin/tailwindcss

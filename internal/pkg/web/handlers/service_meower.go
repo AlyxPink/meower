@@ -2,6 +2,7 @@ package handlers
 
 import (
 	meowerv1 "github.com/AlyxPink/meower/api/gen/meower/v1"
+	"github.com/AlyxPink/meower/internal/pkg/web/routes"
 	ui "github.com/AlyxPink/meower/internal/pkg/web/ui/services/meows/v1"
 	"github.com/gofiber/fiber/v2"
 )
@@ -15,9 +16,9 @@ func NewMeow(server *Server) *Meow {
 }
 
 func (h *Meow) registerRoutes() {
-	h.Get("/meow/", h.new)
-	h.Post("/meow/", h.create)
-	h.Get("/meows/", h.list)
+	h.Get(routes.MeowNew, h.new)
+	h.Post(routes.MeowCreate, h.create)
+	h.Get(routes.MeowIndex, h.index)
 }
 
 func (h *Meow) new(c *fiber.Ctx) error {
@@ -37,7 +38,7 @@ func (h *Meow) create(c *fiber.Ctx) error {
 	return renderTempl(c, ui.Create(resp))
 }
 
-func (h *Meow) list(c *fiber.Ctx) error {
+func (h *Meow) index(c *fiber.Ctx) error {
 	req := &meowerv1.ListRequest{}
 
 	resp, err := h.Services.Meower.List(c.Context(), req)
@@ -46,5 +47,5 @@ func (h *Meow) list(c *fiber.Ctx) error {
 		return err
 	}
 
-	return renderTempl(c, ui.List(resp))
+	return renderTempl(c, ui.Index(resp))
 }

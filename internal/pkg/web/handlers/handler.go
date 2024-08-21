@@ -1,8 +1,9 @@
 package handlers
 
+import "github.com/AlyxPink/meower/internal/pkg/web/routes"
+
 func (server *Server) SetupPublicRoutes() {
-	// Serve static files
-	server.Static("/static", "./internal/pkg/web/static/public")
+	server.Static(routes.StaticPath, "./internal/pkg/web/static/public")
 
 	// Add handlers
 	NewMeow(server)

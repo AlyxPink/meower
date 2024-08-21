@@ -6,7 +6,7 @@ import (
 	"github.com/AlyxPink/meower/internal/pkg/web/ui/layouts"
 )
 
-templ List(r *meowerv1.ListResponse) {
+templ Index(r *meowerv1.ListResponse) {
 	@layouts.Main() {
 		<h1>{ fmt.Sprint(len(r.Meows)) } Meows found</h1>
 		<ul>

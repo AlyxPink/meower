@@ -2,6 +2,7 @@ package ui
 
 import (
 	meowerv1 "github.com/AlyxPink/meower/api/gen/meower/v1"
+	"github.com/AlyxPink/meower/internal/pkg/web/routes"
 	"github.com/AlyxPink/meower/internal/pkg/web/ui/layouts"
 )
 
@@ -14,6 +15,6 @@ templ Create(r *meowerv1.CreateResponse) {
 				<span class="font-bold">Meow { r.Meow.Name } :3</span>
 			</li>
 		</ul>
-		<a class="underline" href="/meows">See all Meows</a>
+		<a class="underline" href={ routes.MeowIndex }>See all Meows</a>
 	}
 }

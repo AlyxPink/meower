@@ -24,28 +24,14 @@ func (q *Queries) CreateMeow(ctx context.Context, name string) (Meow, error) {
 	return i, err
 }
 
-const getMeow = `-- name: GetMeow :one
-SELECT id, name, created_at
-FROM meows
-WHERE id = $1
-LIMIT 1
-`
-
-func (q *Queries) GetMeow(ctx context.Context, id pgtype.UUID) (Meow, error) {
-	row := q.db.QueryRow(ctx, getMeow, id)
-	var i Meow
-	err := row.Scan(&i.ID, &i.Name, &i.CreatedAt)
-	return i, err
-}
-
-const listMeows = `-- name: ListMeows :many
+const indexMeows = `-- name: IndexMeows :many
 SELECT id, name, created_at
 FROM meows
 ORDER BY created_at DESC
 `
 
-func (q *Queries) ListMeows(ctx context.Context) ([]Meow, error) {
-	rows, err := q.db.Query(ctx, listMeows)
+func (q *Queries) IndexMeows(ctx context.Context) ([]Meow, error) {
+	rows, err := q.db.Query(ctx, indexMeows)
 	if err != nil {
 		return nil, err
 	}
@@ -62,4 +48,18 @@ func (q *Queries) ListMeows(ctx context.Context) ([]Meow, error) {
 		return nil, err
 	}
 	return items, nil
+}
+
+const showMeow = `-- name: ShowMeow :one
+SELECT id, name, created_at
+FROM meows
+WHERE id = $1
+LIMIT 1
+`
+
+func (q *Queries) ShowMeow(ctx context.Context, id pgtype.UUID) (Meow, error) {
+	row := q.db.QueryRow(ctx, showMeow, id)
+	var i Meow
+	err := row.Scan(&i.ID, &i.Name, &i.CreatedAt)
+	return i, err
 }

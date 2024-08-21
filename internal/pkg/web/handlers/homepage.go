@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"github.com/AlyxPink/meower/internal/pkg/web/routes"
 	"github.com/AlyxPink/meower/internal/pkg/web/ui/pages/homepage"
 	"github.com/gofiber/fiber/v2"
 )
@@ -14,7 +15,7 @@ func NewHomepage(server *Server) *Homepage {
 }
 
 func (h *Homepage) registerRoutes() {
-	h.Get("/", h.index)
+	h.Get(routes.HomepageIndex, h.index)
 }
 
 func (h *Homepage) index(c *fiber.Ctx) error {

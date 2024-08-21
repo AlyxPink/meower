@@ -13,15 +13,21 @@ message Meow {
 
 service MeowerSvc {
   rpc Create(CreateRequest) returns (CreateResponse) {}
-  rpc List(ListRequest) returns (ListResponse) {}
+  rpc Index(IndexRequest) returns (IndexResponse) {}
 }
 
 // Create
 // This will create a new meow, a short message
-message CreateRequest { string name = 1; }
-message CreateResponse { Meow meow = 1; }
+message CreateRequest {
+  string name = 1;
+}
+message CreateResponse {
+  Meow meow = 1;
+}
 
-// List
-// This will list all the meows
-message ListRequest {}
-message ListResponse { repeated Meow meows = 1; }
+// Index
+// Listing all the meows
+message IndexRequest {}
+message IndexResponse {
+  repeated Meow meows = 1;
+}

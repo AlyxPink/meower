@@ -22,7 +22,7 @@ const _ = grpc.SupportPackageIsVersion9
 
 const (
 	MeowerSvc_Create_FullMethodName = "/meower.v1.MeowerSvc/Create"
-	MeowerSvc_List_FullMethodName   = "/meower.v1.MeowerSvc/List"
+	MeowerSvc_Index_FullMethodName  = "/meower.v1.MeowerSvc/Index"
 )
 
 // MeowerSvcClient is the client API for MeowerSvc service.
@@ -30,7 +30,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type MeowerSvcClient interface {
 	Create(ctx context.Context, in *CreateRequest, opts ...grpc.CallOption) (*CreateResponse, error)
-	List(ctx context.Context, in *ListRequest, opts ...grpc.CallOption) (*ListResponse, error)
+	Index(ctx context.Context, in *IndexRequest, opts ...grpc.CallOption) (*IndexResponse, error)
 }
 
 type meowerSvcClient struct {
@@ -51,10 +51,10 @@ func (c *meowerSvcClient) Create(ctx context.Context, in *CreateRequest, opts ..
 	return out, nil
 }
 
-func (c *meowerSvcClient) List(ctx context.Context, in *ListRequest, opts ...grpc.CallOption) (*ListResponse, error) {
+func (c *meowerSvcClient) Index(ctx context.Context, in *IndexRequest, opts ...grpc.CallOption) (*IndexResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ListResponse)
-	err := c.cc.Invoke(ctx, MeowerSvc_List_FullMethodName, in, out, cOpts...)
+	out := new(IndexResponse)
+	err := c.cc.Invoke(ctx, MeowerSvc_Index_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -66,7 +66,7 @@ func (c *meowerSvcClient) List(ctx context.Context, in *ListRequest, opts ...grp
 // for forward compatibility.
 type MeowerSvcServer interface {
 	Create(context.Context, *CreateRequest) (*CreateResponse, error)
-	List(context.Context, *ListRequest) (*ListResponse, error)
+	Index(context.Context, *IndexRequest) (*IndexResponse, error)
 	mustEmbedUnimplementedMeowerSvcServer()
 }
 
@@ -80,8 +80,8 @@ type UnimplementedMeowerSvcServer struct{}
 func (UnimplementedMeowerSvcServer) Create(context.Context, *CreateRequest) (*CreateResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Create not implemented")
 }
-func (UnimplementedMeowerSvcServer) List(context.Context, *ListRequest) (*ListResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method List not implemented")
+func (UnimplementedMeowerSvcServer) Index(context.Context, *IndexRequest) (*IndexResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Index not implemented")
 }
 func (UnimplementedMeowerSvcServer) mustEmbedUnimplementedMeowerSvcServer() {}
 func (UnimplementedMeowerSvcServer) testEmbeddedByValue()                   {}
@@ -122,20 +122,20 @@ func _MeowerSvc_Create_Handler(srv interface{}, ctx context.Context, dec func(in
 	return interceptor(ctx, in, info, handler)
 }
 
-func _MeowerSvc_List_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListRequest)
+func _MeowerSvc_Index_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(IndexRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MeowerSvcServer).List(ctx, in)
+		return srv.(MeowerSvcServer).Index(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: MeowerSvc_List_FullMethodName,
+		FullMethod: MeowerSvc_Index_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MeowerSvcServer).List(ctx, req.(*ListRequest))
+		return srv.(MeowerSvcServer).Index(ctx, req.(*IndexRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -152,8 +152,8 @@ var MeowerSvc_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _MeowerSvc_Create_Handler,
 		},
 		{
-			MethodName: "List",
-			Handler:    _MeowerSvc_List_Handler,
+			MethodName: "Index",
+			Handler:    _MeowerSvc_Index_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

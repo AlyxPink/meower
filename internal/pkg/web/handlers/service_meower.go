@@ -39,9 +39,9 @@ func (h *Meow) create(c *fiber.Ctx) error {
 }
 
 func (h *Meow) index(c *fiber.Ctx) error {
-	req := &meowerv1.ListRequest{}
+	req := &meowerv1.IndexRequest{}
 
-	resp, err := h.Services.Meower.List(c.Context(), req)
+	resp, err := h.Services.Meower.Index(c.Context(), req)
 
 	if err != nil {
 		return err

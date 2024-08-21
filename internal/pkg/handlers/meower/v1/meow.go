@@ -24,8 +24,8 @@ func (s *meower) Create(ctx context.Context, req *v1.CreateRequest) (*v1.CreateR
 	}, nil
 }
 
-func (s *meower) List(ctx context.Context, req *v1.ListRequest) (*v1.ListResponse, error) {
-	meows, err := db.New(s.db).ListMeows(ctx)
+func (s *meower) Index(ctx context.Context, req *v1.IndexRequest) (*v1.IndexResponse, error) {
+	meows, err := db.New(s.db).IndexMeows(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -39,5 +39,5 @@ func (s *meower) List(ctx context.Context, req *v1.ListRequest) (*v1.ListRespons
 		})
 	}
 
-	return &v1.ListResponse{Meows: resp}, nil
+	return &v1.IndexResponse{Meows: resp}, nil
 }

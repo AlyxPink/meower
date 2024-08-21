@@ -14,13 +14,11 @@ services:
     image: meower:development
     pull_policy: never
     tty: true
-    stop_signal: SIGINT # Graceful shutdown will cleanup the txt files created
-    stop_grace_period: 3s
     restart: always
     environment:
       API_ENDPOINT: "api:50051"
     ports:
-      - "7331:7331"
+      - "3000:3000"
     volumes:
       - ./:/src/
       - go_modules:/go/pkg/mod/
@@ -28,7 +26,25 @@ services:
     depends_on:
       - api
       - development
-    command: 'templ generate --watch --proxy="http://localhost:3000" --proxybind="0.0.0.0" --open-browser=false --cmd="go run ./cmd/web/main.go"'
+    command: 'wgo -file=.go -file=.templ -xfile=_templ.go templ generate :: go run ./cmd/web/main.go'
+
+  templ:
+    image: meower:development
+    pull_policy: never
+    tty: true
+    stop_signal: SIGINT # Graceful shutdown will cleanup the txt files created
+    stop_grace_period: 3s
+    restart: always
+    ports:
+      - "7331:7331"
+    volumes:
+      - ./:/src/
+      - go_modules:/go/pkg/mod/
+      - /src/node_modules
+    depends_on:
+      - web
+      - development
+    command: 'templ generate -v --watch --proxy="http://web:3000" --proxybind="0.0.0.0" --open-browser=false'
 
   api:
     image: meower:development

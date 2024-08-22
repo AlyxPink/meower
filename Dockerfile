@@ -33,9 +33,9 @@ COPY --from=ghcr.io/a-h/templ:v0.2.747 /ko-app/templ /usr/local/bin/templ
 RUN --mount=type=cache,target=/go/pkg/mod/ \
     --mount=rw,type=bind,target=. \
     sqlc generate -f ./internal/db/sqlc.yaml && \
-    templ generate -path ./internal/pkg/web/ui && \
-    go build -o /bin/api ./cmd/api && \
-    go build -o /bin/web ./cmd/web
+    templ generate -path ./internal/web/views && \
+    go build -o /bin/api-server ./cmd/api-server/ && \
+    go build -o /bin/web-server ./cmd/web-server
 
 ################################################################################
 # Create a stage for building the application web assets.
@@ -60,7 +60,7 @@ RUN --mount=type=cache,target=/tmp/bun/cache \
     --frozen-lockfile \
     --production
 
-RUN --mount=rw,type=bind,source=./internal/pkg/web/,target=/usr/src/tailwind/ \
+RUN --mount=rw,type=bind,source=./internal/web/,target=/usr/src/tailwind/ \
     /usr/local/bin/tailwindcss \
     -i /usr/src/tailwind/static/src/css/main.css \
     -o /usr/src/main.css \
@@ -106,7 +106,7 @@ USER meower
 # Create a stage to finalize the web application image.
 FROM final AS final-web
 # Copy the executable from the "build" stage.
-COPY --chown=meower:meower --from=build /bin/web /opt/meower/
+COPY --chown=meower:meower --from=build /bin/web-server /opt/meower/
 # Copy the production CSS files from the "assets" stage.
 COPY --from=assets /usr/src/main.css /opt/meower/main.css
 # Copy the production node_modules from the "assets" stage.
@@ -117,13 +117,13 @@ EXPOSE 3000
 WORKDIR /opt/meower/
 
 # What the container should run when it is started.
-ENTRYPOINT [ "/opt/meower/web" ]
+ENTRYPOINT [ "/opt/meower/web-server" ]
 
 ################################################################################
 # Create a stage to finalize the gRPC API image.
 FROM final AS final-api
 # Copy the executable from the "build" stage.
-COPY --chown=meower:meower --from=build /bin/api /opt/meower/
+COPY --chown=meower:meower --from=build /bin/api-server /opt/meower/
 
 # Expose the port that the application listens on.
 EXPOSE 50051
@@ -141,8 +141,8 @@ RUN apk add --no-cache \
     protobuf-dev
 
 # Copy the executables from the "build" stage.
-COPY --chown=meower:meower --from=build /bin/web /opt/meower/
-COPY --chown=meower:meower --from=build /bin/api /opt/meower/
+COPY --chown=meower:meower --from=build /bin/web-server /opt/meower/
+COPY --chown=meower:meower --from=build /bin/api-server /opt/meower/
 
 RUN --mount=type=cache,target=/go/pkg/mod/ go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
 RUN --mount=type=cache,target=/go/pkg/mod/ go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest

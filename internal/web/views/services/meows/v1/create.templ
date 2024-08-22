@@ -1,0 +1,21 @@
+package viewMeowV1
+
+import (
+	meowerv1 "github.com/AlyxPink/meower/api/implementation/meower/v1"
+	"github.com/AlyxPink/meower/internal/web/routes"
+	"github.com/AlyxPink/meower/internal/web/views/layouts"
+	"github.com/gofiber/fiber/v2"
+)
+
+templ Create(c *fiber.Ctx, r *meowerv1.CreateResponse) {
+	@layouts.Main(c) {
+		<h1>Meow Created</h1>
+		<ul>
+			<li class="py-2">
+				<span class="font-mono rounded bg-pink-200 p-2">#{ r.Meow.Id } { `@` } { r.Meow.CreatedAt }</span>
+				<span class="font-bold">Meow { r.Meow.Name } :3</span>
+			</li>
+		</ul>
+		<a class="underline" href={ templ.SafeURL(c.App().GetRoute(routes.MeowIndex).Path) }>See all Meows</a>
+	}
+}

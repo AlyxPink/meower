@@ -26,7 +26,7 @@ services:
     depends_on:
       - api
       - development
-    command: 'wgo -file=.go -file=.templ -xfile=_templ.go templ generate :: go run ./cmd/web/main.go'
+    command: 'wgo -file=.go -file=.templ -xfile=_templ.go templ generate :: go run ./cmd/web-server/main.go'
 
   templ:
     image: meower:development
@@ -70,7 +70,7 @@ services:
       db:
         condition: service_healthy
         restart: true
-    command: "wgo -dir ./internal/pkg/api/* go run ./cmd/api/"
+    command: "wgo -dir ./internal/pkg/api/* go run ./cmd/api-server/"
 
   proto:
     image: meower:development
@@ -151,7 +151,7 @@ services:
       - /src/node_modules
     depends_on:
       - development
-    command: [ "/bin/tailwindcss", "-i", "/src/internal/pkg/web/static/src/css/main.css", "-o", "/src/internal/pkg/web/static/public/css/main.css", "--watch=always", "--content", "/src/internal/pkg/web/ui/**/*.templ", "/src/internal/pkg/web/static/src/css/**.css" ]
+    command: [ "/usr/local/bin/tailwindcss", "-i", "/src/internal/web/static/src/css/main.css", "-o", "/src/internal/web/static/public/css/main.css", "--watch=always", "--content", "/src/internal/web/views/**/*.templ", "/src/internal/web/static/src/css/**.css" ]
 
 volumes:
   go_modules:

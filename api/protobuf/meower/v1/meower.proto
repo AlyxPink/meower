@@ -3,7 +3,7 @@ syntax = "proto3";
 
 package meower.v1;
 
-option go_package = "github.com/AlyxPink/meower/api/gen/meower/v1";
+option go_package = "github.com/AlyxPink/meower/api/implementation/meower/v1";
 
 message Meow {
   string id = 1;

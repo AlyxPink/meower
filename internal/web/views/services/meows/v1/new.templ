@@ -1,0 +1,16 @@
+package viewMeowV1
+
+import (
+	"github.com/AlyxPink/meower/internal/web/routes"
+	"github.com/AlyxPink/meower/internal/web/views/layouts"
+	"github.com/gofiber/fiber/v2"
+)
+
+templ New(c *fiber.Ctx) {
+	@layouts.Main(c) {
+		<form action={ templ.SafeURL(c.App().GetRoute(routes.MeowCreate).Path) } method="post">
+			<input type="text" name="name" placeholder="Enter your name :3" class="border border-1 border-black"/>
+			<button type="submit">Meow!</button>
+		</form>
+	}
+}

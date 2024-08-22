@@ -1,0 +1,12 @@
+package viewHomepage
+
+import (
+	"github.com/AlyxPink/meower/internal/web/views/layouts"
+	"github.com/gofiber/fiber/v2"
+)
+
+templ Index(c *fiber.Ctx) {
+	@layouts.Main(c) {
+		<h1>Homepage</h1>
+	}
+}

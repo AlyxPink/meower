@@ -1,0 +1,15 @@
+package global
+
+import (
+	"github.com/AlyxPink/meower/internal/web/routes"
+	"github.com/gofiber/fiber/v2"
+)
+
+templ Navigation(c *fiber.Ctx) {
+	<nav>
+		<ul class="flex flex-inline space-x-6">
+			<li><a class="underline" href={ templ.SafeURL(c.App().GetRoute(routes.MeowNew).Path) }>Create new Meow</a></li>
+			<li><a class="underline" href={ templ.SafeURL(c.App().GetRoute(routes.MeowIndex).Path) }>List Meows</a></li>
+		</ul>
+	</nav>
+}

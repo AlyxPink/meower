@@ -17,6 +17,7 @@ services:
     restart: always
     environment:
       API_ENDPOINT: "api:50051"
+      COOKIE_SECRET_KEY: "5TIyDD81Laz/xdxEw2yJVPKdJYyPqxmyONaSVJHs6jY="
     ports:
       - "3000:3000"
     volumes:

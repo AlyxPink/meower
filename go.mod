@@ -6,7 +6,7 @@ require (
 	github.com/a-h/templ v0.2.747
 	github.com/charmbracelet/log v0.4.0
 	github.com/gofiber/fiber/v2 v2.52.5
-	github.com/jackc/pgx/v5 v5.6.0
+	github.com/jackc/pgx/v5 v5.7.0
 	google.golang.org/grpc v1.65.0
 	google.golang.org/protobuf v1.34.2
 )

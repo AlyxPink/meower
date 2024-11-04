@@ -3,7 +3,7 @@ module github.com/AlyxPink/meower
 go 1.21.6
 
 require (
-	github.com/a-h/templ v0.2.747
+	github.com/a-h/templ v0.2.793
 	github.com/charmbracelet/log v0.4.0
 	github.com/gofiber/fiber/v2 v2.52.5
 	github.com/jackc/pgx/v5 v5.7.1

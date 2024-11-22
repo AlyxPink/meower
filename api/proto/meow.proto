@@ -1,9 +1,8 @@
-// Definition of the Meower service and its messages
 syntax = "proto3";
 
-package meower.v1;
+package meow;
 
-option go_package = "github.com/AlyxPink/meower/api/implementation/meower/v1";
+option go_package = "github.com/AlyxPink/meower/api/proto;proto";
 
 message Meow {
   string id = 1;
@@ -11,13 +10,12 @@ message Meow {
   string created_at = 3;
 }
 
-service MeowerSvc {
+service Meower {
   rpc Create(CreateRequest) returns (CreateResponse) {}
+  rpc Get(GetRequest) returns (GetResponse) {}
   rpc Index(IndexRequest) returns (IndexResponse) {}
 }
 
-// Create
-// This will create a new meow, a short message
 message CreateRequest {
   string name = 1;
 }
@@ -25,8 +23,13 @@ message CreateResponse {
   Meow meow = 1;
 }
 
-// Index
-// Listing all the meows
+message GetRequest {
+  string id = 1;
+}
+message GetResponse {
+  Meow meow = 1;
+}
+
 message IndexRequest {}
 message IndexResponse {
   repeated Meow meows = 1;

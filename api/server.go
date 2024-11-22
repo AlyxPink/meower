@@ -13,7 +13,8 @@ import (
 	"google.golang.org/grpc/health/grpc_health_v1"
 	"google.golang.org/grpc/reflection"
 
-	meowerv1 "github.com/AlyxPink/meower/api/implementation/meower/v1"
+	pb "github.com/AlyxPink/meower/api/proto"
+	"github.com/AlyxPink/meower/api/server/handlers"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -33,40 +34,29 @@ func NewServer() *grpc.Server {
 	defer lis.Close()
 
 	// Create a new gRPC server
-	grpcServer := grpc.NewServer()
-	defer grpcServer.GracefulStop()
+	g := grpc.NewServer()
+	defer g.GracefulStop()
 
 	// Register reflection service
-	reflection.Register(grpcServer)
+	reflection.Register(g)
 
 	// Register health check service
-	grpc_health_v1.RegisterHealthServer(grpcServer, health.NewServer())
+	grpc_health_v1.RegisterHealthServer(g, health.NewServer())
 
-	// Register V1 services
-	RegisterV1(ctx, grpcServer)
-
-	// Serve the gRPC server
-	log.Printf("API server listening at %v", lis.Addr())
-	if err := grpcServer.Serve(lis); err != nil {
-		log.Fatalf("failed to serve: %v", err)
-	}
-
-	return grpcServer
-}
-
-func RegisterV1(ctx context.Context, s *grpc.Server) {
 	// Create a new PostgreSQL connection pool
 	db, err := pgxpool.New(ctx, os.Getenv("DATABASE_URL"))
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Unable to connect to database: %v\n", err)
 	}
 
-	meowerv1.RegisterMeowerSvcServer(s, meowerv1.Meower(db))
-}
+	// Register V1 services
+	pb.RegisterMeowerServer(g, handlers.NewMeowerServer(db))
 
-func getApiEndpoint() string {
-	if os.Getenv("API_ENDPOINT") != "" {
-		return os.Getenv("API_ENDPOINT")
+	// Serve the gRPC server
+	log.Printf("API server listening at %v", lis.Addr())
+	if err := g.Serve(lis); err != nil {
+		log.Fatalf("failed to serve: %v", err)
 	}
-	return apiEndpoint
+
+	return g
 }

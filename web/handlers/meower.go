@@ -8,28 +8,15 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-type Meower struct {
-	*fiber.App
-	GrpcClient *grpc.Client
-}
-
-func NewMeower(app *fiber.App, GrpcClient *grpc.Client) *Meower {
-	meow := &Meower{
-		App:        app,
-		GrpcClient: GrpcClient,
-	}
-	return meow
-}
-
-func (h *Meower) New(c *fiber.Ctx) error {
+func MeowerNew(c *fiber.Ctx) error {
 	return renderTempl(c, viewMeowV1.New(c))
 }
 
-func (h *Meower) Create(c *fiber.Ctx) error {
+func MeowerCreate(c *fiber.Ctx) error {
 	content := c.FormValue("name")
 	req := &meowV1.CreateMeowRequest{Content: content}
 
-	resp, err := h.GrpcClient.MeowService.CreateMeow(c.Context(), req)
+	resp, err := grpc.NewClient().MeowService.CreateMeow(c.Context(), req)
 
 	if err != nil {
 		return err
@@ -38,10 +25,10 @@ func (h *Meower) Create(c *fiber.Ctx) error {
 	return renderTempl(c, viewMeowV1.Create(c, resp))
 }
 
-func (h *Meower) Index(c *fiber.Ctx) error {
+func MeowerIndex(c *fiber.Ctx) error {
 	req := &meowV1.IndexMeowRequest{}
 
-	resp, err := h.GrpcClient.MeowService.IndexMeow(c.Context(), req)
+	resp, err := grpc.NewClient().MeowService.IndexMeow(c.Context(), req)
 
 	if err != nil {
 		return err

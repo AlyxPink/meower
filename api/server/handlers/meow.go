@@ -18,7 +18,7 @@ func NewMeowerServer(db *pgxpool.Pool) meowV1.MeowServiceServer {
 	return &meowServiceServer{db: db}
 }
 
-func (s *meowServiceServer) Create(ctx context.Context, req *meowV1.CreateMeowRequest) (*meowV1.CreateMeowResponse, error) {
+func (s *meowServiceServer) CreateMeow(ctx context.Context, req *meowV1.CreateMeowRequest) (*meowV1.CreateMeowResponse, error) {
 	meow, err := db.New(s.db).CreateMeow(ctx, req.Content)
 	if err != nil {
 		return nil, err
@@ -35,7 +35,7 @@ func (s *meowServiceServer) Create(ctx context.Context, req *meowV1.CreateMeowRe
 	return resp, nil
 }
 
-func (s *meowServiceServer) Index(ctx context.Context, req *meowV1.IndexMeowRequest) (*meowV1.IndexMeowResponse, error) {
+func (s *meowServiceServer) IndexMeow(ctx context.Context, req *meowV1.IndexMeowRequest) (*meowV1.IndexMeowResponse, error) {
 	meows, err := db.New(s.db).IndexMeows(ctx)
 	if err != nil {
 		return nil, err

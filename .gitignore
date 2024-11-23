@@ -36,7 +36,7 @@ tmp/
 **/.DS_Store
 
 # Generated CSS
-internal/web/static/public/css/**.css
+web/static/public/css/**.css
 
 # Dependency directories
 **/node_modules

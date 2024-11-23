@@ -27,7 +27,7 @@ services:
     depends_on:
       - api
       - development
-    command: 'wgo -file=.go -file=.templ -xfile=_templ.go templ generate :: go run ./cmd/web-server/main.go'
+    command: 'wgo -file=.go -file=.templ -xfile=_templ.go templ generate :: go run ./web/main.go'
 
   templ:
     image: meower:development
@@ -71,7 +71,7 @@ services:
       db:
         condition: service_healthy
         restart: true
-    command: "wgo -dir ./internal/pkg/api/* go run ./cmd/api-server/"
+    command: "wgo -dir ./api/* go run ./api/main.go"
 
   proto:
     image: meower:development
@@ -104,7 +104,7 @@ services:
       - /src/node_modules
     depends_on:
       - development
-    command: "wgo -file=sqlc.yaml -file=.sql -xfile=.go -dir ./internal/db sqlc generate -f /src/internal/db/sqlc.yaml"
+    command: "wgo -file=sqlc.yaml -file=.sql -xfile=.go -dir ./api/db sqlc generate -f /src/api/db/sqlc.yaml"
 
   db:
     image: postgres:16-alpine
@@ -119,7 +119,7 @@ services:
       timeout: 10s
       retries: 10
     volumes:
-      - ./internal/db/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+      - ./api/db/schema.sql:/docker-entrypoint-initdb.d/schema.sql
 
   pgweb:
     image: sosedoff/pgweb
@@ -152,7 +152,7 @@ services:
       - /src/node_modules
     depends_on:
       - development
-    command: [ "/usr/local/bin/tailwindcss", "-i", "/src/internal/web/static/src/css/main.css", "-o", "/src/internal/web/static/public/css/main.css", "--watch=always", "--content", "/src/internal/web/views/**/*.templ", "/src/internal/web/static/src/css/**.css" ]
+    command: [ "/usr/local/bin/tailwindcss", "-i", "/src/web/static/src/css/main.css", "-o", "/src/web/static/public/css/main.css", "--watch=always", "--content", "/src/web/views/**/*.templ", "/src/web/static/src/css/**.css" ]
 
 volumes:
   go_modules:

@@ -1,27 +1,22 @@
 package routes
 
-const (
-	/*
-	   	Routes for a common resource using RESTful conventions.
+import (
+	"github.com/AlyxPink/meower/web/constants"
+	"github.com/AlyxPink/meower/web/handlers"
+)
 
-	   | HTTP Verb | URL              | Route name    | Description                                  |
-	   | --------- | ---------------- | ------------- | -------------------------------------------- |
-	   | GET       | /photos          | index         | Display a list of all photos                 |
-	   | GET       | /photos/new      | new           | Return an HTML form for creating a new photo |
-	   | POST      | /photos          | create        | Create a new photo                           |
-	   | GET       | /photos/:id      | show          | Display a specific photo                     |
-	   | GET       | /photos/:id/edit | edit          | Return an HTML form for editing a photo      |
-	   | PATCH/PUT | /photos/:id      | update        | Update a specific photo                      |
-	   | DELETE    | /photos/:id      | destroy       | Delete a specific photo                      |
+func RegisterRoutes(s *constants.Server) {
+	// Constants route names
+	routes := constants.Routes
 
-	   Feel free to use anything else that makes sense for your endpoints, resources and application.
-	*/
+	// Static
+	s.Web.Static("/static", "./web/static/public").Name("static")
 
 	// Homepage
-	HomeIndex = "home.index"
+	s.Web.Get(routes.HomeIndex.Path, handlers.HomepageIndex).Name(routes.HomeIndex.Name)
 
 	// Meower
-	MeowIndex  = "meow.index"
-	MeowNew    = "meow.new"
-	MeowCreate = "meow.create"
-)
+	s.Web.Get(routes.IndexMeow.Path, handlers.MeowerIndex).Name(routes.IndexMeow.Name)
+	s.Web.Get(routes.MeowNew.Path, handlers.MeowerNew).Name(routes.MeowNew.Name)
+	s.Web.Post(routes.MeowCreate.Path, handlers.MeowerCreate).Name(routes.MeowCreate.Name)
+}

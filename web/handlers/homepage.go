@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	viewHomepage "github.com/AlyxPink/meower/internal/web/views/pages/homepage"
+	viewHomepage "github.com/AlyxPink/meower/web/views/pages/homepage"
 	"github.com/gofiber/fiber/v2"
 )
 

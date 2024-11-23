@@ -3,8 +3,8 @@ package web
 import (
 	"os"
 
-	"github.com/AlyxPink/meower/internal/web/grpc"
-	"github.com/AlyxPink/meower/internal/web/handlers"
+	"github.com/AlyxPink/meower/web/grpc"
+	"github.com/AlyxPink/meower/web/handlers"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/compress"
 	"github.com/gofiber/fiber/v2/middleware/csrf"

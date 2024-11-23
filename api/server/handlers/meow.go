@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/AlyxPink/meower/api/db"
 	pb "github.com/AlyxPink/meower/api/proto"
-	"github.com/AlyxPink/meower/internal/db"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -24,13 +24,15 @@ func (s *meowServiceServer) Create(ctx context.Context, req *pb.CreateMeowReques
 		return nil, err
 	}
 
-	return &pb.CreateMeowResponse{
+	resp := &pb.CreateMeowResponse{
 		Meow: &pb.Meow{
 			Id:        fmt.Sprintf("%x", meow.ID.Bytes),
 			Name:      meow.Name,
 			CreatedAt: meow.CreatedAt.Time.String(),
 		},
-	}, nil
+	}
+
+	return resp, nil
 }
 
 func (s *meowServiceServer) Index(ctx context.Context, req *pb.IndexMeowRequest) (*pb.IndexMeowResponse, error) {

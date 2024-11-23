@@ -3,7 +3,7 @@ package handlers
 import (
 	"errors"
 
-	"github.com/AlyxPink/meower/internal/web/views/pages/custom_errors"
+	"github.com/AlyxPink/meower/web/views/pages/custom_errors"
 	"github.com/a-h/templ"
 	"github.com/charmbracelet/log"
 	"github.com/gofiber/fiber/v2"

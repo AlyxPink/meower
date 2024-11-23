@@ -1,22 +1,20 @@
 package custom_errors
 
 import (
-	"github.com/AlyxPink/meower/internal/web/views/layouts"
+	"github.com/AlyxPink/meower/web/views/layouts"
 	"github.com/gofiber/fiber/v2"
 )
 
-templ Error404(c *fiber.Ctx) {
+templ Error500(c *fiber.Ctx) {
 	@layouts.Main(c) {
 		<section>
 			<div class="max-w-3xl mx-auto text-center lg:py-32">
 				<p class="text-3xl lg:text-5xl font-medium text-black max-w-4xl mx-auto">
-					404 - Page Not Found
+					500 - Internal Server Error
 				</p>
 				<p class="mt-4 xl:text-xl tracking-wide text-black">
-					Oops! The page you are looking for cannot be found. It may have been
-					moved, deleted, or never existed. Please check the URL or navigate back
-					to our homepage. If you continue to encounter this issue, feel free to
-					contact our support team for assistance.
+					We're sorry, but something went wrong. We've been notified about
+					this issue and we'll take a look at it shortly.
 				</p>
 				<div class="mt-8">
 					<a

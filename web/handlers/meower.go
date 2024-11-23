@@ -2,8 +2,8 @@ package handlers
 
 import (
 	pb "github.com/AlyxPink/meower/api/proto"
-	"github.com/AlyxPink/meower/internal/web/grpc"
-	viewMeowV1 "github.com/AlyxPink/meower/internal/web/views/services/meows/v1"
+	"github.com/AlyxPink/meower/web/grpc"
+	viewMeowV1 "github.com/AlyxPink/meower/web/views/services/meows/v1"
 	"github.com/gofiber/fiber/v2"
 )
 

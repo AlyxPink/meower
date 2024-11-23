@@ -1,9 +1,9 @@
 package web
 
 import (
-	"github.com/AlyxPink/meower/internal/web/grpc"
-	"github.com/AlyxPink/meower/internal/web/handlers"
-	"github.com/AlyxPink/meower/internal/web/routes"
+	"github.com/AlyxPink/meower/web/grpc"
+	"github.com/AlyxPink/meower/web/handlers"
+	"github.com/AlyxPink/meower/web/routes"
 	"github.com/gofiber/fiber/v2"
 )
 

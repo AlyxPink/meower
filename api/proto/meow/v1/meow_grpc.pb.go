@@ -2,9 +2,9 @@
 // versions:
 // - protoc-gen-go-grpc v1.5.1
 // - protoc             v4.24.4
-// source: meow.proto
+// source: meow/v1/meow.proto
 
-package proto
+package v1
 
 import (
 	context "context"
@@ -19,9 +19,9 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	MeowService_CreateMeow_FullMethodName = "/meow.MeowService/CreateMeow"
-	MeowService_GetMeow_FullMethodName    = "/meow.MeowService/GetMeow"
-	MeowService_IndexMeow_FullMethodName  = "/meow.MeowService/IndexMeow"
+	MeowService_CreateMeow_FullMethodName = "/meow.v1.MeowService/CreateMeow"
+	MeowService_GetMeow_FullMethodName    = "/meow.v1.MeowService/GetMeow"
+	MeowService_IndexMeow_FullMethodName  = "/meow.v1.MeowService/IndexMeow"
 )
 
 // MeowServiceClient is the client API for MeowService service.
@@ -176,7 +176,7 @@ func _MeowService_IndexMeow_Handler(srv interface{}, ctx context.Context, dec fu
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var MeowService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "meow.MeowService",
+	ServiceName: "meow.v1.MeowService",
 	HandlerType: (*MeowServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -193,5 +193,5 @@ var MeowService_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "meow.proto",
+	Metadata: "meow/v1/meow.proto",
 }

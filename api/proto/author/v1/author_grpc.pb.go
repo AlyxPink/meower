@@ -2,9 +2,9 @@
 // versions:
 // - protoc-gen-go-grpc v1.5.1
 // - protoc             v4.24.4
-// source: author.proto
+// source: author/v1/author.proto
 
-package proto
+package v1
 
 import (
 	context "context"
@@ -19,9 +19,9 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	AuthorService_CreateAuthor_FullMethodName = "/author.AuthorService/CreateAuthor"
-	AuthorService_GetAuthor_FullMethodName    = "/author.AuthorService/GetAuthor"
-	AuthorService_IndexAuthor_FullMethodName  = "/author.AuthorService/IndexAuthor"
+	AuthorService_CreateAuthor_FullMethodName = "/author.v1.AuthorService/CreateAuthor"
+	AuthorService_GetAuthor_FullMethodName    = "/author.v1.AuthorService/GetAuthor"
+	AuthorService_IndexAuthor_FullMethodName  = "/author.v1.AuthorService/IndexAuthor"
 )
 
 // AuthorServiceClient is the client API for AuthorService service.
@@ -176,7 +176,7 @@ func _AuthorService_IndexAuthor_Handler(srv interface{}, ctx context.Context, de
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var AuthorService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "author.AuthorService",
+	ServiceName: "author.v1.AuthorService",
 	HandlerType: (*AuthorServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -193,5 +193,5 @@ var AuthorService_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "author.proto",
+	Metadata: "author/v1/author.proto",
 }

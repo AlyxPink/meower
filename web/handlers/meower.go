@@ -1,7 +1,8 @@
 package handlers
 
 import (
-	pb "github.com/AlyxPink/meower/api/proto"
+	meowV1 "github.com/AlyxPink/meower/api/proto/meow/v1"
+
 	"github.com/AlyxPink/meower/web/grpc"
 	viewMeowV1 "github.com/AlyxPink/meower/web/views/services/meows/v1"
 	"github.com/gofiber/fiber/v2"
@@ -25,8 +26,8 @@ func (h *Meower) New(c *fiber.Ctx) error {
 }
 
 func (h *Meower) Create(c *fiber.Ctx) error {
-	name := c.FormValue("name")
-	req := &pb.CreateMeowRequest{Name: name}
+	content := c.FormValue("name")
+	req := &meowV1.CreateMeowRequest{Content: content}
 
 	resp, err := h.GrpcClient.MeowService.CreateMeow(c.Context(), req)
 
@@ -38,7 +39,7 @@ func (h *Meower) Create(c *fiber.Ctx) error {
 }
 
 func (h *Meower) Index(c *fiber.Ctx) error {
-	req := &pb.IndexMeowRequest{}
+	req := &meowV1.IndexMeowRequest{}
 
 	resp, err := h.GrpcClient.MeowService.IndexMeow(c.Context(), req)
 

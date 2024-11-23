@@ -5,29 +5,29 @@ import (
 	"fmt"
 
 	"github.com/AlyxPink/meower/api/db"
-	pb "github.com/AlyxPink/meower/api/proto"
+	meowV1 "github.com/AlyxPink/meower/api/proto/meow/v1"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type meowServiceServer struct {
-	pb.UnimplementedMeowServiceServer
+	meowV1.UnimplementedMeowServiceServer
 	db *pgxpool.Pool
 }
 
-func NewMeowerServer(db *pgxpool.Pool) pb.MeowServiceServer {
+func NewMeowerServer(db *pgxpool.Pool) meowV1.MeowServiceServer {
 	return &meowServiceServer{db: db}
 }
 
-func (s *meowServiceServer) Create(ctx context.Context, req *pb.CreateMeowRequest) (*pb.CreateMeowResponse, error) {
-	meow, err := db.New(s.db).CreateMeow(ctx, req.Name)
+func (s *meowServiceServer) Create(ctx context.Context, req *meowV1.CreateMeowRequest) (*meowV1.CreateMeowResponse, error) {
+	meow, err := db.New(s.db).CreateMeow(ctx, req.Content)
 	if err != nil {
 		return nil, err
 	}
 
-	resp := &pb.CreateMeowResponse{
-		Meow: &pb.Meow{
+	resp := &meowV1.CreateMeowResponse{
+		Meow: &meowV1.Meow{
 			Id:        fmt.Sprintf("%x", meow.ID.Bytes),
-			Name:      meow.Name,
+			Content:   meow.Content,
 			CreatedAt: meow.CreatedAt.Time.String(),
 		},
 	}
@@ -35,20 +35,20 @@ func (s *meowServiceServer) Create(ctx context.Context, req *pb.CreateMeowReques
 	return resp, nil
 }
 
-func (s *meowServiceServer) Index(ctx context.Context, req *pb.IndexMeowRequest) (*pb.IndexMeowResponse, error) {
+func (s *meowServiceServer) Index(ctx context.Context, req *meowV1.IndexMeowRequest) (*meowV1.IndexMeowResponse, error) {
 	meows, err := db.New(s.db).IndexMeows(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	var resp []*pb.Meow
+	var resp []*meowV1.Meow
 	for _, meow := range meows {
-		resp = append(resp, &pb.Meow{
+		resp = append(resp, &meowV1.Meow{
 			Id:        fmt.Sprintf("%x", meow.ID.Bytes),
-			Name:      meow.Name,
+			Content:   meow.Content,
 			CreatedAt: meow.CreatedAt.Time.String(),
 		})
 	}
 
-	return &pb.IndexMeowResponse{Meows: resp}, nil
+	return &meowV1.IndexMeowResponse{Meows: resp}, nil
 }

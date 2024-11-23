@@ -4,7 +4,7 @@ FROM meows
 WHERE id = $1
 LIMIT 1;
 -- name: CreateMeow :one
-INSERT INTO meows (name)
+INSERT INTO meows (content)
 VALUES ($1)
 RETURNING *;
 -- name: IndexMeows :many

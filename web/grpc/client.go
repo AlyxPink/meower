@@ -3,7 +3,7 @@ package grpc
 import (
 	"os"
 
-	pb "github.com/AlyxPink/meower/api/proto"
+	meowV1 "github.com/AlyxPink/meower/api/proto/meow/v1"
 	"github.com/charmbracelet/log"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -14,7 +14,7 @@ const (
 )
 
 type Client struct {
-	MeowService pb.MeowServiceClient
+	MeowService meowV1.MeowServiceClient
 	conn        *grpc.ClientConn
 }
 
@@ -27,7 +27,7 @@ func NewClient() *Client {
 	}
 
 	client := &Client{
-		MeowService: pb.NewMeowServiceClient(conn),
+		MeowService: meowV1.NewMeowServiceClient(conn),
 		conn:        conn,
 	}
 

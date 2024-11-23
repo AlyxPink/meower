@@ -6,7 +6,7 @@
 
 ################################################################################
 # Create a stage for building the application.
-ARG GO_VERSION=1.22
+ARG GO_VERSION=1.23
 FROM golang:${GO_VERSION}-alpine AS build
 ENV CGO_ENABLED=0
 WORKDIR /src
@@ -32,10 +32,10 @@ COPY --from=ghcr.io/a-h/templ:v0.2.747 /ko-app/templ /usr/local/bin/templ
 # source code into the container.
 RUN --mount=type=cache,target=/go/pkg/mod/ \
     --mount=rw,type=bind,target=. \
-    sqlc generate -f ./internal/db/sqlc.yaml && \
-    templ generate -path ./internal/web/views && \
-    go build -o /bin/api-server ./cmd/api-server/ && \
-    go build -o /bin/web-server ./cmd/web-server
+    sqlc generate -f ./api/db/sqlc.yaml && \
+    templ generate -path ./web/views && \
+    go build -o /bin/api-server ./api && \
+    go build -o /bin/web-server ./web
 
 ################################################################################
 # Create a stage for building the application web assets.
@@ -60,7 +60,7 @@ RUN --mount=type=cache,target=/tmp/bun/cache \
     --frozen-lockfile \
     --production
 
-RUN --mount=rw,type=bind,source=./internal/web/,target=/usr/src/tailwind/ \
+RUN --mount=rw,type=bind,source=./web/,target=/usr/src/tailwind/ \
     /usr/local/bin/tailwindcss \
     -i /usr/src/tailwind/static/src/css/main.css \
     -o /usr/src/main.css \
@@ -143,6 +143,10 @@ RUN apk add --no-cache \
 # Copy the executables from the "build" stage.
 COPY --chown=meower:meower --from=build /bin/web-server /opt/meower/
 COPY --chown=meower:meower --from=build /bin/api-server /opt/meower/
+
+
+# Copy buf binary from the buf image
+COPY --from=bufbuild/buf:1 /usr/local/bin/buf /usr/local/bin/buf
 
 RUN --mount=type=cache,target=/go/pkg/mod/ go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
 RUN --mount=type=cache,target=/go/pkg/mod/ go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest

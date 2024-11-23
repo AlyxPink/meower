@@ -12,20 +12,25 @@ import (
 )
 
 const createMeow = `-- name: CreateMeow :one
-INSERT INTO meows (name)
+INSERT INTO meows (content)
 VALUES ($1)
-RETURNING id, name, created_at
+RETURNING id, author_id, content, created_at
 `
 
-func (q *Queries) CreateMeow(ctx context.Context, name string) (Meow, error) {
-	row := q.db.QueryRow(ctx, createMeow, name)
+func (q *Queries) CreateMeow(ctx context.Context, content string) (Meow, error) {
+	row := q.db.QueryRow(ctx, createMeow, content)
 	var i Meow
-	err := row.Scan(&i.ID, &i.Name, &i.CreatedAt)
+	err := row.Scan(
+		&i.ID,
+		&i.AuthorID,
+		&i.Content,
+		&i.CreatedAt,
+	)
 	return i, err
 }
 
 const indexMeows = `-- name: IndexMeows :many
-SELECT id, name, created_at
+SELECT id, author_id, content, created_at
 FROM meows
 ORDER BY created_at DESC
 `
@@ -39,7 +44,12 @@ func (q *Queries) IndexMeows(ctx context.Context) ([]Meow, error) {
 	var items []Meow
 	for rows.Next() {
 		var i Meow
-		if err := rows.Scan(&i.ID, &i.Name, &i.CreatedAt); err != nil {
+		if err := rows.Scan(
+			&i.ID,
+			&i.AuthorID,
+			&i.Content,
+			&i.CreatedAt,
+		); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
@@ -51,7 +61,7 @@ func (q *Queries) IndexMeows(ctx context.Context) ([]Meow, error) {
 }
 
 const showMeow = `-- name: ShowMeow :one
-SELECT id, name, created_at
+SELECT id, author_id, content, created_at
 FROM meows
 WHERE id = $1
 LIMIT 1
@@ -60,6 +70,11 @@ LIMIT 1
 func (q *Queries) ShowMeow(ctx context.Context, id pgtype.UUID) (Meow, error) {
 	row := q.db.QueryRow(ctx, showMeow, id)
 	var i Meow
-	err := row.Scan(&i.ID, &i.Name, &i.CreatedAt)
+	err := row.Scan(
+		&i.ID,
+		&i.AuthorID,
+		&i.Content,
+		&i.CreatedAt,
+	)
 	return i, err
 }

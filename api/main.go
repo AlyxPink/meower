@@ -13,7 +13,8 @@ import (
 	"google.golang.org/grpc/health/grpc_health_v1"
 	"google.golang.org/grpc/reflection"
 
-	pb "github.com/AlyxPink/meower/api/proto"
+	pbAuthorV1 "github.com/AlyxPink/meower/api/proto/author/v1"
+	pbMeowV1 "github.com/AlyxPink/meower/api/proto/meow/v1"
 	"github.com/AlyxPink/meower/api/server/handlers"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -50,7 +51,8 @@ func NewServer() *grpc.Server {
 	}
 
 	// Register V1 services
-	pb.RegisterMeowServiceServer(g, handlers.NewMeowerServer(db))
+	pbMeowV1.RegisterMeowServiceServer(g, handlers.NewMeowerServer(db))
+	pbAuthorV1.RegisterAuthorServiceServer(g, handlers.NewAuthorServer(db))
 
 	// Serve the gRPC server
 	log.Printf("API server listening at %v", lis.Addr())

@@ -2,19 +2,19 @@ package viewMeowV1
 
 import (
 	"fmt"
-	pb "github.com/AlyxPink/meower/api/proto"
+	meowV1 "github.com/AlyxPink/meower/api/proto/meow/v1"
 	"github.com/AlyxPink/meower/web/views/layouts"
 	"github.com/gofiber/fiber/v2"
 )
 
-templ Index(c *fiber.Ctx, r *pb.IndexMeowResponse) {
+templ Index(c *fiber.Ctx, r *meowV1.IndexMeowResponse) {
 	@layouts.Main(c) {
 		<h1>{ fmt.Sprint(len(r.Meows)) } Meows found</h1>
 		<ul>
 			for _, m := range r.Meows {
 				<li class="py-2">
 					<span class="font-mono rounded bg-pink-200 p-2">#{ m.Id } { `@` } { m.CreatedAt }</span>
-					<span class="font-bold">Meow { m.Name } :3</span>
+					<span class="font-bold">Meow { m.Content } :3</span>
 				</li>
 			}
 		</ul>

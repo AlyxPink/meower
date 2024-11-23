@@ -1,8 +1,7 @@
 syntax = "proto3";
 
-package meow;
-
-option go_package = "github.com/AlyxPink/meower/api/proto;proto";
+package meow.v1;
+option go_package = "github.com/AlyxPink/meower/api/proto/meow/v1";
 
 service MeowService {
   rpc CreateMeow(CreateMeowRequest) returns (CreateMeowResponse) {}
@@ -12,13 +11,14 @@ service MeowService {
 
 message Meow {
   string id = 1;
-  string name = 2;
+  string content = 2;
   string created_at = 3;
 }
 
 message CreateMeowRequest {
-  string name = 1;
+  string content = 1;
 }
+
 message CreateMeowResponse {
   Meow meow = 1;
 }
@@ -26,11 +26,13 @@ message CreateMeowResponse {
 message GetMeowRequest {
   string id = 1;
 }
+
 message GetMeowResponse {
   Meow meow = 1;
 }
 
 message IndexMeowRequest {}
+
 message IndexMeowResponse {
   repeated Meow meows = 1;
 }

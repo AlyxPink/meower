@@ -1,14 +1,7 @@
 syntax = "proto3";
 
-package author;
-
-option go_package = "github.com/AlyxPink/meower/api/proto;proto";
-
-service AuthorService {
-  rpc CreateAuthor(CreateAuthorRequest) returns (CreateAuthorResponse) {}
-  rpc GetAuthor(GetAuthorRequest) returns (GetAuthorResponse) {}
-  rpc IndexAuthor(IndexAuthorRequest) returns (IndexAuthorResponse) {}
-}
+package author.v1;
+option go_package = "github.com/AlyxPink/meower/api/proto/author/v1";
 
 message Author {
   string id = 1;
@@ -19,6 +12,7 @@ message Author {
 message CreateAuthorRequest {
   string name = 1;
 }
+
 message CreateAuthorResponse {
   Author author = 1;
 }
@@ -26,11 +20,19 @@ message CreateAuthorResponse {
 message GetAuthorRequest {
   string id = 1;
 }
+
 message GetAuthorResponse {
   Author author = 1;
 }
 
 message IndexAuthorRequest {}
+
 message IndexAuthorResponse {
   repeated Author authors = 1;
+}
+
+service AuthorService {
+  rpc CreateAuthor(CreateAuthorRequest) returns (CreateAuthorResponse) {}
+  rpc GetAuthor(GetAuthorRequest) returns (GetAuthorResponse) {}
+  rpc IndexAuthor(IndexAuthorRequest) returns (IndexAuthorResponse) {}
 }

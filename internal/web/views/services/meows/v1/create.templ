@@ -1,13 +1,13 @@
 package viewMeowV1
 
 import (
-	meowerv1 "github.com/AlyxPink/meower/api/implementation/meower/v1"
+	pb "github.com/AlyxPink/meower/api/proto"
 	"github.com/AlyxPink/meower/internal/web/routes"
 	"github.com/AlyxPink/meower/internal/web/views/layouts"
 	"github.com/gofiber/fiber/v2"
 )
 
-templ Create(c *fiber.Ctx, r *meowerv1.CreateResponse) {
+templ Create(c *fiber.Ctx, r *pb.CreateMeowResponse) {
 	@layouts.Main(c) {
 		<h1>Meow Created</h1>
 		<ul>

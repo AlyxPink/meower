@@ -50,7 +50,7 @@ func NewServer() *grpc.Server {
 	}
 
 	// Register V1 services
-	pb.RegisterMeowerServer(g, handlers.NewMeowerServer(db))
+	pb.RegisterMeowServiceServer(g, handlers.NewMeowerServer(db))
 
 	// Serve the gRPC server
 	log.Printf("API server listening at %v", lis.Addr())

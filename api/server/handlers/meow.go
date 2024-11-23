@@ -9,22 +9,22 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-type meower struct {
-	pb.UnimplementedMeowerServer
+type meowServiceServer struct {
+	pb.UnimplementedMeowServiceServer
 	db *pgxpool.Pool
 }
 
-func NewMeowerServer(db *pgxpool.Pool) pb.MeowerServer {
-	return &meower{db: db}
+func NewMeowerServer(db *pgxpool.Pool) pb.MeowServiceServer {
+	return &meowServiceServer{db: db}
 }
 
-func (s *meower) Create(ctx context.Context, req *pb.CreateRequest) (*pb.CreateResponse, error) {
+func (s *meowServiceServer) Create(ctx context.Context, req *pb.CreateMeowRequest) (*pb.CreateMeowResponse, error) {
 	meow, err := db.New(s.db).CreateMeow(ctx, req.Name)
 	if err != nil {
 		return nil, err
 	}
 
-	return &pb.CreateResponse{
+	return &pb.CreateMeowResponse{
 		Meow: &pb.Meow{
 			Id:        fmt.Sprintf("%x", meow.ID.Bytes),
 			Name:      meow.Name,
@@ -33,7 +33,7 @@ func (s *meower) Create(ctx context.Context, req *pb.CreateRequest) (*pb.CreateR
 	}, nil
 }
 
-func (s *meower) Index(ctx context.Context, req *pb.IndexRequest) (*pb.IndexResponse, error) {
+func (s *meowServiceServer) Index(ctx context.Context, req *pb.IndexMeowRequest) (*pb.IndexMeowResponse, error) {
 	meows, err := db.New(s.db).IndexMeows(ctx)
 	if err != nil {
 		return nil, err
@@ -48,5 +48,5 @@ func (s *meower) Index(ctx context.Context, req *pb.IndexRequest) (*pb.IndexResp
 		})
 	}
 
-	return &pb.IndexResponse{Meows: resp}, nil
+	return &pb.IndexMeowResponse{Meows: resp}, nil
 }

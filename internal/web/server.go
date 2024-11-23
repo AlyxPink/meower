@@ -3,8 +3,8 @@ package web
 import (
 	"os"
 
-	"github.com/AlyxPink/meower/internal/web/controllers"
 	"github.com/AlyxPink/meower/internal/web/grpc"
+	"github.com/AlyxPink/meower/internal/web/handlers"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/compress"
 	"github.com/gofiber/fiber/v2/middleware/csrf"
@@ -25,7 +25,7 @@ func NewServer() *Server {
 
 	// Create the Fiber app
 	fiberApp := fiber.New(fiber.Config{
-		ErrorHandler:      controllers.ErrorHandler,
+		ErrorHandler:      handlers.ErrorHandler,
 		EnablePrintRoutes: true,
 	})
 

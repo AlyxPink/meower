@@ -2,12 +2,12 @@ package viewMeowV1
 
 import (
 	"fmt"
-	meowerv1 "github.com/AlyxPink/meower/api/implementation/meower/v1"
+	pb "github.com/AlyxPink/meower/api/proto"
 	"github.com/AlyxPink/meower/internal/web/views/layouts"
 	"github.com/gofiber/fiber/v2"
 )
 
-templ Index(c *fiber.Ctx, r *meowerv1.IndexResponse) {
+templ Index(c *fiber.Ctx, r *pb.IndexMeowResponse) {
 	@layouts.Main(c) {
 		<h1>{ fmt.Sprint(len(r.Meows)) } Meows found</h1>
 		<ul>

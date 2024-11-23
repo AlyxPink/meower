@@ -19,177 +19,177 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Meower_Create_FullMethodName = "/meow.Meower/Create"
-	Meower_Get_FullMethodName    = "/meow.Meower/Get"
-	Meower_Index_FullMethodName  = "/meow.Meower/Index"
+	MeowService_CreateMeow_FullMethodName = "/meow.MeowService/CreateMeow"
+	MeowService_GetMeow_FullMethodName    = "/meow.MeowService/GetMeow"
+	MeowService_IndexMeow_FullMethodName  = "/meow.MeowService/IndexMeow"
 )
 
-// MeowerClient is the client API for Meower service.
+// MeowServiceClient is the client API for MeowService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type MeowerClient interface {
-	Create(ctx context.Context, in *CreateRequest, opts ...grpc.CallOption) (*CreateResponse, error)
-	Get(ctx context.Context, in *GetRequest, opts ...grpc.CallOption) (*GetResponse, error)
-	Index(ctx context.Context, in *IndexRequest, opts ...grpc.CallOption) (*IndexResponse, error)
+type MeowServiceClient interface {
+	CreateMeow(ctx context.Context, in *CreateMeowRequest, opts ...grpc.CallOption) (*CreateMeowResponse, error)
+	GetMeow(ctx context.Context, in *GetMeowRequest, opts ...grpc.CallOption) (*GetMeowResponse, error)
+	IndexMeow(ctx context.Context, in *IndexMeowRequest, opts ...grpc.CallOption) (*IndexMeowResponse, error)
 }
 
-type meowerClient struct {
+type meowServiceClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewMeowerClient(cc grpc.ClientConnInterface) MeowerClient {
-	return &meowerClient{cc}
+func NewMeowServiceClient(cc grpc.ClientConnInterface) MeowServiceClient {
+	return &meowServiceClient{cc}
 }
 
-func (c *meowerClient) Create(ctx context.Context, in *CreateRequest, opts ...grpc.CallOption) (*CreateResponse, error) {
+func (c *meowServiceClient) CreateMeow(ctx context.Context, in *CreateMeowRequest, opts ...grpc.CallOption) (*CreateMeowResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(CreateResponse)
-	err := c.cc.Invoke(ctx, Meower_Create_FullMethodName, in, out, cOpts...)
+	out := new(CreateMeowResponse)
+	err := c.cc.Invoke(ctx, MeowService_CreateMeow_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *meowerClient) Get(ctx context.Context, in *GetRequest, opts ...grpc.CallOption) (*GetResponse, error) {
+func (c *meowServiceClient) GetMeow(ctx context.Context, in *GetMeowRequest, opts ...grpc.CallOption) (*GetMeowResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(GetResponse)
-	err := c.cc.Invoke(ctx, Meower_Get_FullMethodName, in, out, cOpts...)
+	out := new(GetMeowResponse)
+	err := c.cc.Invoke(ctx, MeowService_GetMeow_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *meowerClient) Index(ctx context.Context, in *IndexRequest, opts ...grpc.CallOption) (*IndexResponse, error) {
+func (c *meowServiceClient) IndexMeow(ctx context.Context, in *IndexMeowRequest, opts ...grpc.CallOption) (*IndexMeowResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(IndexResponse)
-	err := c.cc.Invoke(ctx, Meower_Index_FullMethodName, in, out, cOpts...)
+	out := new(IndexMeowResponse)
+	err := c.cc.Invoke(ctx, MeowService_IndexMeow_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// MeowerServer is the server API for Meower service.
-// All implementations must embed UnimplementedMeowerServer
+// MeowServiceServer is the server API for MeowService service.
+// All implementations must embed UnimplementedMeowServiceServer
 // for forward compatibility.
-type MeowerServer interface {
-	Create(context.Context, *CreateRequest) (*CreateResponse, error)
-	Get(context.Context, *GetRequest) (*GetResponse, error)
-	Index(context.Context, *IndexRequest) (*IndexResponse, error)
-	mustEmbedUnimplementedMeowerServer()
+type MeowServiceServer interface {
+	CreateMeow(context.Context, *CreateMeowRequest) (*CreateMeowResponse, error)
+	GetMeow(context.Context, *GetMeowRequest) (*GetMeowResponse, error)
+	IndexMeow(context.Context, *IndexMeowRequest) (*IndexMeowResponse, error)
+	mustEmbedUnimplementedMeowServiceServer()
 }
 
-// UnimplementedMeowerServer must be embedded to have
+// UnimplementedMeowServiceServer must be embedded to have
 // forward compatible implementations.
 //
 // NOTE: this should be embedded by value instead of pointer to avoid a nil
 // pointer dereference when methods are called.
-type UnimplementedMeowerServer struct{}
+type UnimplementedMeowServiceServer struct{}
 
-func (UnimplementedMeowerServer) Create(context.Context, *CreateRequest) (*CreateResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Create not implemented")
+func (UnimplementedMeowServiceServer) CreateMeow(context.Context, *CreateMeowRequest) (*CreateMeowResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateMeow not implemented")
 }
-func (UnimplementedMeowerServer) Get(context.Context, *GetRequest) (*GetResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Get not implemented")
+func (UnimplementedMeowServiceServer) GetMeow(context.Context, *GetMeowRequest) (*GetMeowResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetMeow not implemented")
 }
-func (UnimplementedMeowerServer) Index(context.Context, *IndexRequest) (*IndexResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Index not implemented")
+func (UnimplementedMeowServiceServer) IndexMeow(context.Context, *IndexMeowRequest) (*IndexMeowResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method IndexMeow not implemented")
 }
-func (UnimplementedMeowerServer) mustEmbedUnimplementedMeowerServer() {}
-func (UnimplementedMeowerServer) testEmbeddedByValue()                {}
+func (UnimplementedMeowServiceServer) mustEmbedUnimplementedMeowServiceServer() {}
+func (UnimplementedMeowServiceServer) testEmbeddedByValue()                     {}
 
-// UnsafeMeowerServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to MeowerServer will
+// UnsafeMeowServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to MeowServiceServer will
 // result in compilation errors.
-type UnsafeMeowerServer interface {
-	mustEmbedUnimplementedMeowerServer()
+type UnsafeMeowServiceServer interface {
+	mustEmbedUnimplementedMeowServiceServer()
 }
 
-func RegisterMeowerServer(s grpc.ServiceRegistrar, srv MeowerServer) {
-	// If the following call pancis, it indicates UnimplementedMeowerServer was
+func RegisterMeowServiceServer(s grpc.ServiceRegistrar, srv MeowServiceServer) {
+	// If the following call pancis, it indicates UnimplementedMeowServiceServer was
 	// embedded by pointer and is nil.  This will cause panics if an
 	// unimplemented method is ever invoked, so we test this at initialization
 	// time to prevent it from happening at runtime later due to I/O.
 	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
 		t.testEmbeddedByValue()
 	}
-	s.RegisterService(&Meower_ServiceDesc, srv)
+	s.RegisterService(&MeowService_ServiceDesc, srv)
 }
 
-func _Meower_Create_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CreateRequest)
+func _MeowService_CreateMeow_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateMeowRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MeowerServer).Create(ctx, in)
+		return srv.(MeowServiceServer).CreateMeow(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Meower_Create_FullMethodName,
+		FullMethod: MeowService_CreateMeow_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MeowerServer).Create(ctx, req.(*CreateRequest))
+		return srv.(MeowServiceServer).CreateMeow(ctx, req.(*CreateMeowRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Meower_Get_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetRequest)
+func _MeowService_GetMeow_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetMeowRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MeowerServer).Get(ctx, in)
+		return srv.(MeowServiceServer).GetMeow(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Meower_Get_FullMethodName,
+		FullMethod: MeowService_GetMeow_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MeowerServer).Get(ctx, req.(*GetRequest))
+		return srv.(MeowServiceServer).GetMeow(ctx, req.(*GetMeowRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Meower_Index_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(IndexRequest)
+func _MeowService_IndexMeow_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(IndexMeowRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MeowerServer).Index(ctx, in)
+		return srv.(MeowServiceServer).IndexMeow(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Meower_Index_FullMethodName,
+		FullMethod: MeowService_IndexMeow_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MeowerServer).Index(ctx, req.(*IndexRequest))
+		return srv.(MeowServiceServer).IndexMeow(ctx, req.(*IndexMeowRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// Meower_ServiceDesc is the grpc.ServiceDesc for Meower service.
+// MeowService_ServiceDesc is the grpc.ServiceDesc for MeowService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var Meower_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "meow.Meower",
-	HandlerType: (*MeowerServer)(nil),
+var MeowService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "meow.MeowService",
+	HandlerType: (*MeowServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "Create",
-			Handler:    _Meower_Create_Handler,
+			MethodName: "CreateMeow",
+			Handler:    _MeowService_CreateMeow_Handler,
 		},
 		{
-			MethodName: "Get",
-			Handler:    _Meower_Get_Handler,
+			MethodName: "GetMeow",
+			Handler:    _MeowService_GetMeow_Handler,
 		},
 		{
-			MethodName: "Index",
-			Handler:    _Meower_Index_Handler,
+			MethodName: "IndexMeow",
+			Handler:    _MeowService_IndexMeow_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

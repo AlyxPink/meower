@@ -4,33 +4,33 @@ package meow;
 
 option go_package = "github.com/AlyxPink/meower/api/proto;proto";
 
+service MeowService {
+  rpc CreateMeow(CreateMeowRequest) returns (CreateMeowResponse) {}
+  rpc GetMeow(GetMeowRequest) returns (GetMeowResponse) {}
+  rpc IndexMeow(IndexMeowRequest) returns (IndexMeowResponse) {}
+}
+
 message Meow {
   string id = 1;
   string name = 2;
   string created_at = 3;
 }
 
-service Meower {
-  rpc Create(CreateRequest) returns (CreateResponse) {}
-  rpc Get(GetRequest) returns (GetResponse) {}
-  rpc Index(IndexRequest) returns (IndexResponse) {}
-}
-
-message CreateRequest {
+message CreateMeowRequest {
   string name = 1;
 }
-message CreateResponse {
+message CreateMeowResponse {
   Meow meow = 1;
 }
 
-message GetRequest {
+message GetMeowRequest {
   string id = 1;
 }
-message GetResponse {
+message GetMeowResponse {
   Meow meow = 1;
 }
 
-message IndexRequest {}
-message IndexResponse {
+message IndexMeowRequest {}
+message IndexMeowResponse {
   repeated Meow meows = 1;
 }

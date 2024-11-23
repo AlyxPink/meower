@@ -1,4 +1,4 @@
-package controllers
+package handlers
 
 import (
 	viewHomepage "github.com/AlyxPink/meower/internal/web/views/pages/homepage"

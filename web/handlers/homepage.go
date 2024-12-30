@@ -5,6 +5,8 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func HomepageIndex(c *fiber.Ctx) error {
+type Homepage struct{}
+
+func (*Homepage) Index(c *fiber.Ctx) error {
 	return renderTempl(c, viewHomepage.Index(c))
 }

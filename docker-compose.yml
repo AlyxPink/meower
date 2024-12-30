@@ -4,51 +4,60 @@ services:
   # This service is used to build the development image
   # As we are using "depends_on: development" in other services, this service will be built first
   # This way, the image is built once and reused by other services
-  development:
-    image: meower:development
+  development-web:
+    image: meower:development-web
     pull_policy: never
     build:
-      target: development
+      context: .
+      dockerfile: ./web/Dockerfile
+      target: development-web
+
+  development-api:
+    image: meower:development-api
+    pull_policy: never
+    build:
+      context: .
+      dockerfile: ./api/Dockerfile
+      target: development-api
 
   web:
-    image: meower:development
+    image: meower:development-web
     pull_policy: never
     tty: true
+    stop_signal: SIGINT # Graceful shutdown will cleanup the txt files created
+    stop_grace_period: 3s
     restart: always
     environment:
       API_ENDPOINT: "api:50051"
       COOKIE_SECRET_KEY: "5TIyDD81Laz/xdxEw2yJVPKdJYyPqxmyONaSVJHs6jY="
     ports:
       - "3000:3000"
+      - "7331:7331"
+    working_dir: /src/web/
     volumes:
-      - ./:/src/
+      - ./web/:/src/web/
+      - ./api/:/src/api/
       - go_modules:/go/pkg/mod/
-      - /src/node_modules
     depends_on:
       - api
-      - development
-    command: 'wgo -file=.go -file=.templ -xfile=_templ.go templ generate :: go run ./web/main.go'
+      - development-web
+    command: 'templ generate -v --watch --proxy="http://localhost:3000" --proxybind="0.0.0.0" --open-browser=false --cmd="go run main.go"'
 
-  templ:
-    image: meower:development
+  tailwind:
+    image: meower:development-web
     pull_policy: never
-    tty: true
-    stop_signal: SIGINT # Graceful shutdown will cleanup the txt files created
-    stop_grace_period: 3s
-    restart: always
-    ports:
-      - "7331:7331"
+    restart: on-failure
+    stop_signal: SIGKILL
+    working_dir: /src/web/
     volumes:
-      - ./:/src/
-      - go_modules:/go/pkg/mod/
-      - /src/node_modules
+      - ./web/:/src/web/
+      - node_modules:/src/node_modules/
     depends_on:
-      - web
-      - development
-    command: 'templ generate -v --watch --proxy="http://web:3000" --proxybind="0.0.0.0" --open-browser=false'
+      - development-web
+    command: [ "/usr/local/bin/tailwindcss", "-i", "/src/web/static/src/css/main.css", "-o", "/src/web/static/public/css/main.css", "--watch=always", "--content", "/src/web/views/**/*.templ", "/src/web/static/src/css/**.css" ]
 
   api:
-    image: meower:development
+    image: meower:development-api
     pull_policy: never
     tty: true
     restart: on-failure
@@ -56,32 +65,35 @@ services:
       DATABASE_URL: "postgres://meower:meower@db:5432/meower?sslmode=disable"
     ports:
       - "50051:50051"
+    working_dir: /src/api/
     volumes:
-      - ./:/src/
+      - ./api/:/src/api/
       - go_modules:/go/pkg/mod/
-      - /src/node_modules
+      - node_modules:/src/node_modules/
     healthcheck:
       test: [ "CMD", "grpc-health-probe", "-addr=:50051" ]
       interval: 1s
       timeout: 10s
       retries: 10
     depends_on:
-      development:
+      development-api:
         condition: service_started
       db:
         condition: service_healthy
         restart: true
-    command: "wgo -dir ./api/* go run ./api/main.go"
+    command: "wgo -file=.go go run main.go"
 
   proto:
-    image: meower:development
+    image: meower:development-api
     pull_policy: never
     restart: on-failure
+    working_dir: /src/
     volumes:
-      - ./:/src/
+      - ./api/:/src/api/
+      - ./scripts/:/src/scripts/
     depends_on:
-      - development
-    command: "wgo -dir ./api/protobuf -file=.proto ./scripts/generate_protobuf.sh"
+      - development-api
+    command: "wgo -dir ./api/proto -file=.proto ./scripts/generate_protobuf.sh"
 
   grpcui:
     image: fullstorydev/grpcui:latest
@@ -94,17 +106,18 @@ services:
     command: -plaintext api:50051
 
   sqlc:
-    image: meower:development
+    image: meower:development-api
     pull_policy: never
     tty: true
     restart: always
+    working_dir: /src/api/db/
     volumes:
-      - ./:/src/
+      - ./api/db/:/src/api/db/
       - go_modules:/go/pkg/mod/
-      - /src/node_modules
+      - node_modules:/src/node_modules/
     depends_on:
-      - development
-    command: "wgo -file=sqlc.yaml -file=.sql -xfile=.go -dir ./api/db sqlc generate -f /src/api/db/sqlc.yaml"
+      - development-api
+    command: "wgo -file=sqlc.yaml -file=.sql -xfile=.go -dir /src/api/db sqlc generate -f /src/api/db/sqlc.yaml"
 
   db:
     image: postgres:16-alpine
@@ -142,17 +155,6 @@ services:
       MP_SMTP_AUTH_ACCEPT_ANY: 1
       MP_SMTP_AUTH_ALLOW_INSECURE: 1
 
-  tailwind:
-    image: meower:development
-    pull_policy: never
-    restart: on-failure
-    stop_signal: SIGKILL
-    volumes:
-      - ./:/src/
-      - /src/node_modules
-    depends_on:
-      - development
-    command: [ "/usr/local/bin/tailwindcss", "-i", "/src/web/static/src/css/main.css", "-o", "/src/web/static/public/css/main.css", "--watch=always", "--content", "/src/web/views/**/*.templ", "/src/web/static/src/css/**.css" ]
-
 volumes:
   go_modules:
+  node_modules:

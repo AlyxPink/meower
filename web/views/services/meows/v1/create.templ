@@ -2,7 +2,7 @@ package viewMeowV1
 
 import (
 	meowV1 "github.com/AlyxPink/meower/api/proto/meow/v1"
-	"github.com/AlyxPink/meower/web/constants"
+	"github.com/AlyxPink/meower/web/routes"
 	"github.com/AlyxPink/meower/web/views/layouts"
 	"github.com/gofiber/fiber/v2"
 )
@@ -16,6 +16,6 @@ templ Create(c *fiber.Ctx, r *meowV1.CreateMeowResponse) {
 				<span class="font-bold">Meow { r.Meow.Content } :3</span>
 			</li>
 		</ul>
-		<a class="underline" href={ templ.SafeURL(c.App().GetRoute(constants.Routes.IndexMeow.Name).Path) }>See all Meows</a>
+		<a class="underline" href={ templ.SafeURL(c.App().GetRoute(routes.MeowIndex.Name).Path) }>See all Meows</a>
 	}
 }

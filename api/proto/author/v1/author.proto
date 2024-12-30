@@ -1,6 +1,7 @@
 syntax = "proto3";
 
 package author.v1;
+
 option go_package = "github.com/AlyxPink/meower/api/proto/author/v1";
 
 message Author {

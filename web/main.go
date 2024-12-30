@@ -6,7 +6,7 @@ import (
 	"github.com/AlyxPink/meower/web/constants"
 	"github.com/AlyxPink/meower/web/grpc"
 	"github.com/AlyxPink/meower/web/handlers"
-	"github.com/AlyxPink/meower/web/routes"
+	"github.com/AlyxPink/meower/web/routes/routing"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/compress"
 	"github.com/gofiber/fiber/v2/middleware/csrf"
@@ -45,6 +45,6 @@ func main() {
 	}
 
 	// Mount public routes
-	routes.RegisterRoutes(server)
+	routing.RegisterRoutes(server)
 	server.Web.Listen("0.0.0.0:3000")
 }

@@ -8,11 +8,13 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func MeowerNew(c *fiber.Ctx) error {
+type Meower struct{}
+
+func (*Meower) New(c *fiber.Ctx) error {
 	return renderTempl(c, viewMeowV1.New(c))
 }
 
-func MeowerCreate(c *fiber.Ctx) error {
+func (*Meower) Create(c *fiber.Ctx) error {
 	content := c.FormValue("name")
 	req := &meowV1.CreateMeowRequest{Content: content}
 
@@ -25,7 +27,7 @@ func MeowerCreate(c *fiber.Ctx) error {
 	return renderTempl(c, viewMeowV1.Create(c, resp))
 }
 
-func MeowerIndex(c *fiber.Ctx) error {
+func (*Meower) Index(c *fiber.Ctx) error {
 	req := &meowV1.IndexMeowRequest{}
 
 	resp, err := grpc.NewClient().MeowService.IndexMeow(c.Context(), req)

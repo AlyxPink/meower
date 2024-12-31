@@ -3,11 +3,19 @@ package handlers
 import (
 	"errors"
 
-	"github.com/AlyxPink/meower/web/views/pages/custom_errors"
+	"github.com/AlyxPink/meower/web/grpc"
 	"github.com/a-h/templ"
-	"github.com/charmbracelet/log"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/adaptor"
+
+	"github.com/AlyxPink/meower/web/views/pages/custom_errors"
+	"github.com/charmbracelet/log"
 )
+
+type App struct {
+	Web *fiber.App
+	API *grpc.Client
+}
 
 func ErrorHandler(ctx *fiber.Ctx, err error) error {
 	log.Error(err)
@@ -35,4 +43,13 @@ func ErrorHandler(ctx *fiber.Ctx, err error) error {
 	}
 
 	return nil
+}
+
+// helper function to render a component using a-h/templ
+func renderTempl(c *fiber.Ctx, component templ.Component, options ...func(*templ.ComponentHandler)) error {
+	componentHandler := templ.Handler(component)
+	for _, o := range options {
+		o(componentHandler)
+	}
+	return adaptor.HTTPHandler(componentHandler)(c)
 }

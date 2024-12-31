@@ -3,7 +3,6 @@ package main
 import (
 	"os"
 
-	"github.com/AlyxPink/meower/web/constants"
 	"github.com/AlyxPink/meower/web/grpc"
 	"github.com/AlyxPink/meower/web/handlers"
 	"github.com/AlyxPink/meower/web/routes/routing"
@@ -38,13 +37,12 @@ func main() {
 		Key: os.Getenv("COOKIE_SECRET_KEY"),
 	}))
 
-	// Build server instance
-	server := &constants.Server{
-		Web:        fiberApp,
-		GrpcClient: GrpcClient,
+	app := &handlers.App{
+		Web: fiberApp,
+		API: GrpcClient,
 	}
 
 	// Mount public routes
-	routing.RegisterRoutes(server)
-	server.Web.Listen("0.0.0.0:3000")
+	routing.RegisterRoutes(app)
+	app.Web.Listen("0.0.0.0:3000")
 }

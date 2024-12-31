@@ -3,22 +3,21 @@ package handlers
 import (
 	meowV1 "github.com/AlyxPink/meower/api/proto/meow/v1"
 
-	"github.com/AlyxPink/meower/web/grpc"
 	viewMeowV1 "github.com/AlyxPink/meower/web/views/services/meows/v1"
 	"github.com/gofiber/fiber/v2"
 )
 
-type Meower struct{}
+type Meower struct{ *App }
 
-func (*Meower) New(c *fiber.Ctx) error {
+func (h *Meower) New(c *fiber.Ctx) error {
 	return renderTempl(c, viewMeowV1.New(c))
 }
 
-func (*Meower) Create(c *fiber.Ctx) error {
+func (h *Meower) Create(c *fiber.Ctx) error {
 	content := c.FormValue("name")
 	req := &meowV1.CreateMeowRequest{Content: content}
 
-	resp, err := grpc.NewClient().MeowService.CreateMeow(c.Context(), req)
+	resp, err := h.API.MeowService.CreateMeow(c.Context(), req)
 
 	if err != nil {
 		return err
@@ -27,10 +26,10 @@ func (*Meower) Create(c *fiber.Ctx) error {
 	return renderTempl(c, viewMeowV1.Create(c, resp))
 }
 
-func (*Meower) Index(c *fiber.Ctx) error {
+func (h *Meower) Index(c *fiber.Ctx) error {
 	req := &meowV1.IndexMeowRequest{}
 
-	resp, err := grpc.NewClient().MeowService.IndexMeow(c.Context(), req)
+	resp, err := h.API.MeowService.IndexMeow(c.Context(), req)
 
 	if err != nil {
 		return err

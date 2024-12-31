@@ -7,6 +7,6 @@ import (
 
 type Homepage struct{ *App }
 
-func (*Homepage) Index(c *fiber.Ctx) error {
+func (h *Homepage) Index(c *fiber.Ctx) error {
 	return renderTempl(c, viewHomepage.Index(c))
 }

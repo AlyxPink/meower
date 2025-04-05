@@ -54,7 +54,7 @@ RUN --mount=rw,type=bind,source=./web/,target=/usr/src/tailwind/ \
     --content /usr/src/tailwind/ui/**/*.templ \
     --minify
 
-FROM alpine:latest AS production-web
+FROM alpine:3 AS production-web
 
 # Install any runtime dependencies that are needed to run your application.
 # Leverage a cache mount to /var/cache/apk/ to speed up subsequent builds.

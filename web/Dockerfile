@@ -28,12 +28,13 @@ RUN --mount=type=cache,target=/go/pkg/mod/ \
 FROM oven/bun:alpine AS assets
 ARG TARGETOS
 ARG TARGETARCH
+ARG TAILWIND_VERSION=3.4.17
 WORKDIR /src/web/
 # Adding a conditional statement to replace amd64 with x64 to match their release format
 RUN if [ "${TARGETARCH}" = "amd64" ]; then \
     TARGETARCH="x64"; \
     fi && \
-    wget https://github.com/tailwindlabs/tailwindcss/releases/latest/download/tailwindcss-${TARGETOS}-${TARGETARCH} && \
+    wget https://github.com/tailwindlabs/tailwindcss/releases/download/v${TAILWIND_VERSION}/tailwindcss-${TARGETOS}-${TARGETARCH} && \
     chmod +x tailwindcss-${TARGETOS}-${TARGETARCH} && \
     mv tailwindcss-${TARGETOS}-${TARGETARCH} /usr/local/bin/tailwindcss
 

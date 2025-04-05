@@ -94,7 +94,7 @@ FROM build-web AS development-web
 
 # TODO: Use versioned modules
 RUN --mount=type=cache,target=/go/pkg/mod/ \
-    go install github.com/bokwoon95/wgo@latest
+    go install github.com/bokwoon95/wgo@v0.5.11
 
 # Copy the executables from the "build" stage.
 COPY --chown=meower:meower --from=build-web /bin/web-server /opt/meower/

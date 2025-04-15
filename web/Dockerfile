@@ -33,7 +33,7 @@ WORKDIR /src/web/
 RUN if [ "${TARGETARCH}" = "amd64" ]; then \
     TARGETARCH="x64"; \
     fi && \
-    wget https://github.com/tailwindlabs/tailwindcss/releases/latest/download/tailwindcss-${TARGETOS}-${TARGETARCH} && \
+    wget https://github.com/tailwindlabs/tailwindcss/releases/download/v3.4.17/tailwindcss-${TARGETOS}-${TARGETARCH} && \
     chmod +x tailwindcss-${TARGETOS}-${TARGETARCH} && \
     mv tailwindcss-${TARGETOS}-${TARGETARCH} /usr/local/bin/tailwindcss
 
@@ -53,7 +53,7 @@ RUN --mount=rw,type=bind,source=./web/,target=/usr/src/tailwind/ \
     --content /usr/src/tailwind/ui/**/*.templ \
     --minify
 
-FROM alpine:latest AS production-web
+FROM alpine:3.21 AS production-web
 
 # Install any runtime dependencies that are needed to run your application.
 # Leverage a cache mount to /var/cache/apk/ to speed up subsequent builds.
@@ -93,7 +93,7 @@ FROM build-web AS development-web
 
 # TODO: Use versioned modules
 RUN --mount=type=cache,target=/go/pkg/mod/ \
-    go install github.com/bokwoon95/wgo@latest
+    go install github.com/bokwoon95/wgo@v0.5.11
 
 # Copy the executables from the "build" stage.
 COPY --chown=meower:meower --from=build-web /bin/web-server /opt/meower/

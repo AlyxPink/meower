@@ -40,13 +40,14 @@ services:
       - go_modules:/go/pkg/mod/
     depends_on:
       - api
+      - tailwind
       - development-web
     command: 'templ generate -v --watch --proxy="http://localhost:3000" --proxybind="0.0.0.0" --open-browser=false --cmd="go run main.go"'
 
   tailwind:
     image: meower:development-web
     pull_policy: never
-    restart: on-failure
+    restart: unless-stopped
     stop_signal: SIGKILL
     working_dir: /src/web/
     volumes:
@@ -60,7 +61,7 @@ services:
     image: meower:development-api
     pull_policy: never
     tty: true
-    restart: on-failure
+    restart: unless-stopped
     environment:
       DATABASE_URL: "postgres://meower:meower@db:5432/meower?sslmode=disable"
     ports:
@@ -86,7 +87,7 @@ services:
   proto:
     image: meower:development-api
     pull_policy: never
-    restart: on-failure
+    restart: unless-stopped
     working_dir: /src/
     volumes:
       - ./api/:/src/api/
@@ -96,7 +97,7 @@ services:
     command: "wgo -dir ./api/proto -file=.proto ./scripts/generate_protobuf.sh"
 
   grpcui:
-    image: fullstorydev/grpcui:latest
+    image: fullstorydev/grpcui:v1.4.3
     ports:
       - "50050:8080"
     depends_on:

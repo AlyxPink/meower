@@ -23,7 +23,7 @@ RUN --mount=type=cache,target=/go/pkg/mod/ \
     sqlc generate -f /src/api/db/sqlc.yaml && \
     go build -o /bin/api-server ./
 
-FROM alpine:latest AS production-api
+FROM alpine:3.21 AS production-api
 
 # Install any runtime dependencies that are needed to run your application.
 # Leverage a cache mount to /var/cache/apk/ to speed up subsequent builds.
@@ -63,10 +63,10 @@ RUN apk add --no-cache \
 
 # TODO: Use versioned modules
 RUN --mount=type=cache,target=/go/pkg/mod/ \
-    go install google.golang.org/protobuf/cmd/protoc-gen-go@latest && \
-    go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest && \
-    go install github.com/grpc-ecosystem/grpc-health-probe@latest && \
-    go install github.com/bokwoon95/wgo@latest
+    go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.36.6 && \
+    go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.5.1 && \
+    go install github.com/grpc-ecosystem/grpc-health-probe@v0.4.37 && \
+    go install github.com/bokwoon95/wgo@v0.5.11
 
 # Copy the executables from the "build" stage.
 COPY --chown=meower:meower --from=build-api /bin/api-server /opt/meower/

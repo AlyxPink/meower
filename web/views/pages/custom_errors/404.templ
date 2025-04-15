@@ -9,10 +9,10 @@ templ Error404(c *fiber.Ctx) {
 	@layouts.Main(c) {
 		<section>
 			<div class="max-w-3xl mx-auto text-center lg:py-32">
-				<p class="text-3xl lg:text-5xl font-medium text-black max-w-4xl mx-auto">
+				<p class="text-3xl lg:text-5xl font-medium max-w-4xl mx-auto">
 					404 - Page Not Found
 				</p>
-				<p class="mt-4 xl:text-xl tracking-wide text-black">
+				<p class="mt-4 xl:text-xl tracking-wide">
 					Oops! The page you are looking for cannot be found. It may have been
 					moved, deleted, or never existed. Please check the URL or navigate back
 					to our homepage. If you continue to encounter this issue, feel free to
@@ -20,7 +20,7 @@ templ Error404(c *fiber.Ctx) {
 				</p>
 				<div class="mt-8">
 					<a
-						class="text-black text-lg py-3 h-16"
+						class="text-lg py-3 h-16"
 						href="/"
 					>Go back home</a>
 				</div>

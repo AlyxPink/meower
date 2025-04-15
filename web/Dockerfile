@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-ARG GO_VERSION=1.23
+ARG GO_VERSION=1.24
 
 FROM golang:${GO_VERSION}-alpine AS build-web
 ENV CGO_ENABLED=0
@@ -28,12 +28,13 @@ RUN --mount=type=cache,target=/go/pkg/mod/ \
 FROM oven/bun:alpine AS assets
 ARG TARGETOS
 ARG TARGETARCH
+ARG TAILWIND_VERSION=3.4.17
 WORKDIR /src/web/
 # Adding a conditional statement to replace amd64 with x64 to match their release format
 RUN if [ "${TARGETARCH}" = "amd64" ]; then \
     TARGETARCH="x64"; \
     fi && \
-    wget https://github.com/tailwindlabs/tailwindcss/releases/download/v3.4.17/tailwindcss-${TARGETOS}-${TARGETARCH} && \
+    wget https://github.com/tailwindlabs/tailwindcss/releases/download/v${TAILWIND_VERSION}/tailwindcss-${TARGETOS}-${TARGETARCH} && \
     chmod +x tailwindcss-${TARGETOS}-${TARGETARCH} && \
     mv tailwindcss-${TARGETOS}-${TARGETARCH} /usr/local/bin/tailwindcss
 

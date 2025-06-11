@@ -12,12 +12,23 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/encryptcookie"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/requestid"
+	"github.com/gofiber/fiber/v2/middleware/session"
 	"github.com/gofiber/fiber/v2/utils"
 )
 
 func main() {
 	// Connect to the internal gRPC API
 	GrpcClient := grpc.NewClient()
+
+	// Create session store
+	sessionStore := session.New(session.Config{
+		KeyLookup:      "cookie:session_id",
+		CookieDomain:   "",
+		CookiePath:     "/",
+		CookieSecure:   os.Getenv("ENV") == "production",
+		CookieHTTPOnly: true,
+		CookieSameSite: "Lax",
+	})
 
 	// Create the Fiber app
 	fiberApp := fiber.New(fiber.Config{
@@ -38,8 +49,9 @@ func main() {
 	}))
 
 	app := &handlers.App{
-		Web: fiberApp,
-		API: GrpcClient,
+		Web:          fiberApp,
+		API:          GrpcClient,
+		SessionStore: sessionStore,
 	}
 
 	// Mount public routes

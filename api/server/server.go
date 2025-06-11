@@ -7,7 +7,7 @@ import (
 	"net"
 	"os"
 
-	pbAuthorV1 "github.com/AlyxPink/meower/api/proto/author/v1"
+	pbUserV1 "github.com/AlyxPink/meower/api/proto/user/v1"
 	pbMeowV1 "github.com/AlyxPink/meower/api/proto/meow/v1"
 	"github.com/AlyxPink/meower/api/server/handlers"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -50,7 +50,7 @@ func Serve() {
 
 	// Register V1 services
 	pbMeowV1.RegisterMeowServiceServer(g, handlers.NewMeowerServer(db))
-	pbAuthorV1.RegisterAuthorServiceServer(g, handlers.NewAuthorServer(db))
+	pbUserV1.RegisterUserServiceServer(g, handlers.NewUserServer(db))
 
 	// Serve the gRPC server
 	log.Printf("API server listening at %v", lis.Addr())

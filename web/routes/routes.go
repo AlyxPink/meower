@@ -13,6 +13,13 @@ type routes struct {
 	// Homepage
 	Homepage route
 
+	// Authentication
+	LoginShow  route
+	Login      route
+	SignupShow route
+	Signup     route
+	Logout     route
+
 	// Meower
 	MeowIndex  route
 	MeowNew    route
@@ -38,6 +45,13 @@ Feel free to use anything else that makes sense for your endpoints, resources an
 var (
 	// Homepage
 	Homepage = route{Name: "home.index", Path: "/"}
+
+	// Authentication
+	LoginShow  = route{Name: "auth.login.show", Path: "/login"}
+	Login      = route{Name: "auth.login", Path: "/login"}
+	SignupShow = route{Name: "auth.signup.show", Path: "/signup"}
+	Signup     = route{Name: "auth.signup", Path: "/signup"}
+	Logout     = route{Name: "auth.logout", Path: "/logout"}
 
 	// Meower
 	MeowIndex  = route{Name: "meow.index", Path: "/meows/"}

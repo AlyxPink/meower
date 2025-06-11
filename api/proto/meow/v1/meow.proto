@@ -2,6 +2,8 @@ syntax = "proto3";
 
 package meow.v1;
 
+import "google/protobuf/timestamp.proto";
+
 option go_package = "github.com/AlyxPink/meower/api/proto/meow/v1";
 
 service MeowService {
@@ -13,7 +15,7 @@ service MeowService {
 message Meow {
   string id = 1;
   string content = 2;
-  string created_at = 3;
+  google.protobuf.Timestamp created_at = 3;
 }
 
 message CreateMeowRequest {

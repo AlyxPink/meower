@@ -8,6 +8,7 @@ import (
 
 templ New(c *fiber.Ctx) {
 	@layouts.Main(c) {
+		<h1 class="text-3xl font-black uppercase tracking-tight lg:leading-none lg:text-4xl mb-4">Create a meow</h1>
 		<form action={ templ.SafeURL(c.App().GetRoute(routes.MeowCreate.Name).Path) } method="post">
 			<input type="text" name="name" placeholder="Enter your name :3" class="border border-1 border-black"/>
 			<button type="submit">Meow!</button>

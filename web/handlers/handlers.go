@@ -7,14 +7,16 @@ import (
 	"github.com/a-h/templ"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/adaptor"
+	"github.com/gofiber/fiber/v2/middleware/session"
 
 	"github.com/AlyxPink/meower/web/views/pages/custom_errors"
 	"github.com/charmbracelet/log"
 )
 
 type App struct {
-	Web *fiber.App
-	API *grpc.Client
+	Web          *fiber.App
+	API          *grpc.Client
+	SessionStore *session.Store
 }
 
 func ErrorHandler(ctx *fiber.Ctx, err error) error {

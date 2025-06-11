@@ -9,6 +9,7 @@ package v1
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -25,7 +26,7 @@ type Meow struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	Content       string                 `protobuf:"bytes,2,opt,name=content,proto3" json:"content,omitempty"`
-	CreatedAt     string                 `protobuf:"bytes,3,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -74,11 +75,11 @@ func (x *Meow) GetContent() string {
 	return ""
 }
 
-func (x *Meow) GetCreatedAt() string {
+func (x *Meow) GetCreatedAt() *timestamppb.Timestamp {
 	if x != nil {
 		return x.CreatedAt
 	}
-	return ""
+	return nil
 }
 
 type CreateMeowRequest struct {
@@ -341,12 +342,12 @@ var File_meow_v1_meow_proto protoreflect.FileDescriptor
 
 const file_meow_v1_meow_proto_rawDesc = "" +
 	"\n" +
-	"\x12meow/v1/meow.proto\x12\ameow.v1\"O\n" +
+	"\x12meow/v1/meow.proto\x12\ameow.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"k\n" +
 	"\x04Meow\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x18\n" +
-	"\acontent\x18\x02 \x01(\tR\acontent\x12\x1d\n" +
+	"\acontent\x18\x02 \x01(\tR\acontent\x129\n" +
 	"\n" +
-	"created_at\x18\x03 \x01(\tR\tcreatedAt\"-\n" +
+	"created_at\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\"-\n" +
 	"\x11CreateMeowRequest\x12\x18\n" +
 	"\acontent\x18\x01 \x01(\tR\acontent\"7\n" +
 	"\x12CreateMeowResponse\x12!\n" +
@@ -378,29 +379,31 @@ func file_meow_v1_meow_proto_rawDescGZIP() []byte {
 
 var file_meow_v1_meow_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
 var file_meow_v1_meow_proto_goTypes = []any{
-	(*Meow)(nil),               // 0: meow.v1.Meow
-	(*CreateMeowRequest)(nil),  // 1: meow.v1.CreateMeowRequest
-	(*CreateMeowResponse)(nil), // 2: meow.v1.CreateMeowResponse
-	(*GetMeowRequest)(nil),     // 3: meow.v1.GetMeowRequest
-	(*GetMeowResponse)(nil),    // 4: meow.v1.GetMeowResponse
-	(*IndexMeowRequest)(nil),   // 5: meow.v1.IndexMeowRequest
-	(*IndexMeowResponse)(nil),  // 6: meow.v1.IndexMeowResponse
+	(*Meow)(nil),                  // 0: meow.v1.Meow
+	(*CreateMeowRequest)(nil),     // 1: meow.v1.CreateMeowRequest
+	(*CreateMeowResponse)(nil),    // 2: meow.v1.CreateMeowResponse
+	(*GetMeowRequest)(nil),        // 3: meow.v1.GetMeowRequest
+	(*GetMeowResponse)(nil),       // 4: meow.v1.GetMeowResponse
+	(*IndexMeowRequest)(nil),      // 5: meow.v1.IndexMeowRequest
+	(*IndexMeowResponse)(nil),     // 6: meow.v1.IndexMeowResponse
+	(*timestamppb.Timestamp)(nil), // 7: google.protobuf.Timestamp
 }
 var file_meow_v1_meow_proto_depIdxs = []int32{
-	0, // 0: meow.v1.CreateMeowResponse.meow:type_name -> meow.v1.Meow
-	0, // 1: meow.v1.GetMeowResponse.meow:type_name -> meow.v1.Meow
-	0, // 2: meow.v1.IndexMeowResponse.meows:type_name -> meow.v1.Meow
-	1, // 3: meow.v1.MeowService.CreateMeow:input_type -> meow.v1.CreateMeowRequest
-	3, // 4: meow.v1.MeowService.GetMeow:input_type -> meow.v1.GetMeowRequest
-	5, // 5: meow.v1.MeowService.IndexMeow:input_type -> meow.v1.IndexMeowRequest
-	2, // 6: meow.v1.MeowService.CreateMeow:output_type -> meow.v1.CreateMeowResponse
-	4, // 7: meow.v1.MeowService.GetMeow:output_type -> meow.v1.GetMeowResponse
-	6, // 8: meow.v1.MeowService.IndexMeow:output_type -> meow.v1.IndexMeowResponse
-	6, // [6:9] is the sub-list for method output_type
-	3, // [3:6] is the sub-list for method input_type
-	3, // [3:3] is the sub-list for extension type_name
-	3, // [3:3] is the sub-list for extension extendee
-	0, // [0:3] is the sub-list for field type_name
+	7, // 0: meow.v1.Meow.created_at:type_name -> google.protobuf.Timestamp
+	0, // 1: meow.v1.CreateMeowResponse.meow:type_name -> meow.v1.Meow
+	0, // 2: meow.v1.GetMeowResponse.meow:type_name -> meow.v1.Meow
+	0, // 3: meow.v1.IndexMeowResponse.meows:type_name -> meow.v1.Meow
+	1, // 4: meow.v1.MeowService.CreateMeow:input_type -> meow.v1.CreateMeowRequest
+	3, // 5: meow.v1.MeowService.GetMeow:input_type -> meow.v1.GetMeowRequest
+	5, // 6: meow.v1.MeowService.IndexMeow:input_type -> meow.v1.IndexMeowRequest
+	2, // 7: meow.v1.MeowService.CreateMeow:output_type -> meow.v1.CreateMeowResponse
+	4, // 8: meow.v1.MeowService.GetMeow:output_type -> meow.v1.GetMeowResponse
+	6, // 9: meow.v1.MeowService.IndexMeow:output_type -> meow.v1.IndexMeowResponse
+	7, // [7:10] is the sub-list for method output_type
+	4, // [4:7] is the sub-list for method input_type
+	4, // [4:4] is the sub-list for extension type_name
+	4, // [4:4] is the sub-list for extension extendee
+	0, // [0:4] is the sub-list for field type_name
 }
 
 func init() { file_meow_v1_meow_proto_init() }

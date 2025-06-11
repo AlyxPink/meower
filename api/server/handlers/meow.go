@@ -7,6 +7,7 @@ import (
 	"github.com/AlyxPink/meower/api/db"
 	meowV1 "github.com/AlyxPink/meower/api/proto/meow/v1"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 type meowServiceServer struct {
@@ -23,12 +24,11 @@ func (s *meowServiceServer) CreateMeow(ctx context.Context, req *meowV1.CreateMe
 	if err != nil {
 		return nil, err
 	}
-
 	resp := &meowV1.CreateMeowResponse{
 		Meow: &meowV1.Meow{
 			Id:        fmt.Sprintf("%x", meow.ID.Bytes),
 			Content:   meow.Content,
-			CreatedAt: meow.CreatedAt.Time.String(),
+			CreatedAt: timestamppb.New(meow.CreatedAt.Time),
 		},
 	}
 
@@ -46,7 +46,7 @@ func (s *meowServiceServer) IndexMeow(ctx context.Context, req *meowV1.IndexMeow
 		resp = append(resp, &meowV1.Meow{
 			Id:        fmt.Sprintf("%x", meow.ID.Bytes),
 			Content:   meow.Content,
-			CreatedAt: meow.CreatedAt.Time.String(),
+			CreatedAt: timestamppb.New(meow.CreatedAt.Time),
 		})
 	}
 

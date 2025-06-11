@@ -12,7 +12,7 @@ templ Create(c *fiber.Ctx, r *meowV1.CreateMeowResponse) {
 		<h1>Meow Created</h1>
 		<ul>
 			<li class="py-2">
-				<span class="font-mono rounded bg-pink-200 p-2">#{ r.Meow.Id } { `@` } { r.Meow.CreatedAt }</span>
+				<span class="font-mono rounded bg-pink-200 p-2">#{ r.Meow.Id } { `@` } { r.Meow.CreatedAt.AsTime().String() }</span>
 				<span class="font-bold">Meow { r.Meow.Content } :3</span>
 			</li>
 		</ul>

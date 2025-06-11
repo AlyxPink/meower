@@ -8,15 +8,24 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-type Author struct {
+type Meow struct {
 	ID        pgtype.UUID
-	Name      string
+	UserID    pgtype.UUID
+	Content   string
 	CreatedAt pgtype.Timestamp
 }
 
-type Meow struct {
-	ID        pgtype.UUID
-	AuthorID  pgtype.UUID
-	Content   string
-	CreatedAt pgtype.Timestamp
+type User struct {
+	ID                   pgtype.UUID
+	Username             string
+	DisplayName          string
+	Email                string
+	EmailVerified        pgtype.Bool
+	PasswordHash         string
+	ResetPasswordToken   pgtype.Text
+	ResetPasswordExpires pgtype.Timestamp
+	CreatedAt            pgtype.Timestamp
+	LastLoginAt          pgtype.Timestamp
+	AccountLocked        pgtype.Bool
+	FailedLoginAttempts  pgtype.Int4
 }

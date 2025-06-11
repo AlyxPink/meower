@@ -7,14 +7,14 @@ replace github.com/AlyxPink/meower/api => ../api
 require (
 	github.com/a-h/templ v0.2.747
 	github.com/charmbracelet/log v0.4.0
-	github.com/gofiber/fiber/v2 v2.52.5
+	github.com/gofiber/fiber/v2 v2.52.8
 	google.golang.org/grpc v1.68.1
 )
 
 require (
 	github.com/charmbracelet/x/ansi v0.1.4 // indirect
-	github.com/philhofer/fwd v1.1.3-0.20240612014219-fbbf4953d986 // indirect
-	github.com/tinylib/msgp v1.2.0 // indirect
+	github.com/philhofer/fwd v1.1.3-0.20240916144458-20a13a1f6b7c // indirect
+	github.com/tinylib/msgp v1.2.5 // indirect
 	google.golang.org/protobuf v1.35.2 // indirect
 )
 
@@ -37,7 +37,7 @@ require (
 	github.com/valyala/tcplisten v1.0.0 // indirect
 	golang.org/x/exp v0.0.0-20240808152545-0cdaa3abc0fa // indirect
 	golang.org/x/net v0.29.0 // indirect
-	golang.org/x/sys v0.25.0 // indirect
+	golang.org/x/sys v0.28.0 // indirect
 	golang.org/x/text v0.18.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240903143218-8af14fe29dc1 // indirect
 )

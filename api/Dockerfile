@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 
-ARG GO_VERSION=1.23
-ARG SQLC_VERSION=1.27.0
+ARG GO_VERSION=1.24
+ARG SQLC_VERSION=1.29.0
 
 # "COPY --from" does not expand ARG variables, so we need to use a temporary image to get the SQLC version
 FROM sqlc/sqlc:${SQLC_VERSION} AS sqlc-version
@@ -65,8 +65,8 @@ RUN apk add --no-cache \
 RUN --mount=type=cache,target=/go/pkg/mod/ \
     go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.36.6 && \
     go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.5.1 && \
-    go install github.com/grpc-ecosystem/grpc-health-probe@v0.4.37 && \
-    go install github.com/bokwoon95/wgo@v0.5.11
+    go install github.com/grpc-ecosystem/grpc-health-probe@v0.4.38 && \
+    go install github.com/bokwoon95/wgo@v0.5.13
 
 # Copy the executables from the "build" stage.
 COPY --chown=meower:meower --from=build-api /bin/api-server /opt/meower/

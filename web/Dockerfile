@@ -13,7 +13,7 @@ RUN --mount=type=cache,target=/go/pkg/mod/ \
     go mod download -x
 
 # Copy a-h/templ binary from the templ image
-COPY --from=ghcr.io/a-h/templ:v0.2.747 /ko-app/templ /usr/local/bin/templ
+COPY --from=ghcr.io/a-h/templ:v0.3.898 /ko-app/templ /usr/local/bin/templ
 
 # Build the application.
 # Leverage a cache mount to /go/pkg/mod/ to speed up subsequent builds.
@@ -94,7 +94,7 @@ FROM build-web AS development-web
 
 # TODO: Use versioned modules
 RUN --mount=type=cache,target=/go/pkg/mod/ \
-    go install github.com/bokwoon95/wgo@v0.5.11
+    go install github.com/bokwoon95/wgo@v0.5.13
 
 # Copy the executables from the "build" stage.
 COPY --chown=meower:meower --from=build-web /bin/web-server /opt/meower/

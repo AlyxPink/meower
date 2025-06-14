@@ -14,7 +14,7 @@ templ Index(c *fiber.Ctx, r *meowV1.IndexMeowResponse) {
 			for _, m := range r.Meows {
 				<li class="py-2">
 					<span class="font-mono rounded bg-pink-200 p-2">#{ m.Id } { `@` } { m.CreatedAt.AsTime().String() }</span>
-					<span class="font-bold">Meow { m.Content } :3</span>
+					<span class="font-bold">{ m.Content }</span>
 				</li>
 			}
 		</ul>

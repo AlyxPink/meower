@@ -54,9 +54,9 @@ var (
 	Logout     = route{Name: "auth.logout", Path: "/logout"}
 
 	// Meower
-	MeowIndex  = route{Name: "meow.index", Path: "/meows/"}
+	MeowIndex  = route{Name: "meow.index", Path: "/meows"}
 	MeowNew    = route{Name: "meow.new", Path: "/meows/new"}
-	MeowCreate = route{Name: "meow.create", Path: "/meows/"}
+	MeowCreate = route{Name: "meow.create", Path: "/meows"}
 )
 
 func (r *route) URL(c *fiber.Ctx, params fiber.Map) string {

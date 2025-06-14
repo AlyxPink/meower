@@ -14,7 +14,7 @@ func (h *Meower) New(c *fiber.Ctx) error {
 }
 
 func (h *Meower) Create(c *fiber.Ctx) error {
-	content := c.FormValue("name")
+	content := c.FormValue("content")
 	req := &meowV1.CreateMeowRequest{Content: content}
 
 	resp, err := h.API.MeowService.CreateMeow(c.Context(), req)

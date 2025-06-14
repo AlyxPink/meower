@@ -7,6 +7,7 @@ import (
 	"time"
 
 	userV1 "github.com/AlyxPink/meower/api/proto/user/v1"
+	"github.com/AlyxPink/meower/web/routes"
 	"github.com/AlyxPink/meower/web/views/pages/auth"
 	"github.com/gofiber/fiber/v2"
 	"google.golang.org/grpc/codes"
@@ -26,7 +27,7 @@ func (a *Auth) ShowLogin(c *fiber.Ctx) error {
 	}
 
 	if sess.Get("user_id") != nil {
-		return c.Redirect("/")
+		return c.Redirect(routes.MeowIndex.Path)
 	}
 
 	return renderTempl(c, auth.Login(c, ""))
@@ -87,7 +88,7 @@ func (a *Auth) Login(c *fiber.Ctx) error {
 	// Debug: Log successful login
 	fmt.Printf("DEBUG: User %s logged in successfully, redirecting to /\n", resp.User.Username)
 
-	return c.Redirect("/")
+	return c.Redirect(routes.MeowIndex.Path)
 }
 
 // ShowSignup displays the signup form
@@ -99,7 +100,7 @@ func (a *Auth) ShowSignup(c *fiber.Ctx) error {
 	}
 
 	if sess.Get("user_id") != nil {
-		return c.Redirect("/")
+		return c.Redirect(routes.MeowIndex.Path)
 	}
 
 	return renderTempl(c, auth.Signup(c, ""))
@@ -178,7 +179,7 @@ func (a *Auth) Signup(c *fiber.Ctx) error {
 		return err
 	}
 
-	return c.Redirect("/")
+	return c.Redirect(routes.MeowIndex.Path)
 }
 
 // Logout handles user logout

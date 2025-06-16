@@ -293,7 +293,7 @@ func (s *userServiceServer) Login(ctx context.Context, req *userV1.LoginRequest)
 	}
 
 	// Update last login time
-	_, err = db.New(s.db).UpdateUser(ctx, db.UpdateUserParams{
+	_, err = db.New(s.db).UpdateLastLoginAt(ctx, db.UpdateLastLoginAtParams{
 		ID:          user.ID,
 		LastLoginAt: pgtype.Timestamp{Time: time.Now(), Valid: true},
 	})

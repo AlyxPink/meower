@@ -12,9 +12,9 @@ templ Index(c *fiber.Ctx, r *meowV1.IndexMeowResponse) {
 		<h1>{ fmt.Sprint(len(r.Meows)) } Meows found</h1>
 		<ul>
 			for _, m := range r.Meows {
-				<li class="py-2">
-					<span class="font-mono rounded bg-pink-200 p-2">#{ m.Id } { `@` } { m.CreatedAt.AsTime().String() }</span>
-					<span class="font-bold">{ m.Content }</span>
+				<li class="py-2 rounded bg-pink-200 p-2 my-4">
+					<p class="font-bold">{ m.Content }</p>
+					<p class="font-mono">#{ m.Id } { `@` } { m.CreatedAt.AsTime().String() }</p>
 				</li>
 			}
 		</ul>

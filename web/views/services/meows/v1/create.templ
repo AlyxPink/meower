@@ -13,7 +13,7 @@ templ Create(c *fiber.Ctx, r *meowV1.CreateMeowResponse) {
 		<ul>
 			<li class="py-2">
 				<span class="font-mono rounded bg-pink-200 p-2">#{ r.Meow.Id } { `@` } { r.Meow.CreatedAt.AsTime().String() }</span>
-				<span class="font-bold">Meow { r.Meow.Content }</span>
+				<span class="font-bold">{ r.Meow.Content }</span>
 			</li>
 		</ul>
 		<a class="underline" href={ templ.SafeURL(c.App().GetRoute(routes.MeowIndex.Name).Path) }>See all Meows</a>

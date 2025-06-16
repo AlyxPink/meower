@@ -204,5 +204,5 @@ func (a *Auth) Logout(c *fiber.Ctx) error {
 		return err
 	}
 
-	return c.Redirect("/login")
+	return c.Redirect(routes.Login.Path)
 }

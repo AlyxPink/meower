@@ -34,13 +34,13 @@ func NewHandlerGenerator(vars *templates.TemplateVars) *HandlerGenerator {
 func (g *HandlerGenerator) GenerateProto(methods []string) error {
 	// Create proto directory
 	protoDir := filepath.Join("api", "proto", g.vars.ServiceNameLower, "v1")
-	if err := os.MkdirAll(protoDir, 0755); err != nil {
+	if err := os.MkdirAll(protoDir, 0o755); err != nil {
 		return fmt.Errorf("failed to create proto directory: %w", err)
 	}
-	
+
 	// Generate proto file
 	protoFile := filepath.Join(protoDir, g.vars.ServiceNameLower+".proto")
-	
+
 	protoTemplate := `syntax = "proto3";
 
 package {{.ServiceNameLower}}.v1;
@@ -91,36 +91,36 @@ message {{.}}{{$.ResourceName}}Response {
 }
 {{- end}}
 `
-	
+
 	tmpl, err := template.New("proto").Parse(protoTemplate)
 	if err != nil {
 		return fmt.Errorf("failed to parse proto template: %w", err)
 	}
-	
+
 	// Prepare template data
 	resourceName := strings.TrimSuffix(g.vars.ServiceName, "Service")
 	data := struct {
 		*templates.TemplateVars
-		Methods          []string
-		ResourceName     string
+		Methods           []string
+		ResourceName      string
 		ResourceNameLower string
 	}{
 		TemplateVars:      g.vars,
-		Methods:          methods,
-		ResourceName:     resourceName,
+		Methods:           methods,
+		ResourceName:      resourceName,
 		ResourceNameLower: strings.ToLower(resourceName),
 	}
-	
+
 	file, err := os.Create(protoFile)
 	if err != nil {
 		return fmt.Errorf("failed to create proto file: %w", err)
 	}
 	defer file.Close()
-	
+
 	if err := tmpl.Execute(file, data); err != nil {
 		return fmt.Errorf("failed to execute proto template: %w", err)
 	}
-	
+
 	return nil
 }
 
@@ -128,13 +128,13 @@ message {{.}}{{$.ResourceName}}Response {
 func (g *HandlerGenerator) GenerateServerHandler(methods []string) error {
 	// Create handler directory
 	handlerDir := filepath.Join("api", "server", "handlers")
-	if err := os.MkdirAll(handlerDir, 0755); err != nil {
+	if err := os.MkdirAll(handlerDir, 0o755); err != nil {
 		return fmt.Errorf("failed to create handler directory: %w", err)
 	}
-	
+
 	// Generate handler file
 	handlerFile := filepath.Join(handlerDir, g.vars.ServiceNameLower+".go")
-	
+
 	handlerTemplate := `package handlers
 
 import (
@@ -234,12 +234,12 @@ func (s *{{$serviceLower}}ServiceServer) {{.}}{{$resourceName}}(ctx context.Cont
 }
 {{- end}}
 `
-	
+
 	tmpl, err := template.New("handler").Parse(handlerTemplate)
 	if err != nil {
 		return fmt.Errorf("failed to parse handler template: %w", err)
 	}
-	
+
 	// Prepare template data
 	resourceName := strings.TrimSuffix(g.vars.ServiceName, "Service")
 	data := struct {
@@ -249,21 +249,21 @@ func (s *{{$serviceLower}}ServiceServer) {{.}}{{$resourceName}}(ctx context.Cont
 		ResourceNameLower string
 	}{
 		TemplateVars:      g.vars,
-		Methods:          methods,
-		ResourceName:     resourceName,
+		Methods:           methods,
+		ResourceName:      resourceName,
 		ResourceNameLower: strings.ToLower(resourceName),
 	}
-	
+
 	file, err := os.Create(handlerFile)
 	if err != nil {
 		return fmt.Errorf("failed to create handler file: %w", err)
 	}
 	defer file.Close()
-	
+
 	if err := tmpl.Execute(file, data); err != nil {
 		return fmt.Errorf("failed to execute handler template: %w", err)
 	}
-	
+
 	return nil
 }
 
@@ -272,7 +272,7 @@ func (g *HandlerGenerator) GenerateWebHandler(methods []string) error {
 	// Create web handler file (optional, could be a simple client wrapper)
 	handlerDir := filepath.Join("web", "handlers")
 	handlerFile := filepath.Join(handlerDir, g.vars.ServiceNameLower+".go")
-	
+
 	webHandlerTemplate := `package handlers
 
 import (
@@ -295,12 +295,12 @@ type {{.ServiceName}} struct {
 //     return c.JSON(resp.{{.ResourceName}}s)
 // }
 `
-	
+
 	tmpl, err := template.New("webhandler").Parse(webHandlerTemplate)
 	if err != nil {
 		return fmt.Errorf("failed to parse web handler template: %w", err)
 	}
-	
+
 	resourceName := strings.TrimSuffix(g.vars.ServiceName, "Service")
 	data := struct {
 		*templates.TemplateVars
@@ -309,17 +309,17 @@ type {{.ServiceName}} struct {
 		TemplateVars: g.vars,
 		ResourceName: resourceName,
 	}
-	
+
 	file, err := os.Create(handlerFile)
 	if err != nil {
 		return fmt.Errorf("failed to create web handler file: %w", err)
 	}
 	defer file.Close()
-	
+
 	if err := tmpl.Execute(file, data); err != nil {
 		return fmt.Errorf("failed to execute web handler template: %w", err)
 	}
-	
+
 	return nil
 }
 

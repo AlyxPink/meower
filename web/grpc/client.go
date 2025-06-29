@@ -23,7 +23,6 @@ type Client struct {
 // NewClient initializes and returns a new gRPC client for our services API.
 func NewClient() *Client {
 	conn, err := grpc.NewClient(getApiEndpoint(), grpc.WithTransportCredentials(insecure.NewCredentials()))
-
 	if err != nil {
 		log.Fatalf("could not connect: %v", err)
 	}

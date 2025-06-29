@@ -18,7 +18,6 @@ func (h *Meower) Create(c *fiber.Ctx) error {
 	req := &meowV1.CreateMeowRequest{Content: content}
 
 	resp, err := h.API.MeowService.CreateMeow(c.Context(), req)
-
 	if err != nil {
 		return err
 	}
@@ -30,7 +29,6 @@ func (h *Meower) Index(c *fiber.Ctx) error {
 	req := &meowV1.IndexMeowRequest{}
 
 	resp, err := h.API.MeowService.IndexMeow(c.Context(), req)
-
 	if err != nil {
 		return err
 	}

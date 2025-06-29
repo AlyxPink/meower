@@ -19,25 +19,25 @@ import (
 // - Type Safety: Compile-time checks prevent template variable typos
 type TemplateVars struct {
 	// Project-level variables
-	ProjectName      string `json:"project_name"`      // my-social-app
-	ProjectNameUpper string `json:"project_name_upper"` // MY_SOCIAL_APP  
+	ProjectName      string `json:"project_name"`       // my-social-app
+	ProjectNameUpper string `json:"project_name_upper"` // MY_SOCIAL_APP
 	ProjectNameCamel string `json:"project_name_camel"` // MySocialApp
 	ModulePath       string `json:"module_path"`        // github.com/user/my-social-app
-	
+
 	// Service-level variables
-	ServiceName       string `json:"service_name"`        // UserService
-	ServiceNameLower  string `json:"service_name_lower"`  // user
-	ServiceNameSnake  string `json:"service_name_snake"`  // user_service
-	ServiceNameKebab  string `json:"service_name_kebab"`  // user-service
-	
+	ServiceName      string `json:"service_name"`       // UserService
+	ServiceNameLower string `json:"service_name_lower"` // user
+	ServiceNameSnake string `json:"service_name_snake"` // user_service
+	ServiceNameKebab string `json:"service_name_kebab"` // user-service
+
 	// Model-level variables
-	ModelName        string `json:"model_name"`         // User
-	ModelNameLower   string `json:"model_name_lower"`   // user
-	ModelNamePlural  string `json:"model_name_plural"`  // users
-	TableName        string `json:"table_name"`         // users
-	
+	ModelName       string `json:"model_name"`        // User
+	ModelNameLower  string `json:"model_name_lower"`  // user
+	ModelNamePlural string `json:"model_name_plural"` // users
+	TableName       string `json:"table_name"`        // users
+
 	// API version
-	APIVersion       string `json:"api_version"`        // v1
+	APIVersion string `json:"api_version"` // v1
 }
 
 // Template placeholder constants - these are used in actual code files
@@ -46,18 +46,18 @@ const (
 	TEMPLATE_PROJECT_NAME_UPPER = "TEMPLATE_PROJECT_NAME_UPPER" // MEOWER
 	TEMPLATE_PROJECT_NAME_CAMEL = "TEMPLATE_PROJECT_NAME_CAMEL" // Meower
 	TEMPLATE_MODULE_PATH        = "TEMPLATE_MODULE_PATH"
-	
-	TEMPLATE_SERVICE_NAME       = "TEMPLATE_SERVICE_NAME"       // UserService  
+
+	TEMPLATE_SERVICE_NAME       = "TEMPLATE_SERVICE_NAME"       // UserService
 	TEMPLATE_SERVICE_NAME_LOWER = "TEMPLATE_SERVICE_NAME_LOWER" // user
 	TEMPLATE_SERVICE_NAME_SNAKE = "TEMPLATE_SERVICE_NAME_SNAKE" // user_service
 	TEMPLATE_SERVICE_NAME_KEBAB = "TEMPLATE_SERVICE_NAME_KEBAB" // user-service
-	
-	TEMPLATE_MODEL_NAME         = "TEMPLATE_MODEL_NAME"         // User
-	TEMPLATE_MODEL_NAME_LOWER   = "TEMPLATE_MODEL_NAME_LOWER"   // user
-	TEMPLATE_MODEL_NAME_PLURAL  = "TEMPLATE_MODEL_NAME_PLURAL"  // users
-	TEMPLATE_TABLE_NAME         = "TEMPLATE_TABLE_NAME"         // users
-	
-	TEMPLATE_API_VERSION        = "TEMPLATE_API_VERSION"        // v1
+
+	TEMPLATE_MODEL_NAME        = "TEMPLATE_MODEL_NAME"        // User
+	TEMPLATE_MODEL_NAME_LOWER  = "TEMPLATE_MODEL_NAME_LOWER"  // user
+	TEMPLATE_MODEL_NAME_PLURAL = "TEMPLATE_MODEL_NAME_PLURAL" // users
+	TEMPLATE_TABLE_NAME        = "TEMPLATE_TABLE_NAME"        // users
+
+	TEMPLATE_API_VERSION = "TEMPLATE_API_VERSION" // v1
 )
 
 // AllPlaceholders contains all known template placeholders for validation
@@ -89,16 +89,16 @@ func (tv *TemplateVars) SetProject(projectName, modulePath string) error {
 	if err := validateProjectName(projectName); err != nil {
 		return fmt.Errorf("invalid project name: %w", err)
 	}
-	
+
 	if err := validateModulePath(modulePath); err != nil {
 		return fmt.Errorf("invalid module path: %w", err)
 	}
-	
+
 	tv.ProjectName = projectName
 	tv.ProjectNameUpper = strings.ToUpper(strings.ReplaceAll(projectName, "-", "_"))
 	tv.ProjectNameCamel = toPascalCase(projectName)
 	tv.ModulePath = modulePath
-	
+
 	return nil
 }
 
@@ -107,12 +107,12 @@ func (tv *TemplateVars) SetService(serviceName string) error {
 	if err := validateServiceName(serviceName); err != nil {
 		return fmt.Errorf("invalid service name: %w", err)
 	}
-	
+
 	tv.ServiceName = serviceName
 	tv.ServiceNameLower = strings.ToLower(serviceName)
 	tv.ServiceNameSnake = toSnakeCase(serviceName)
 	tv.ServiceNameKebab = toKebabCase(serviceName)
-	
+
 	return nil
 }
 
@@ -121,12 +121,12 @@ func (tv *TemplateVars) SetModel(modelName string) error {
 	if err := validateModelName(modelName); err != nil {
 		return fmt.Errorf("invalid model name: %w", err)
 	}
-	
+
 	tv.ModelName = modelName
 	tv.ModelNameLower = strings.ToLower(modelName)
 	tv.ModelNamePlural = toPlural(modelName)
 	tv.TableName = tv.ModelNamePlural
-	
+
 	return nil
 }
 
@@ -139,7 +139,7 @@ func (tv *TemplateVars) SetModel(modelName string) error {
 // that the original module path in template files gets properly replaced.
 func (tv *TemplateVars) ToReplacementMap() map[string]string {
 	replacements := make(map[string]string)
-	
+
 	// Only add non-empty replacements to avoid replacing with empty strings
 	if tv.ProjectName != "" {
 		replacements[TEMPLATE_PROJECT_NAME] = tv.ProjectName
@@ -166,7 +166,7 @@ func (tv *TemplateVars) ToReplacementMap() map[string]string {
 	if tv.APIVersion != "" {
 		replacements[TEMPLATE_API_VERSION] = tv.APIVersion
 	}
-	
+
 	return replacements
 }
 
@@ -175,17 +175,17 @@ func validateProjectName(name string) error {
 	if name == "" {
 		return fmt.Errorf("project name cannot be empty")
 	}
-	
+
 	// Allow lowercase letters, numbers, and hyphens
 	matched, _ := regexp.MatchString(`^[a-z0-9-]+$`, name)
 	if !matched {
 		return fmt.Errorf("project name must contain only lowercase letters, numbers, and hyphens")
 	}
-	
+
 	if strings.HasPrefix(name, "-") || strings.HasSuffix(name, "-") {
 		return fmt.Errorf("project name cannot start or end with a hyphen")
 	}
-	
+
 	return nil
 }
 
@@ -193,13 +193,13 @@ func validateModulePath(path string) error {
 	if path == "" {
 		return fmt.Errorf("module path cannot be empty")
 	}
-	
+
 	// Basic validation for Go module path
 	matched, _ := regexp.MatchString(`^[a-zA-Z0-9._/-]+$`, path)
 	if !matched {
 		return fmt.Errorf("module path contains invalid characters")
 	}
-	
+
 	return nil
 }
 
@@ -207,12 +207,12 @@ func validateServiceName(name string) error {
 	if name == "" {
 		return fmt.Errorf("service name cannot be empty")
 	}
-	
+
 	// Must be PascalCase
 	if !unicode.IsUpper(rune(name[0])) {
 		return fmt.Errorf("service name must start with uppercase letter (PascalCase)")
 	}
-	
+
 	return nil
 }
 
@@ -220,12 +220,12 @@ func validateModelName(name string) error {
 	if name == "" {
 		return fmt.Errorf("model name cannot be empty")
 	}
-	
+
 	// Must be PascalCase
 	if !unicode.IsUpper(rune(name[0])) {
 		return fmt.Errorf("model name must start with uppercase letter (PascalCase)")
 	}
-	
+
 	return nil
 }
 

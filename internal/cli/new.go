@@ -34,7 +34,7 @@ var newCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(newCmd)
-	
+
 	newCmd.Flags().StringVarP(&modulePath, "module", "m", "", "Go module path (e.g. github.com/user/project)")
 	newCmd.Flags().BoolVarP(&force, "force", "f", false, "Force creation even if directory exists")
 }
@@ -47,48 +47,48 @@ func init() {
 // 4. Cleanup and success messaging
 func runNewCommand(cmd *cobra.Command, args []string) error {
 	projectName := args[0]
-	
+
 	// Validate project name against our naming conventions
 	// (lowercase, hyphens allowed, no leading/trailing hyphens)
 	if err := validateProjectName(projectName); err != nil {
 		fmt.Println(errorStyle.Render("❌ Invalid project name:"), err)
 		return nil
 	}
-	
+
 	// Set default module path if not provided
 	if modulePath == "" {
 		modulePath = fmt.Sprintf("github.com/user/%s", projectName)
 		fmt.Println(warningStyle.Render("⚠️  No module path specified, using:"), modulePath)
 	}
-	
+
 	// Check if directory already exists
 	if _, err := os.Stat(projectName); err == nil && !force {
 		fmt.Println(errorStyle.Render("❌ Directory already exists:"), projectName)
 		fmt.Println(subtitleStyle.Render("Use --force flag to overwrite"))
 		return nil
 	}
-	
+
 	// Create template variables
 	vars := templates.NewTemplateVars()
 	if err := vars.SetProject(projectName, modulePath); err != nil {
 		fmt.Println(errorStyle.Render("❌ Error setting project variables:"), err)
 		return nil
 	}
-	
+
 	// Get template source directory (current meower project structure)
 	templateDir, err := getTemplateSourceDir()
 	if err != nil {
 		fmt.Println(errorStyle.Render("❌ Error finding template source:"), err)
 		return nil
 	}
-	
+
 	// Create destination directory
 	destDir := filepath.Join(".", projectName)
-	if err := os.MkdirAll(destDir, 0755); err != nil {
+	if err := os.MkdirAll(destDir, 0o755); err != nil {
 		fmt.Println(errorStyle.Render("❌ Error creating project directory:"), err)
 		return nil
 	}
-	
+
 	// Create the .meowed marker file - this serves multiple purposes:
 	// 1. Prevents infinite recursion during template processing
 	// 2. Marks the project as Meower-generated for CLI command detection
@@ -103,16 +103,16 @@ May your code purr smoothly and your builds never hiss! 🚀
 
 Generated with Meower Framework
 https://github.com/AlyxPink/meower`
-	if err := os.WriteFile(markerFile, []byte(funnyMessage), 0644); err != nil {
+	if err := os.WriteFile(markerFile, []byte(funnyMessage), 0o644); err != nil {
 		fmt.Println(errorStyle.Render("❌ Error creating marker file:"), err)
 		return nil
 	}
-	
+
 	fmt.Println(titleStyle.Render("🐱 Creating new Meower project"))
 	fmt.Println(subtitleStyle.Render("Project:"), projectName)
 	fmt.Println(subtitleStyle.Render("Module:"), modulePath)
 	fmt.Println()
-	
+
 	// Process template files
 	fmt.Println(subtitleStyle.Render("📂 Copying project structure..."))
 	processor := templates.NewFileProcessor(vars)
@@ -120,13 +120,13 @@ https://github.com/AlyxPink/meower`
 		fmt.Println(errorStyle.Render("❌ Error processing templates:"), err)
 		return nil
 	}
-	
+
 	// Clean up CLI-specific files from the generated project
 	cleanupGeneratedProject(destDir)
-	
+
 	// Copy guide to generated project
 	copyGuideToProject(destDir)
-	
+
 	fmt.Println(successStyle.Render("✅ Project created successfully!"))
 	fmt.Println()
 	fmt.Println(titleStyle.Render("🚀 Next steps:"))
@@ -135,7 +135,7 @@ https://github.com/AlyxPink/meower`
 	fmt.Println(subtitleStyle.Render("3. Open http://localhost:3000"))
 	fmt.Println()
 	fmt.Println(subtitleStyle.Render("Happy coding! 🎉"))
-	
+
 	return nil
 }
 
@@ -143,23 +143,23 @@ func validateProjectName(name string) error {
 	if name == "" {
 		return fmt.Errorf("project name cannot be empty")
 	}
-	
+
 	if strings.Contains(name, " ") {
 		return fmt.Errorf("project name cannot contain spaces")
 	}
-	
+
 	if strings.HasPrefix(name, "-") || strings.HasSuffix(name, "-") {
 		return fmt.Errorf("project name cannot start or end with a hyphen")
 	}
-	
+
 	// Check for invalid characters
 	for _, char := range name {
-		if !((char >= 'a' && char <= 'z') || (char >= 'A' && char <= 'Z') || 
-			 (char >= '0' && char <= '9') || char == '-' || char == '_') {
+		if !((char >= 'a' && char <= 'z') || (char >= 'A' && char <= 'Z') ||
+			(char >= '0' && char <= '9') || char == '-' || char == '_') {
 			return fmt.Errorf("project name contains invalid character: %c", char)
 		}
 	}
-	
+
 	return nil
 }
 
@@ -169,10 +169,10 @@ func getTemplateSourceDir() (string, error) {
 	if !ok {
 		return "", fmt.Errorf("unable to determine source location")
 	}
-	
+
 	// Navigate up to the project root (from internal/cli to root)
 	projectRoot := filepath.Dir(filepath.Dir(filepath.Dir(filename)))
-	
+
 	// For now, we'll use the current project structure as template
 	// Later we can embed templates or use a separate template directory
 	return projectRoot, nil
@@ -187,7 +187,7 @@ func cleanupGeneratedProject(projectDir string) {
 		"internal/generators",
 		"CONTRIBUTING.md", // CLI development docs not needed in projects
 	}
-	
+
 	for _, file := range filesToRemove {
 		fullPath := filepath.Join(projectDir, file)
 		os.RemoveAll(fullPath)
@@ -199,14 +199,14 @@ func copyGuideToProject(projectDir string) {
 	// Get the source GUIDE.md path
 	sourcePath := "GUIDE.md"
 	destPath := filepath.Join(projectDir, "GUIDE.md")
-	
+
 	// Read the source file
 	content, err := os.ReadFile(sourcePath)
 	if err != nil {
 		// If GUIDE.md doesn't exist, silently continue
 		return
 	}
-	
+
 	// Write to destination
-	os.WriteFile(destPath, content, 0644)
+	os.WriteFile(destPath, content, 0o644)
 }

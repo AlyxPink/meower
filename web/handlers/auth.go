@@ -50,7 +50,6 @@ func (a *Auth) Login(c *fiber.Ctx) error {
 		UsernameOrEmail: usernameOrEmail,
 		Password:        password,
 	})
-
 	if err != nil {
 		st, ok := status.FromError(err)
 		if !ok {
@@ -141,7 +140,6 @@ func (a *Auth) Signup(c *fiber.Ctx) error {
 		Email:       email,
 		Password:    password,
 	})
-
 	if err != nil {
 		st, ok := status.FromError(err)
 		if !ok {

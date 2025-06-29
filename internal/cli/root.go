@@ -8,25 +8,25 @@ import (
 var (
 	// Styles for consistent UI
 	titleStyle = lipgloss.NewStyle().
-		Bold(true).
-		Foreground(lipgloss.Color("#7C3AED")).
-		MarginLeft(2)
+			Bold(true).
+			Foreground(lipgloss.Color("#7C3AED")).
+			MarginLeft(2)
 
 	subtitleStyle = lipgloss.NewStyle().
-		Foreground(lipgloss.Color("#6B7280")).
-		MarginLeft(2)
+			Foreground(lipgloss.Color("#6B7280")).
+			MarginLeft(2)
 
 	successStyle = lipgloss.NewStyle().
-		Foreground(lipgloss.Color("#10B981")).
-		Bold(true)
+			Foreground(lipgloss.Color("#10B981")).
+			Bold(true)
 
 	errorStyle = lipgloss.NewStyle().
-		Foreground(lipgloss.Color("#EF4444")).
-		Bold(true)
+			Foreground(lipgloss.Color("#EF4444")).
+			Bold(true)
 
 	warningStyle = lipgloss.NewStyle().
-		Foreground(lipgloss.Color("#F59E0B")).
-		Bold(true)
+			Foreground(lipgloss.Color("#F59E0B")).
+			Bold(true)
 )
 
 // rootCmd represents the base command when called without any subcommands

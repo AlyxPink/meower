@@ -4,7 +4,7 @@ package meow.v1;
 
 import "google/protobuf/timestamp.proto";
 
-option go_package = "github.com/AlyxPink/meower/api/proto/meow/v1";
+option go_package = "TEMPLATE_MODULE_PATH/api/proto/meow/v1";
 
 service MeowService {
   rpc CreateMeow(CreateMeowRequest) returns (CreateMeowResponse) {}

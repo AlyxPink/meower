@@ -3,8 +3,8 @@ package grpc
 import (
 	"os"
 
-	meowV1 "github.com/AlyxPink/meower/api/proto/meow/v1"
-	userV1 "github.com/AlyxPink/meower/api/proto/user/v1"
+	meowV1 "TEMPLATE_MODULE_PATH/api/proto/meow/v1"
+	userV1 "TEMPLATE_MODULE_PATH/api/proto/user/v1"
 	"github.com/charmbracelet/log"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"

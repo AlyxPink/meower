@@ -1,4 +1,4 @@
-module github.com/AlyxPink/meower/api
+module TEMPLATE_MODULE_PATH/api
 
 go 1.23.3
 

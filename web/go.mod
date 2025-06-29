@@ -1,8 +1,8 @@
-module github.com/AlyxPink/meower/web
+module TEMPLATE_MODULE_PATH/web
 
 go 1.23.3
 
-replace github.com/AlyxPink/meower/api => ../api
+replace TEMPLATE_MODULE_PATH/api => ../api
 
 require (
 	github.com/a-h/templ v0.3.898
@@ -23,7 +23,7 @@ require (
 )
 
 require (
-	github.com/AlyxPink/meower/api v0.0.0-20250611040923-7b94c4f3cea4
+	TEMPLATE_MODULE_PATH/api v0.0.0-20250611040923-7b94c4f3cea4
 	github.com/andybalholm/brotli v1.1.1 // indirect
 	github.com/aymanbagabas/go-osc52/v2 v2.0.1 // indirect
 	github.com/charmbracelet/lipgloss v1.1.0 // indirect

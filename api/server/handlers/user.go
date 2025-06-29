@@ -8,8 +8,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/AlyxPink/meower/api/db"
-	userV1 "github.com/AlyxPink/meower/api/proto/user/v1"
+	"TEMPLATE_MODULE_PATH/api/db"
+	userV1 "TEMPLATE_MODULE_PATH/api/proto/user/v1"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"golang.org/x/crypto/bcrypt"

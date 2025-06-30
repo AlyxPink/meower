@@ -7,7 +7,7 @@
 *.dll
 *.so
 *.dylib
-./meower
+meower
 
 # Test binary, built with `go test -c`
 *.test
@@ -41,3 +41,9 @@ web/static/public/css/**.css
 
 # Dependency directories
 **/node_modules
+
+# Test project directories (to avoid accidental commits)
+test-project/
+cli-test-project/
+fast-test-project/
+test-*/

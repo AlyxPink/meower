@@ -39,8 +39,8 @@ func TestCLIProjectGeneration(t *testing.T) {
 	}()
 
 	// Test project generation
-	projectName := "cli-test-project"
-	modulePath := "github.com/test/cli-test-project"
+	projectName := "test-project"
+	modulePath := "github.com/test/test-project"
 
 	cmd := exec.Command(cliPath, "new", projectName, "--module", modulePath)
 	output, err := cmd.CombinedOutput()
@@ -143,7 +143,7 @@ func TestCLIValidation(t *testing.T) {
 	}
 
 	// Test directory already exists (without force flag)
-	validProject := "valid-project"
+	validProject := "test-project"
 	
 	// Create the project first
 	cmd = exec.Command(cliPath, "new", validProject, "--module", "github.com/test/valid")
@@ -285,8 +285,8 @@ func TestMeowerCLIComprehensive(t *testing.T) {
 	}
 
 	// Test parameters
-	projectName := "fast-test-project"
-	modulePath := "github.com/test/fast-test-project"
+	projectName := "test-project"
+	modulePath := "github.com/test/test-project"
 	projectDir := filepath.Join(tempDir, projectName)
 
 	// Subtest 1: Fast Project Generation (2-3 seconds)

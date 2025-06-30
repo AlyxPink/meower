@@ -50,7 +50,7 @@ func runNewCommand(cmd *cobra.Command, args []string) error {
 	generator := NewProjectGenerator(config)
 	if err := generator.Generate(); err != nil {
 		fmt.Println(errorStyle.Render("❌ Project generation failed:"), err)
-		return nil // Return nil to prevent cobra from showing usage
+		return err // Return error for proper exit codes in testing
 	}
 
 	return nil

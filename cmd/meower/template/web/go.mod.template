@@ -1,0 +1,31 @@
+module {{.ModulePath}}/web
+
+go 1.21
+
+require (
+	{{.ModulePath}}/web/grpc v0.0.0
+	{{.ModulePath}}/web/handlers v0.0.0
+	{{.ModulePath}}/web/routing v0.0.0
+	{{.ModulePath}}/web/routes v0.0.0
+	{{.ModulePath}}/web/views/pages/auth v0.0.0
+	{{.ModulePath}}/web/views/pages/custom_errors v0.0.0
+	{{.ModulePath}}/web/views/pages/homepage v0.0.0
+	{{.ModulePath}}/web/views/services/meows/v1 v0.0.0
+	{{.ModulePath}}/web/views/components/global v0.0.0
+	{{.ModulePath}}/web/views/layouts v0.0.0
+	github.com/a-h/templ v0.2.476
+	github.com/a-h/templ/runtime v0.0.0
+	github.com/charmbracelet/log v0.2.4
+	github.com/gofiber/fiber/v2 v2.50.0
+	github.com/gofiber/fiber/v2/middleware/adaptor v0.0.0
+	github.com/gofiber/fiber/v2/middleware/compress v1.0.2
+	github.com/gofiber/fiber/v2/middleware/csrf v1.0.2
+	github.com/gofiber/fiber/v2/middleware/encryptcookie v1.0.2
+	github.com/gofiber/fiber/v2/middleware/logger v1.0.8
+	github.com/gofiber/fiber/v2/middleware/requestid v1.0.2
+	github.com/gofiber/fiber/v2/middleware/session v1.0.2
+	github.com/gofiber/fiber/v2/utils v1.1.0
+	golang.org/x/crypto/bcrypt v0.13.0
+	google.golang.org/grpc v1.58.2
+	google.golang.org/grpc/credentials/insecure v1.3.0
+)

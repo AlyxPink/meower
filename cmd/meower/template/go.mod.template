@@ -1,0 +1,7 @@
+module {{.ModulePath}}
+
+go 1.21
+
+require (
+	github.com/charmbracelet/log v0.2.4
+)

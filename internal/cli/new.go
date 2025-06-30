@@ -5,9 +5,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
-	"strings"
 
-	"github.com/AlyxPink/meower/internal/templates"
 	"github.com/spf13/cobra"
 )
 
@@ -39,125 +37,20 @@ func init() {
 	newCmd.Flags().BoolVarP(&force, "force", "f", false, "Force creation even if directory exists")
 }
 
-// runNewCommand implements the core project scaffolding logic.
-// This function orchestrates the entire project creation process:
-// 1. Input validation and default value assignment
-// 2. Directory creation and marker file placement
-// 3. Template processing and file generation
-// 4. Cleanup and success messaging
+// implements the core project scaffolding logic using the refactored architecture
 func runNewCommand(cmd *cobra.Command, args []string) error {
-	projectName := args[0]
-
-	// Validate project name against our naming conventions
-	// (lowercase, hyphens allowed, no leading/trailing hyphens)
-	if err := validateProjectName(projectName); err != nil {
-		fmt.Println(errorStyle.Render("❌ Invalid project name:"), err)
-		return nil
+	// Create project configuration
+	config := &ProjectConfig{
+		ProjectName: args[0],
+		ModulePath:  modulePath,
+		Force:       force,
 	}
 
-	// Set default module path if not provided
-	if modulePath == "" {
-		modulePath = fmt.Sprintf("github.com/user/%s", projectName)
-		fmt.Println(warningStyle.Render("⚠️  No module path specified, using:"), modulePath)
-	}
-
-	// Check if directory already exists
-	if _, err := os.Stat(projectName); err == nil && !force {
-		fmt.Println(errorStyle.Render("❌ Directory already exists:"), projectName)
-		fmt.Println(subtitleStyle.Render("Use --force flag to overwrite"))
-		return nil
-	}
-
-	// Create template variables
-	vars := templates.NewTemplateVars()
-	if err := vars.SetProject(projectName, modulePath); err != nil {
-		fmt.Println(errorStyle.Render("❌ Error setting project variables:"), err)
-		return nil
-	}
-
-	// Get template source directory (current meower project structure)
-	templateDir, err := getTemplateSourceDir()
-	if err != nil {
-		fmt.Println(errorStyle.Render("❌ Error finding template source:"), err)
-		return nil
-	}
-
-	// Create destination directory
-	destDir := filepath.Join(".", projectName)
-	if err := os.MkdirAll(destDir, 0o755); err != nil {
-		fmt.Println(errorStyle.Render("❌ Error creating project directory:"), err)
-		return nil
-	}
-
-	// Create the .meowed marker file - this serves multiple purposes:
-	// 1. Prevents infinite recursion during template processing
-	// 2. Marks the project as Meower-generated for CLI command detection
-	// 3. Provides a fun "badge" for users to discover
-	markerFile := filepath.Join(destDir, ".meowed")
-	funnyMessage := `🐱 This project has been MEOWED! 🐱
-
-Congratulations! Your project was lovingly crafted by the Meower CLI.
-You're now part of the exclusive club of developers who've been meowed.
-
-May your code purr smoothly and your builds never hiss! 🚀
-
-Generated with Meower Framework
-https://github.com/AlyxPink/meower`
-	if err := os.WriteFile(markerFile, []byte(funnyMessage), 0o644); err != nil {
-		fmt.Println(errorStyle.Render("❌ Error creating marker file:"), err)
-		return nil
-	}
-
-	fmt.Println(titleStyle.Render("🐱 Creating new Meower project"))
-	fmt.Println(subtitleStyle.Render("Project:"), projectName)
-	fmt.Println(subtitleStyle.Render("Module:"), modulePath)
-	fmt.Println()
-
-	// Process template files
-	fmt.Println(subtitleStyle.Render("📂 Copying project structure..."))
-	processor := templates.NewFileProcessor(vars)
-	if err := processor.ProcessDirectory(templateDir, destDir); err != nil {
-		fmt.Println(errorStyle.Render("❌ Error processing templates:"), err)
-		return nil
-	}
-
-	// Clean up CLI-specific files from the generated project
-	cleanupGeneratedProject(destDir)
-
-	// Copy guide to generated project
-	copyGuideToProject(destDir)
-
-	fmt.Println(successStyle.Render("✅ Project created successfully!"))
-	fmt.Println()
-	fmt.Println(titleStyle.Render("🚀 Next steps:"))
-	fmt.Println(subtitleStyle.Render("1. cd " + projectName))
-	fmt.Println(subtitleStyle.Render("2. docker-compose up"))
-	fmt.Println(subtitleStyle.Render("3. Open http://localhost:3000"))
-	fmt.Println()
-	fmt.Println(subtitleStyle.Render("Happy coding! 🎉"))
-
-	return nil
-}
-
-func validateProjectName(name string) error {
-	if name == "" {
-		return fmt.Errorf("project name cannot be empty")
-	}
-
-	if strings.Contains(name, " ") {
-		return fmt.Errorf("project name cannot contain spaces")
-	}
-
-	if strings.HasPrefix(name, "-") || strings.HasSuffix(name, "-") {
-		return fmt.Errorf("project name cannot start or end with a hyphen")
-	}
-
-	// Check for invalid characters
-	for _, char := range name {
-		if !((char >= 'a' && char <= 'z') || (char >= 'A' && char <= 'Z') ||
-			(char >= '0' && char <= '9') || char == '-' || char == '_') {
-			return fmt.Errorf("project name contains invalid character: %c", char)
-		}
+	// Create and execute project generator
+	generator := NewProjectGenerator(config)
+	if err := generator.Generate(); err != nil {
+		fmt.Println(errorStyle.Render("❌ Project generation failed:"), err)
+		return nil // Return nil to prevent cobra from showing usage
 	}
 
 	return nil

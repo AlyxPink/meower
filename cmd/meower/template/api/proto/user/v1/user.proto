@@ -1,0 +1,155 @@
+syntax = "proto3";
+
+package user.v1;
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/wrappers.proto";
+
+option go_package = "github.com/AlyxPink/meower/api/proto/user/v1";
+
+service UserService {
+  // Core CRUD operations
+  rpc CreateUser(CreateUserRequest) returns (CreateUserResponse) {}
+  rpc GetUser(GetUserRequest) returns (GetUserResponse) {}
+  rpc GetUserByEmail(GetUserByEmailRequest) returns (GetUserByEmailResponse) {}
+  rpc GetUserByUsername(GetUserByUsernameRequest) returns (GetUserByUsernameResponse) {}
+  rpc UpdateUser(UpdateUserRequest) returns (UpdateUserResponse) {}
+  rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse) {}
+  rpc ListUsers(ListUsersRequest) returns (ListUsersResponse) {}
+
+  // Authentication operations
+  rpc Login(LoginRequest) returns (LoginResponse) {}
+  rpc Logout(LogoutRequest) returns (LogoutResponse) {}
+
+  // Password management
+  rpc RequestPasswordReset(RequestPasswordResetRequest) returns (RequestPasswordResetResponse) {}
+  rpc ResetPassword(ResetPasswordRequest) returns (ResetPasswordResponse) {}
+
+  // Email verification
+  rpc VerifyEmail(VerifyEmailRequest) returns (VerifyEmailResponse) {}
+}
+
+message User {
+  string id = 1;
+  string username = 2;
+  string display_name = 3;
+  string email = 4;
+  bool email_verified = 5;
+  google.protobuf.Timestamp created_at = 6;
+  google.protobuf.Timestamp last_login_at = 7;
+  bool account_locked = 8;
+  int32 failed_login_attempts = 9;
+}
+
+// Create user
+message CreateUserRequest {
+  string username = 1;
+  string display_name = 2;
+  string email = 3;
+  string password = 4; // Plain password, will be hashed server-side
+}
+
+message CreateUserResponse {
+  User user = 1;
+}
+
+// Get user by ID
+message GetUserRequest {
+  string id = 1;
+}
+
+message GetUserResponse {
+  User user = 1;
+}
+
+// Get user by email
+message GetUserByEmailRequest {
+  string email = 1;
+}
+
+message GetUserByEmailResponse {
+  User user = 1;
+}
+
+// Get user by username
+message GetUserByUsernameRequest {
+  string username = 1;
+}
+
+message GetUserByUsernameResponse {
+  User user = 1;
+}
+
+// Update user
+message UpdateUserRequest {
+  string id = 1;
+  google.protobuf.StringValue display_name = 2;
+  google.protobuf.StringValue email = 3;
+  google.protobuf.BoolValue email_verified = 4;
+  google.protobuf.StringValue password = 5; // Plain password, will be hashed server-side
+}
+
+message UpdateUserResponse {
+  User user = 1;
+}
+
+// Delete user
+message DeleteUserRequest {
+  string id = 1;
+}
+
+message DeleteUserResponse {}
+
+// List users
+message ListUsersRequest {
+  int32 limit = 1;
+  int32 offset = 2;
+}
+
+message ListUsersResponse {
+  repeated User users = 1;
+}
+
+// Password reset
+message RequestPasswordResetRequest {
+  string email = 1;
+}
+
+message RequestPasswordResetResponse {
+  bool success = 1;
+}
+
+message ResetPasswordRequest {
+  string token = 1;
+  string new_password = 2; // Plain password, will be hashed server-side
+}
+
+message ResetPasswordResponse {
+  bool success = 1;
+}
+
+// Email verification
+message VerifyEmailRequest {
+  string id = 1;
+}
+
+message VerifyEmailResponse {
+  bool success = 1;
+}
+
+// Authentication
+message LoginRequest {
+  string username_or_email = 1;
+  string password = 2;
+}
+
+message LoginResponse {
+  string token = 1; // JWT or session token
+  User user = 2;
+}
+
+message LogoutRequest {}
+
+message LogoutResponse {
+  bool success = 1;
+}

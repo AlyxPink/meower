@@ -145,11 +145,17 @@ func (tv *TemplateVars) ToReplacementMap() map[string]string {
 		replacements[TEMPLATE_PROJECT_NAME] = tv.ProjectName
 		replacements[TEMPLATE_PROJECT_NAME_UPPER] = tv.ProjectNameUpper
 		replacements[TEMPLATE_PROJECT_NAME_CAMEL] = tv.ProjectNameCamel
+		// Add Go template syntax replacements
+		replacements["{{.ProjectName}}"] = tv.ProjectName
+		replacements["{{.ProjectNameUpper}}"] = tv.ProjectNameUpper
+		replacements["{{.ProjectNameCamel}}"] = tv.ProjectNameCamel
 	}
 	if tv.ModulePath != "" {
 		replacements[TEMPLATE_MODULE_PATH] = tv.ModulePath
 		// Also replace the original hardcoded module path
 		replacements["github.com/AlyxPink/meower"] = tv.ModulePath
+		// Add Go template syntax replacements
+		replacements["{{.ModulePath}}"] = tv.ModulePath
 	}
 	if tv.ServiceName != "" {
 		replacements[TEMPLATE_SERVICE_NAME] = tv.ServiceName

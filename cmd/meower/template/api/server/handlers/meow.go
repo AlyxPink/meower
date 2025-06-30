@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/AlyxPink/meower/api/db"
-	meowV1 "github.com/AlyxPink/meower/api/proto/meow/v1"
+	"{{.ModulePath}}/api/db"
+	meowV1 "{{.ModulePath}}/api/proto/meow/v1"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )

@@ -3,13 +3,13 @@ package handlers
 import (
 	"errors"
 
-	"github.com/AlyxPink/meower/web/grpc"
+	"meower-template-web/grpc"
 	"github.com/a-h/templ"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/adaptor"
 	"github.com/gofiber/fiber/v2/middleware/session"
 
-	"github.com/AlyxPink/meower/web/views/pages/custom_errors"
+	"meower-template-web/views/pages/custom_errors"
 	"github.com/charmbracelet/log"
 )
 

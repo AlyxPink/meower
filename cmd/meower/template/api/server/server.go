@@ -7,9 +7,9 @@ import (
 	"net"
 	"os"
 
-	pbMeowV1 "github.com/AlyxPink/meower/api/proto/meow/v1"
-	pbUserV1 "github.com/AlyxPink/meower/api/proto/user/v1"
-	"github.com/AlyxPink/meower/api/server/handlers"
+	pbMeowV1 "{{.ModulePath}}/api/proto/meow/v1"
+	pbUserV1 "{{.ModulePath}}/api/proto/user/v1"
+	"{{.ModulePath}}/api/server/handlers"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/health"

@@ -248,7 +248,7 @@ go build -o meower ./cmd/meower
 
 ## 📄 License
 
-MIT License - see [LICENSE](LICENSE) file for details.
+GNU Affero General Public License v3.0 - see [LICENSE](LICENSE) file for details.
 
 ## 🎉 Why Meower?
 

@@ -14,5 +14,4 @@ template/web/go.sum
 
 # Generated files that shouldn't be in templates
 template/**/*.pb.go
-template/**/*.pb.gw.go
 template/**/query.*.sql.go

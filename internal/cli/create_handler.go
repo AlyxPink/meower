@@ -8,6 +8,7 @@ import (
 
 	"github.com/AlyxPink/meower/internal/generators"
 	"github.com/AlyxPink/meower/internal/templates"
+
 	"github.com/spf13/cobra"
 )
 

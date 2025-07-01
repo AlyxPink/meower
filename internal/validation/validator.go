@@ -9,10 +9,10 @@ import (
 var (
 	// Project name validation
 	projectNameRegex = regexp.MustCompile(`^[a-z][a-z0-9-]*[a-z0-9]$`)
-	
-	// Service name validation  
+
+	// Service name validation
 	serviceNameRegex = regexp.MustCompile(`^[A-Z][a-zA-Z0-9]*$`)
-	
+
 	// Module path validation
 	modulePathRegex = regexp.MustCompile(`^[a-z0-9.-]+(/[a-z0-9.-]+)*$`)
 )
@@ -42,34 +42,34 @@ func (v *ProjectValidator) ValidateProjectName(name string) error {
 			Message: "project name cannot be empty",
 		}
 	}
-	
+
 	if len(name) < 2 {
 		return ValidationError{
-			Field:   "project name", 
+			Field:   "project name",
 			Value:   name,
 			Rule:    "length",
 			Message: "project name must be at least 2 characters",
 		}
 	}
-	
+
 	if len(name) > 50 {
 		return ValidationError{
 			Field:   "project name",
-			Value:   name, 
+			Value:   name,
 			Rule:    "length",
 			Message: "project name must be at most 50 characters",
 		}
 	}
-	
+
 	if !projectNameRegex.MatchString(name) {
 		return ValidationError{
 			Field:   "project name",
 			Value:   name,
-			Rule:    "format", 
+			Rule:    "format",
 			Message: "project name must be lowercase, start with letter, contain only letters/numbers/hyphens, and not end with hyphen",
 		}
 	}
-	
+
 	return nil
 }
 
@@ -83,7 +83,7 @@ func (v *ProjectValidator) ValidateModulePath(path string) error {
 			Message: "module path cannot be empty",
 		}
 	}
-	
+
 	if !modulePathRegex.MatchString(path) {
 		return ValidationError{
 			Field:   "module path",
@@ -92,11 +92,11 @@ func (v *ProjectValidator) ValidateModulePath(path string) error {
 			Message: "module path must be a valid Go module path (e.g. github.com/user/project)",
 		}
 	}
-	
+
 	return nil
 }
 
-// ServiceValidator handles service-level validation  
+// ServiceValidator handles service-level validation
 type ServiceValidator struct{}
 
 // ValidateServiceName validates service naming conventions
@@ -105,11 +105,11 @@ func (v *ServiceValidator) ValidateServiceName(name string) error {
 		return ValidationError{
 			Field:   "service name",
 			Value:   name,
-			Rule:    "required", 
+			Rule:    "required",
 			Message: "service name cannot be empty",
 		}
 	}
-	
+
 	if len(name) < 2 {
 		return ValidationError{
 			Field:   "service name",
@@ -118,7 +118,7 @@ func (v *ServiceValidator) ValidateServiceName(name string) error {
 			Message: "service name must be at least 2 characters",
 		}
 	}
-	
+
 	if !serviceNameRegex.MatchString(name) {
 		return ValidationError{
 			Field:   "service name",
@@ -127,7 +127,7 @@ func (v *ServiceValidator) ValidateServiceName(name string) error {
 			Message: "service name must be PascalCase (e.g. UserService, OrderService)",
 		}
 	}
-	
+
 	// Check for common reserved words
 	reserved := []string{"Service", "Handler", "Controller", "Manager"}
 	for _, word := range reserved {
@@ -140,7 +140,7 @@ func (v *ServiceValidator) ValidateServiceName(name string) error {
 			}
 		}
 	}
-	
+
 	return nil
 }
 
@@ -154,17 +154,17 @@ func (v *ServiceValidator) ValidateHTTPMethods(methods []string) error {
 			Message: "at least one HTTP method must be specified",
 		}
 	}
-	
+
 	validMethods := map[string]bool{
-		"GET":    true,
-		"POST":   true, 
-		"PUT":    true,
-		"PATCH":  true,
-		"DELETE": true,
-		"HEAD":   true,
+		"GET":     true,
+		"POST":    true,
+		"PUT":     true,
+		"PATCH":   true,
+		"DELETE":  true,
+		"HEAD":    true,
 		"OPTIONS": true,
 	}
-	
+
 	for _, method := range methods {
 		method = strings.ToUpper(strings.TrimSpace(method))
 		if !validMethods[method] {
@@ -176,7 +176,7 @@ func (v *ServiceValidator) ValidateHTTPMethods(methods []string) error {
 			}
 		}
 	}
-	
+
 	return nil
 }
 
@@ -189,16 +189,16 @@ func (m MultiError) Error() string {
 	if len(m.Errors) == 0 {
 		return "no errors"
 	}
-	
+
 	if len(m.Errors) == 1 {
 		return m.Errors[0].Error()
 	}
-	
+
 	var messages []string
 	for _, err := range m.Errors {
 		messages = append(messages, err.Error())
 	}
-	
+
 	return fmt.Sprintf("multiple validation errors: %s", strings.Join(messages, "; "))
 }
 

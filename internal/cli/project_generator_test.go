@@ -68,19 +68,19 @@ func TestProjectGenerator_ValidateAndPrepare(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			generator := NewProjectGenerator(tt.config)
 			err := generator.ValidateAndPrepare()
-			
+
 			if tt.expectError && err == nil {
 				t.Errorf("Expected error but got none")
 			}
 			if !tt.expectError && err != nil {
 				t.Errorf("Expected no error but got: %v", err)
 			}
-			
+
 			// Test auto-generated module path
 			if tt.config.ModulePath == "" && !tt.expectError {
 				expectedPath := "github.com/user/" + tt.config.ProjectName
 				if tt.config.ModulePath != expectedPath {
-					t.Errorf("Expected auto-generated module path %s, got %s", 
+					t.Errorf("Expected auto-generated module path %s, got %s",
 						expectedPath, tt.config.ModulePath)
 				}
 			}
@@ -94,7 +94,7 @@ func TestProjectGenerator_DirectoryExists(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to get current directory: %v", err)
 	}
-	
+
 	if err := os.Chdir(tempDir); err != nil {
 		t.Fatalf("Failed to change to temp directory: %v", err)
 	}
@@ -104,7 +104,7 @@ func TestProjectGenerator_DirectoryExists(t *testing.T) {
 
 	// Create a directory that already exists
 	existingDir := "existing-project"
-	if err := os.MkdirAll(existingDir, 0755); err != nil {
+	if err := os.MkdirAll(existingDir, 0o755); err != nil {
 		t.Fatalf("Failed to create existing directory: %v", err)
 	}
 
@@ -137,7 +137,7 @@ func TestProjectGenerator_FileCount(t *testing.T) {
 
 // Benchmark test to ensure performance doesn't regress
 func BenchmarkProjectGeneration(b *testing.B) {
-	// Skip this benchmark as it requires embedded files from the CLI binary  
+	// Skip this benchmark as it requires embedded files from the CLI binary
 	// Use integration benchmarks instead for full project generation testing
 	b.Skip("Skipping unit benchmark - use integration benchmark for full project generation testing")
 }

@@ -92,7 +92,7 @@ func TestCLIProjectGeneration(t *testing.T) {
 		t.Errorf("Failed to read go.mod: %v", err)
 	} else {
 		if !strings.Contains(string(content), "module "+modulePath) {
-			t.Errorf("go.mod does not contain correct module path.\nExpected: module %s\nContent: %s", 
+			t.Errorf("go.mod does not contain correct module path.\nExpected: module %s\nContent: %s",
 				modulePath, string(content))
 		}
 	}
@@ -131,7 +131,7 @@ func TestCLIValidation(t *testing.T) {
 	// Test invalid project name
 	cmd := exec.Command(cliPath, "new", "Invalid-Project-Name", "--module", "github.com/test/invalid")
 	output, err := cmd.CombinedOutput()
-	
+
 	// Command should fail with validation error
 	if err == nil {
 		t.Error("Expected CLI to fail with invalid project name, but it succeeded")
@@ -144,7 +144,7 @@ func TestCLIValidation(t *testing.T) {
 
 	// Test directory already exists (without force flag)
 	validProject := "test-project"
-	
+
 	// Create the project first
 	cmd = exec.Command(cliPath, "new", validProject, "--module", "github.com/test/valid")
 	_, err = cmd.CombinedOutput()
@@ -168,7 +168,7 @@ func TestCLIValidation(t *testing.T) {
 	cmd = exec.Command(cliPath, "new", validProject, "--module", "github.com/test/valid", "--force")
 	output, err = cmd.CombinedOutput()
 	if err != nil {
-		t.Errorf("Expected CLI to succeed with --force flag, but got error: %v\nOutput: %s", 
+		t.Errorf("Expected CLI to succeed with --force flag, but got error: %v\nOutput: %s",
 			err, string(output))
 	}
 }
@@ -236,14 +236,14 @@ func buildCLIBinary(t *testing.T) string {
 
 	// Navigate to project root (assuming we're in internal/cli)
 	projectRoot := filepath.Join(wd, "..", "..")
-	
+
 	// Create temporary binary
 	tempBinary := filepath.Join(t.TempDir(), "meower-test")
-	
+
 	// Build the CLI
 	cmd := exec.Command("go", "build", "-o", tempBinary, "./cmd/meower")
 	cmd.Dir = projectRoot
-	
+
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		t.Fatalf("Failed to build CLI binary: %v\nOutput: %s", err, string(output))
@@ -438,7 +438,7 @@ func verifyModulePath(t *testing.T, goModPath, expectedModule string) {
 		return
 	}
 	if !strings.Contains(string(content), "module "+expectedModule) {
-		t.Errorf("%s does not contain expected module '%s'\nContent: %s", 
+		t.Errorf("%s does not contain expected module '%s'\nContent: %s",
 			goModPath, expectedModule, string(content))
 	}
 }
@@ -580,10 +580,9 @@ func countFiles(t *testing.T, dir string) int {
 		}
 		return nil
 	})
-	
 	if err != nil {
 		t.Fatalf("Failed to count files in %s: %v", dir, err)
 	}
-	
+
 	return count
 }

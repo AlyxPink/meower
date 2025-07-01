@@ -77,7 +77,7 @@ func TestProjectValidator_ValidateProjectName(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			err := validator.ValidateProjectName(tt.projectName)
-			
+
 			if tt.expectError && err == nil {
 				t.Errorf("Expected error for project name '%s' but got none", tt.projectName)
 			}
@@ -146,7 +146,7 @@ func TestProjectValidator_ValidateModulePath(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			err := validator.ValidateModulePath(tt.modulePath)
-			
+
 			if tt.expectError && err == nil {
 				t.Errorf("Expected error for module path '%s' but got none", tt.modulePath)
 			}
@@ -235,7 +235,7 @@ func TestServiceValidator_ValidateServiceName(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			err := validator.ValidateServiceName(tt.serviceName)
-			
+
 			if tt.expectError && err == nil {
 				t.Errorf("Expected error for service name '%s' but got none", tt.serviceName)
 			}
@@ -294,7 +294,7 @@ func TestServiceValidator_ValidateHTTPMethods(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			err := validator.ValidateHTTPMethods(tt.methods)
-			
+
 			if tt.expectError && err == nil {
 				t.Errorf("Expected error for methods %v but got none", tt.methods)
 			}
@@ -357,15 +357,15 @@ func TestMultiError(t *testing.T) {
 
 func TestNewValidator(t *testing.T) {
 	validator := NewValidator()
-	
+
 	if validator == nil {
 		t.Error("Expected NewValidator to return non-nil validator")
 	}
-	
+
 	if validator.Project == nil {
 		t.Error("Expected validator to have Project validator")
 	}
-	
+
 	if validator.Service == nil {
 		t.Error("Expected validator to have Service validator")
 	}
@@ -373,11 +373,11 @@ func TestNewValidator(t *testing.T) {
 
 // Helper function for string contains check
 func contains(str, substr string) bool {
-	return len(str) >= len(substr) && (str == substr || 
-		(len(str) > len(substr) && 
-			(str[:len(substr)] == substr || 
-			 str[len(str)-len(substr):] == substr || 
-			 indexOf(str, substr) >= 0)))
+	return len(str) >= len(substr) && (str == substr ||
+		(len(str) > len(substr) &&
+			(str[:len(substr)] == substr ||
+				str[len(str)-len(substr):] == substr ||
+				indexOf(str, substr) >= 0)))
 }
 
 func indexOf(str, substr string) int {

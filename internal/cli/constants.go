@@ -5,17 +5,17 @@ const (
 	// Project structure
 	MarkerFileName      = ".meowed"
 	DefaultModulePrefix = "github.com/user"
-	
-	// Template directories  
-	ApiProtoDir     = "api/proto"
-	WebHandlersDir  = "web/handlers"
-	ApiHandlersDir  = "api/server/handlers"
-	
+
+	// Template directories
+	ApiProtoDir    = "api/proto"
+	WebHandlersDir = "web/handlers"
+	ApiHandlersDir = "api/server/handlers"
+
 	// File extensions
-	ProtoExt     = ".proto"
-	GoExt        = ".go"
-	TemplateExt  = ".template"
-	
+	ProtoExt    = ".proto"
+	GoExt       = ".go"
+	TemplateExt = ".template"
+
 	// Default server settings
 	DefaultHTTPPort = "3000"
 	DefaultGRPCPort = "50051"

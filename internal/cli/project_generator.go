@@ -85,9 +85,9 @@ func (pg *ProjectGenerator) ProcessTemplates() error {
 
 	// Use optimized processor for better performance
 	processor := templates.NewOptimizedProcessorWithStats(vars)
-	
+
 	fmt.Println(subtitleStyle.Render("📂 Copying project structure..."))
-	
+
 	if err := processor.ProcessEmbeddedFiles(pg.config.DestDir); err != nil {
 		// Fallback to local files (for development)
 		return pg.fallbackToLocalFiles(vars)
@@ -95,7 +95,7 @@ func (pg *ProjectGenerator) ProcessTemplates() error {
 
 	// Show processing statistics
 	stats := processor.GetStats()
-	fmt.Printf(successStyle.Render("✅ Using embedded template files (%d files processed, %d skipped)\n"), 
+	fmt.Printf(successStyle.Render("✅ Using embedded template files (%d files processed, %d skipped)\n"),
 		stats.FilesProcessed, stats.FilesSkipped)
 
 	return nil
@@ -168,7 +168,7 @@ func (pg *ProjectGenerator) fallbackToLocalFiles(vars *templates.TemplateVars) e
 	}
 
 	fmt.Println(warningStyle.Render("⚠️  Using local development files (embedded files failed)"))
-	
+
 	// Use local file processor
 	localProcessor := templates.NewFileProcessor(vars)
 	if err := localProcessor.ProcessDirectory(templateDir, pg.config.DestDir); err != nil {

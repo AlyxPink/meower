@@ -173,7 +173,7 @@ func (s *{{$serviceLower}}ServiceServer) {{.}}{{$resourceName}}(ctx context.Cont
 	// if err != nil {
 	//     return nil, status.Errorf(codes.Internal, "failed to create {{$resourceNameLower}}: %v", err)
 	// }
-	
+
 	return &{{$serviceLower}}V1.{{.}}{{$resourceName}}Response{
 		{{$resourceName}}: &{{$serviceLower}}V1.{{$resourceName}}{
 			Id:        "generated-id",
@@ -189,12 +189,12 @@ func (s *{{$serviceLower}}ServiceServer) {{.}}{{$resourceName}}(ctx context.Cont
 	// if err != nil {
 	//     return nil, status.Errorf(codes.InvalidArgument, "invalid ID: %v", err)
 	// }
-	// 
+	//
 	// result, err := db.New(s.db).Get{{$resourceName}}ById(ctx, uuid)
 	// if err != nil {
 	//     return nil, status.Errorf(codes.NotFound, "{{$resourceNameLower}} not found: %v", err)
 	// }
-	
+
 	return &{{$serviceLower}}V1.{{.}}{{$resourceName}}Response{
 		{{$resourceName}}: &{{$serviceLower}}V1.{{$resourceName}}{
 			Id:        req.Id,
@@ -291,7 +291,7 @@ type {{.ServiceName}} struct {
 //     if err != nil {
 //         return err
 //     }
-//     
+//
 //     return c.JSON(resp.{{.ResourceName}}s)
 // }
 `

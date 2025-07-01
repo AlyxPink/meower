@@ -2,9 +2,7 @@ module github.com/AlyxPink/meower/cmd/meower
 
 go 1.24.0
 
-require github.com/AlyxPink/meower v0.0.0
-
-replace github.com/AlyxPink/meower => ../..
+require github.com/AlyxPink/meower v0.0.0-20250701043443-d3117a87bfa5
 
 require (
 	github.com/aymanbagabas/go-osc52/v2 v2.0.1 // indirect

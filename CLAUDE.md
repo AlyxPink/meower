@@ -40,10 +40,10 @@ internal/
 
 ### Development & Testing
 ```bash
-# Build CLI binary
-go build -o meower ./cmd/meower
+# Build CLI binary (from cmd/meower directory)
+cd cmd/meower && go build -o meower .
 
-# Run comprehensive integration tests (< 1 second execution)
+# Run comprehensive integration tests (< 15 second execution)
 go test ./internal/cli -v -run TestMeowerCLIComprehensive
 
 # Run all CLI tests including validation and help
@@ -69,6 +69,9 @@ go test ./internal/cli -run TestCLIValidation -v
 ./meower --help
 ./meower new --help
 ./meower create handler --help
+
+# Handler generation with custom methods
+./meower create handler ServiceName --methods Create,Get,List
 ```
 
 ### Project Testing Workflow
@@ -82,7 +85,7 @@ docker-compose up
 ## Testing Framework
 
 ### Fast Integration Testing
-- **TestMeowerCLIComprehensive**: Complete workflow test (< 1 second)
+- **TestMeowerCLIComprehensive**: Complete workflow test (< 15 seconds)
   - Project generation validation
   - Handler generation testing  
   - Build validation (with smart module error handling)
@@ -156,7 +159,7 @@ docker-compose up
 ### Test Development
 - Use `test-project` name for consistency
 - Mock external dependencies (databases, networks)
-- Target execution under 1 second for fast feedback
+- Target execution under 15 seconds for fast feedback
 - Include cleanup in all test functions
 
 ## Generated Project Development
@@ -181,3 +184,4 @@ meower create handler PaymentService
 - **Web Server**: `web/main.go` → HTTP server on :3000  
 - **Database**: PostgreSQL on :5432 with pgweb UI on :5430
 - **Hot Reload**: Automatic rebuilds on file changes
+```

@@ -1,23 +1,21 @@
-module {{.ModulePath}}/api
+module TEMPLATE_PROJECT_NAME/api
 
-go 1.21
+go 1.24.3
 
 require (
-	{{.ModulePath}}/api/proto/meow/v1 v0.0.0
-	{{.ModulePath}}/api/proto/user/v1 v0.0.0
-	{{.ModulePath}}/api/server/handlers v0.0.0
-	github.com/jackc/pgx/v5 v5.4.3
-	github.com/jackc/pgx/v5/pgconn v0.0.0
-	github.com/jackc/pgx/v5/pgxpool v1.6.0
-	github.com/jackc/pgx/v5/pgtype v1.18.0
-	google.golang.org/grpc v1.58.2
-	google.golang.org/grpc/codes v0.0.0
-	google.golang.org/grpc/health v1.1.0
-	google.golang.org/grpc/health/grpc_health_v1 v1.1.0
-	google.golang.org/grpc/reflection v1.1.0
-	google.golang.org/grpc/status v0.0.0
-	google.golang.org/protobuf/reflect/protoreflect v1.31.0
-	google.golang.org/protobuf/runtime/protoimpl v1.31.0
-	google.golang.org/protobuf/types/known/timestamppb v1.31.0
-	google.golang.org/protobuf/types/known/wrapperspb v1.31.0
+	github.com/jackc/pgx/v5 v5.7.5
+	golang.org/x/crypto v0.39.0
+	google.golang.org/grpc v1.73.0
+	google.golang.org/protobuf v1.36.6
+)
+
+require (
+	github.com/jackc/pgpassfile v1.0.0 // indirect
+	github.com/jackc/pgservicefile v0.0.0-20240606120523-5a60cdf6a761 // indirect
+	github.com/jackc/puddle/v2 v2.2.2 // indirect
+	golang.org/x/net v0.41.0 // indirect
+	golang.org/x/sync v0.15.0 // indirect
+	golang.org/x/sys v0.33.0 // indirect
+	golang.org/x/text v0.26.0 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20250603155806-513f23925822 // indirect
 )

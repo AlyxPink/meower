@@ -1,0 +1,18 @@
+# Meower CLI specific ignores
+
+# Built binary
+meower
+
+# Test projects
+test-project/
+
+# Development mode files (should not be committed)
+template/api/go.mod
+template/api/go.sum
+template/web/go.mod
+template/web/go.sum
+
+# Generated files that shouldn't be in templates
+template/**/*.pb.go
+template/**/*.pb.gw.go
+template/**/query.*.sql.go

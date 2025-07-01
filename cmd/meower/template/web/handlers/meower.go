@@ -3,7 +3,7 @@ package handlers
 import (
 	meowV1 "github.com/AlyxPink/meower/api/proto/meow/v1"
 
-	viewMeowV1 "meower-template-web/views/services/meows/v1"
+	viewMeowV1 "github.com/AlyxPink/meower/web/views/services/meows/v1"
 	"github.com/gofiber/fiber/v2"
 )
 

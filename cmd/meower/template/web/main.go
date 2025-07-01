@@ -3,9 +3,10 @@ package main
 import (
 	"os"
 
-	"meower-template-web/grpc"
-	"meower-template-web/handlers"
-	"meower-template-web/routing"
+	"github.com/AlyxPink/meower/web/grpc"
+	"github.com/AlyxPink/meower/web/handlers"
+	"github.com/AlyxPink/meower/web/routing"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/compress"
 	"github.com/gofiber/fiber/v2/middleware/csrf"

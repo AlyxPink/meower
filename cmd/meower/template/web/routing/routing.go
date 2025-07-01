@@ -1,8 +1,8 @@
 package routing
 
 import (
-	"meower-template-web/handlers"
-	"meower-template-web/routes"
+	"github.com/AlyxPink/meower/web/handlers"
+	"github.com/AlyxPink/meower/web/routes"
 )
 
 func RegisterRoutes(app *handlers.App) {

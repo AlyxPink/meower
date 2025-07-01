@@ -17,7 +17,7 @@ var embeddedTemplateFiles embed.FS
 func main() {
 	// Set the embedded template files for the templates package
 	templates.EmbeddedFiles = embeddedTemplateFiles
-	
+
 	if err := cli.Execute(); err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 		os.Exit(1)

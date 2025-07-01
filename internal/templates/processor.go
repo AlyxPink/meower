@@ -206,7 +206,11 @@ func validateFileTemplates(filePath string) []string {
 	if err != nil {
 		return []string{fmt.Sprintf("Error reading %s: %v", filePath, err)}
 	}
-	defer file.Close()
+	defer func() {
+		if err := file.Close(); err != nil {
+			fmt.Printf("Warning: failed to close file: %v\n", err)
+		}
+	}()
 
 	scanner := bufio.NewScanner(file)
 	lineNum := 0

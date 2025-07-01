@@ -62,9 +62,7 @@ func (efp *EmbeddedFileProcessor) ProcessEmbeddedFiles(destDir string) error {
 		}
 
 		// Handle .template files (rename them to remove .template extension)
-		if strings.HasSuffix(cleanPath, ".template") {
-			cleanPath = strings.TrimSuffix(cleanPath, ".template")
-		}
+		cleanPath = strings.TrimSuffix(cleanPath, ".template")
 
 		destPath := filepath.Join(destDir, cleanPath)
 

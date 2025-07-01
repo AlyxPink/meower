@@ -52,9 +52,7 @@ func (op *OptimizedProcessor) ProcessEmbeddedFiles(destDir string) error {
 		}
 
 		// Handle .template files (rename them to remove .template extension)
-		if strings.HasSuffix(cleanPath, ".template") {
-			cleanPath = strings.TrimSuffix(cleanPath, ".template")
-		}
+		cleanPath = strings.TrimSuffix(cleanPath, ".template")
 
 		destPath := filepath.Join(destDir, cleanPath)
 
@@ -188,9 +186,7 @@ func (ops *OptimizedProcessorWithStats) ProcessEmbeddedFiles(destDir string) err
 		}
 
 		// Handle .template files
-		if strings.HasSuffix(cleanPath, ".template") {
-			cleanPath = strings.TrimSuffix(cleanPath, ".template")
-		}
+		cleanPath = strings.TrimSuffix(cleanPath, ".template")
 
 		destPath := filepath.Join(destDir, cleanPath)
 

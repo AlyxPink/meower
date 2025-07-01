@@ -360,6 +360,7 @@ func TestNewValidator(t *testing.T) {
 
 	if validator == nil {
 		t.Error("Expected NewValidator to return non-nil validator")
+		return
 	}
 
 	if validator.Project == nil {

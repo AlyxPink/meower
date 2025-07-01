@@ -83,7 +83,10 @@ func cleanupGeneratedProject(projectDir string) {
 
 	for _, file := range filesToRemove {
 		fullPath := filepath.Join(projectDir, file)
-		os.RemoveAll(fullPath)
+		if err := os.RemoveAll(fullPath); err != nil {
+			// Log but don't fail - these files might not exist
+			fmt.Printf("Warning: failed to remove %s: %v\n", fullPath, err)
+		}
 	}
 }
 
@@ -101,5 +104,7 @@ func copyGuideToProject(projectDir string) {
 	}
 
 	// Write to destination
-	os.WriteFile(destPath, content, 0o644)
+	if err := os.WriteFile(destPath, content, 0o644); err != nil {
+		fmt.Printf("Warning: failed to write GUIDE.md: %v\n", err)
+	}
 }

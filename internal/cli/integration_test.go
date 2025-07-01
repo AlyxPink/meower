@@ -21,7 +21,11 @@ func TestCLIProjectGeneration(t *testing.T) {
 
 	// Build the CLI binary
 	cliPath := buildCLIBinary(t)
-	defer os.Remove(cliPath)
+	defer func() {
+		if err := os.Remove(cliPath); err != nil {
+			t.Logf("Warning: failed to remove CLI binary: %v", err)
+		}
+	}()
 
 	// Create a temporary directory for testing
 	tempDir := t.TempDir()
@@ -35,7 +39,9 @@ func TestCLIProjectGeneration(t *testing.T) {
 		t.Fatalf("Failed to change to temp directory: %v", err)
 	}
 	defer func() {
-		os.Chdir(originalDir)
+		if err := os.Chdir(originalDir); err != nil {
+			t.Logf("Warning: failed to change back to original directory: %v", err)
+		}
 	}()
 
 	// Test project generation
@@ -113,7 +119,11 @@ func TestCLIValidation(t *testing.T) {
 	}
 
 	cliPath := buildCLIBinary(t)
-	defer os.Remove(cliPath)
+	defer func() {
+		if err := os.Remove(cliPath); err != nil {
+			t.Logf("Warning: failed to remove CLI binary: %v", err)
+		}
+	}()
 
 	tempDir := t.TempDir()
 	originalDir, err := os.Getwd()
@@ -125,7 +135,9 @@ func TestCLIValidation(t *testing.T) {
 		t.Fatalf("Failed to change to temp directory: %v", err)
 	}
 	defer func() {
-		os.Chdir(originalDir)
+		if err := os.Chdir(originalDir); err != nil {
+			t.Logf("Warning: failed to change back to original directory: %v", err)
+		}
 	}()
 
 	// Test invalid project name
@@ -180,7 +192,11 @@ func TestCLIHelp(t *testing.T) {
 	}
 
 	cliPath := buildCLIBinary(t)
-	defer os.Remove(cliPath)
+	defer func() {
+		if err := os.Remove(cliPath); err != nil {
+			t.Logf("Warning: failed to remove CLI binary: %v", err)
+		}
+	}()
 
 	// Test main help
 	cmd := exec.Command(cliPath, "--help")
@@ -270,7 +286,11 @@ func TestMeowerCLIComprehensive(t *testing.T) {
 
 	// Build the CLI binary once for all subtests
 	cliPath := buildCLIBinary(t)
-	defer os.Remove(cliPath)
+	defer func() {
+		if err := os.Remove(cliPath); err != nil {
+			t.Logf("Warning: failed to remove CLI binary: %v", err)
+		}
+	}()
 
 	// Create test workspace
 	tempDir := t.TempDir()
@@ -278,7 +298,11 @@ func TestMeowerCLIComprehensive(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to get current directory: %v", err)
 	}
-	defer os.Chdir(originalDir)
+	defer func() {
+		if err := os.Chdir(originalDir); err != nil {
+			t.Logf("Warning: failed to change back to original directory: %v", err)
+		}
+	}()
 
 	if err := os.Chdir(tempDir); err != nil {
 		t.Fatalf("Failed to change to temp directory: %v", err)
@@ -337,7 +361,11 @@ func TestMeowerCLIComprehensive(t *testing.T) {
 		if err := os.Chdir(projectDir); err != nil {
 			t.Fatalf("Failed to change to project directory: %v", err)
 		}
-		defer os.Chdir(tempDir)
+		defer func() {
+			if err := os.Chdir(tempDir); err != nil {
+				t.Logf("Warning: failed to change back to temp directory: %v", err)
+			}
+		}()
 
 		// Generate a test handler
 		cmd := exec.Command(cliPath, "create", "handler", "TestService")
@@ -373,7 +401,11 @@ func TestMeowerCLIComprehensive(t *testing.T) {
 		if err := os.Chdir(projectDir); err != nil {
 			t.Fatalf("Failed to change to project directory: %v", err)
 		}
-		defer os.Chdir(tempDir)
+		defer func() {
+			if err := os.Chdir(tempDir); err != nil {
+				t.Logf("Warning: failed to change back to temp directory: %v", err)
+			}
+		}()
 
 		// Test API build (build within api directory)
 		t.Run("APIBuild", func(t *testing.T) {
@@ -385,7 +417,9 @@ func TestMeowerCLIComprehensive(t *testing.T) {
 				// Don't fail the test - local module issues are expected in generated projects
 			} else {
 				t.Logf("✅ API build succeeded")
-				os.Remove("/tmp/test-api")
+				if err := os.Remove("/tmp/test-api"); err != nil {
+				t.Logf("Warning: failed to remove test-api binary: %v", err)
+			}
 			}
 		})
 
@@ -399,7 +433,9 @@ func TestMeowerCLIComprehensive(t *testing.T) {
 				// Don't fail the test - local module issues are expected in generated projects
 			} else {
 				t.Logf("✅ Web build succeeded")
-				os.Remove("/tmp/test-web")
+				if err := os.Remove("/tmp/test-web"); err != nil {
+				t.Logf("Warning: failed to remove test-web binary: %v", err)
+			}
 			}
 		})
 	})
@@ -414,7 +450,11 @@ func TestMeowerCLIComprehensive(t *testing.T) {
 		if err := os.Chdir(projectDir); err != nil {
 			t.Fatalf("Failed to change to project directory: %v", err)
 		}
-		defer os.Chdir(tempDir)
+		defer func() {
+			if err := os.Chdir(tempDir); err != nil {
+				t.Logf("Warning: failed to change back to temp directory: %v", err)
+			}
+		}()
 
 		// Test API server startup with mocked database
 		t.Run("APIServer", func(t *testing.T) {
@@ -459,13 +499,25 @@ func verifyHandlerContent(t *testing.T, handlerPath, serviceName string) {
 // testAPIServerStartup tests that the API server can start and stop quickly
 func testAPIServerStartup(t *testing.T) {
 	// Mock database connection by setting empty DATABASE_URL
-	os.Setenv("DATABASE_URL", "")
-	defer os.Unsetenv("DATABASE_URL")
+	if err := os.Setenv("DATABASE_URL", ""); err != nil {
+		t.Fatalf("Failed to set DATABASE_URL: %v", err)
+	}
+	defer func() {
+		if err := os.Unsetenv("DATABASE_URL"); err != nil {
+			t.Logf("Warning: failed to unset DATABASE_URL: %v", err)
+		}
+	}()
 
 	// Find available port
 	port := findAvailablePort(t)
-	os.Setenv("API_PORT", port)
-	defer os.Unsetenv("API_PORT")
+	if err := os.Setenv("API_PORT", port); err != nil {
+		t.Fatalf("Failed to set API_PORT: %v", err)
+	}
+	defer func() {
+		if err := os.Unsetenv("API_PORT"); err != nil {
+			t.Logf("Warning: failed to unset API_PORT: %v", err)
+		}
+	}()
 
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
@@ -478,7 +530,11 @@ func testAPIServerStartup(t *testing.T) {
 		// Skip server startup test if build fails due to module issues
 		return
 	}
-	defer os.Remove("/tmp/test-api-server")
+	defer func() {
+		if err := os.Remove("/tmp/test-api-server"); err != nil {
+			t.Logf("Warning: failed to remove test API server binary: %v", err)
+		}
+	}()
 
 	// Start server
 	serverCmd := exec.CommandContext(ctx, "/tmp/test-api-server")
@@ -494,30 +550,50 @@ func testAPIServerStartup(t *testing.T) {
 	if err != nil {
 		t.Logf("⚠️  API server not responding on port %s (expected with mocked DB): %v", port, err)
 	} else {
-		conn.Close()
+		if err := conn.Close(); err != nil {
+			t.Logf("Warning: failed to close connection: %v", err)
+		}
 		t.Logf("✅ API server started successfully on port %s", port)
 	}
 
 	// Cleanup
 	if serverCmd.Process != nil {
-		serverCmd.Process.Kill()
-		serverCmd.Wait()
+		if err := serverCmd.Process.Kill(); err != nil {
+			t.Logf("Warning: failed to kill server process: %v", err)
+		}
+		if err := serverCmd.Wait(); err != nil {
+			t.Logf("Warning: server process wait failed: %v", err)
+		}
 	}
 }
 
 // testWebServerStartup tests that the web server can start and stop quickly
 func testWebServerStartup(t *testing.T) {
 	// Set required environment variables
-	os.Setenv("API_ENDPOINT", "localhost:50051")
-	os.Setenv("COOKIE_SECRET_KEY", "test-secret-key-for-testing-purposes-only")
+	if err := os.Setenv("API_ENDPOINT", "localhost:50051"); err != nil {
+		t.Fatalf("Failed to set API_ENDPOINT: %v", err)
+	}
+	if err := os.Setenv("COOKIE_SECRET_KEY", "test-secret-key-for-testing-purposes-only"); err != nil {
+		t.Fatalf("Failed to set COOKIE_SECRET_KEY: %v", err)
+	}
 	defer func() {
-		os.Unsetenv("API_ENDPOINT")
-		os.Unsetenv("COOKIE_SECRET_KEY")
+		if err := os.Unsetenv("API_ENDPOINT"); err != nil {
+			t.Logf("Warning: failed to unset API_ENDPOINT: %v", err)
+		}
+		if err := os.Unsetenv("COOKIE_SECRET_KEY"); err != nil {
+			t.Logf("Warning: failed to unset COOKIE_SECRET_KEY: %v", err)
+		}
 	}()
 
 	port := "3001" // Use different port to avoid conflicts
-	os.Setenv("WEB_PORT", port)
-	defer os.Unsetenv("WEB_PORT")
+	if err := os.Setenv("WEB_PORT", port); err != nil {
+		t.Fatalf("Failed to set WEB_PORT: %v", err)
+	}
+	defer func() {
+		if err := os.Unsetenv("WEB_PORT"); err != nil {
+			t.Logf("Warning: failed to unset WEB_PORT: %v", err)
+		}
+	}()
 
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
@@ -530,7 +606,11 @@ func testWebServerStartup(t *testing.T) {
 		// Skip server startup test if build fails due to module issues
 		return
 	}
-	defer os.Remove("/tmp/test-web-server")
+	defer func() {
+		if err := os.Remove("/tmp/test-web-server"); err != nil {
+			t.Logf("Warning: failed to remove test-web-server binary: %v", err)
+		}
+	}()
 
 	// Start server
 	serverCmd := exec.CommandContext(ctx, "/tmp/test-web-server")
@@ -546,14 +626,20 @@ func testWebServerStartup(t *testing.T) {
 	if err != nil {
 		t.Logf("⚠️  Web server not responding on port %s (may need API connection): %v", port, err)
 	} else {
-		conn.Close()
+		if err := conn.Close(); err != nil {
+			t.Logf("Warning: failed to close connection: %v", err)
+		}
 		t.Logf("✅ Web server started successfully on port %s", port)
 	}
 
 	// Cleanup
 	if serverCmd.Process != nil {
-		serverCmd.Process.Kill()
-		serverCmd.Wait()
+		if err := serverCmd.Process.Kill(); err != nil {
+			t.Logf("Warning: failed to kill server process: %v", err)
+		}
+		if err := serverCmd.Wait(); err != nil {
+			t.Logf("Warning: server process wait failed: %v", err)
+		}
 	}
 }
 
@@ -563,7 +649,11 @@ func findAvailablePort(t *testing.T) string {
 	if err != nil {
 		t.Fatalf("Failed to find available port: %v", err)
 	}
-	defer listener.Close()
+	defer func() {
+		if err := listener.Close(); err != nil {
+			t.Logf("Warning: failed to close listener: %v", err)
+		}
+	}()
 	addr := listener.Addr().(*net.TCPAddr)
 	return strings.Split(addr.String(), ":")[1]
 }

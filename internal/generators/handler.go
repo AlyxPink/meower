@@ -115,7 +115,11 @@ message {{.}}{{$.ResourceName}}Response {
 	if err != nil {
 		return fmt.Errorf("failed to create proto file: %w", err)
 	}
-	defer file.Close()
+	defer func() {
+		if err := file.Close(); err != nil {
+			fmt.Printf("Warning: failed to close file: %v\n", err)
+		}
+	}()
 
 	if err := tmpl.Execute(file, data); err != nil {
 		return fmt.Errorf("failed to execute proto template: %w", err)
@@ -258,7 +262,11 @@ func (s *{{$serviceLower}}ServiceServer) {{.}}{{$resourceName}}(ctx context.Cont
 	if err != nil {
 		return fmt.Errorf("failed to create handler file: %w", err)
 	}
-	defer file.Close()
+	defer func() {
+		if err := file.Close(); err != nil {
+			fmt.Printf("Warning: failed to close file: %v\n", err)
+		}
+	}()
 
 	if err := tmpl.Execute(file, data); err != nil {
 		return fmt.Errorf("failed to execute handler template: %w", err)
@@ -314,7 +322,11 @@ type {{.ServiceName}} struct {
 	if err != nil {
 		return fmt.Errorf("failed to create web handler file: %w", err)
 	}
-	defer file.Close()
+	defer func() {
+		if err := file.Close(); err != nil {
+			fmt.Printf("Warning: failed to close file: %v\n", err)
+		}
+	}()
 
 	if err := tmpl.Execute(file, data); err != nil {
 		return fmt.Errorf("failed to execute web handler template: %w", err)

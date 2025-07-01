@@ -99,7 +99,9 @@ func TestProjectGenerator_DirectoryExists(t *testing.T) {
 		t.Fatalf("Failed to change to temp directory: %v", err)
 	}
 	defer func() {
-		os.Chdir(originalDir)
+		if err := os.Chdir(originalDir); err != nil {
+			t.Logf("Warning: failed to change back to original directory: %v", err)
+		}
 	}()
 
 	// Create a directory that already exists

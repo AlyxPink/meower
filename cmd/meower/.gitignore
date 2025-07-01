@@ -3,8 +3,9 @@
 # Built binary
 meower
 
-# Test projects
+# Test project directories (to avoid accidental commits)
 test-project/
+test-*/
 
 # Development mode files (should not be committed)
 template/api/go.mod

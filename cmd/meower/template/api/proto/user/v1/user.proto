@@ -5,7 +5,7 @@ package user.v1;
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/wrappers.proto";
 
-option go_package = "meower/api/proto/user/v1";
+option go_package = "github.com/AlyxPink/meower/api/proto/user/v1";
 
 service UserService {
   // Core CRUD operations

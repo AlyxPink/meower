@@ -44,6 +44,4 @@ web/static/public/css/**.css
 
 # Test project directories (to avoid accidental commits)
 test-project/
-cli-test-project/
-fast-test-project/
 test-*/

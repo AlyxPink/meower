@@ -35,10 +35,10 @@ go install github.com/AlyxPink/meower/cmd/meower@latest
 
 ```bash
 # Create a new project
-meower new my-app -m github.com/user/my-app
+meower new my-social-app -m github.com/user/my-social-app
 
 # Start development environment
-cd my-app
+cd my-social-app
 docker-compose up
 ```
 
@@ -61,18 +61,18 @@ meower create handler UserService -m Create,Get,Update,Delete,List
 
 ```
 my-app/
-├── 🖥️  api/                  # gRPC API Server
-│   ├── proto/                # Protocol Buffer definitions
+├── 🖥️  api/                    # gRPC API Server
+│   ├── proto/                 # Protocol Buffer definitions
 │   │   ├── user/v1/          # Versioned service definitions
 │   │   └── post/v1/
-│   ├── server/handlers/      # gRPC service implementations
-│   ├── db/                   # Database layer (SQLC generated)
+│   ├── server/handlers/       # gRPC service implementations
+│   ├── db/                    # Database layer (SQLC generated)
 │   │   ├── schema.sql        # Database schema
 │   │   ├── queries.sql       # SQL queries
-│   │   └── *.go              # Generated type-safe code
+│   │   └── *.go             # Generated type-safe code
 │   └── main.go               # API server entry point
 │
-├── 🌐 web/                   # Web Server
+├── 🌐 web/                     # Web Server
 │   ├── handlers/             # HTTP request handlers
 │   ├── views/                # Templ templates
 │   │   ├── layouts/          # Base layouts
@@ -80,15 +80,15 @@ my-app/
 │   │   └── components/       # Reusable components
 │   ├── static/               # CSS, JS, images
 │   ├── routes/               # Route definitions
-│   └── main.go               # Web server entry point
+│   └── main.go              # Web server entry point
 │
-├── 🐳 docker-compose.yml     # Development environment
-└── 📜 scripts/               # Build and utility scripts
+├── 🐳 docker-compose.yml       # Development environment
+└── 📜 scripts/                 # Build and utility scripts
 ```
 
 ## 🎯 Core Concepts
 
-### **Split Architecture**
+### **Microservice Architecture**
 Meower uses a clean separation between your API and web layers:
 - **API Server**: Pure business logic, database operations, gRPC endpoints
 - **Web Server**: HTTP handlers, template rendering, static assets
@@ -130,7 +130,7 @@ meower create handler AuthService -m Login,Logout,Register
 
 ### 1. **Start Development Environment**
 ```bash
-docker compose up
+docker-compose up
 ```
 This starts all services with hot reload enabled:
 - API server with live recompilation
@@ -223,6 +223,9 @@ npm run build-css-prod
 # Build production images
 docker build -f api/Dockerfile -t my-app-api .
 docker build -f web/Dockerfile -t my-app-web .
+
+# Or use docker-compose for production
+docker-compose -f docker-compose.prod.yml up
 ```
 
 ## 🤝 Contributing
@@ -245,7 +248,7 @@ go build -o meower ./cmd/meower
 
 ## 📄 License
 
-GNU Affero General Public License v3.0 - see [LICENSE](LICENSE) file for details.
+MIT License - see [LICENSE](LICENSE) file for details.
 
 ## 🎉 Why Meower?
 
@@ -260,6 +263,6 @@ Meower gives you:
 
 ---
 
-**Made with 🩷 by [AlyxPink](https://github.com/AlyxPink/).**
+**Made with 🐱 by developers who believe web development should be fun again.**
 
 *May your code purr smoothly and your builds never hiss!* 🚀

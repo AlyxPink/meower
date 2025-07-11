@@ -14,7 +14,7 @@ var (
 	serviceNameRegex = regexp.MustCompile(`^[A-Z][a-zA-Z0-9]*$`)
 
 	// Module path validation
-	modulePathRegex = regexp.MustCompile(`^[a-z0-9.-]+(/[a-z0-9.-]+)*$`)
+	modulePathRegex = regexp.MustCompile(`^[a-zA-Z0-9.-]+(/[a-zA-Z0-9.-]+)*$`)
 )
 
 // ValidationError represents a validation error with context

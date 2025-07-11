@@ -8,11 +8,11 @@ This guide explains how to work with the Meower framework template in developmen
 
 ```bash
 # 1. Clone the repository
-git clone <your-repo>
+git clone git@github.com:AlyxPink/meower.git
 cd meower/cmd/meower
 
 # 2. Enable development mode
-./dev-mode.sh
+make dev
 
 # 3. Start developing
 cd template
@@ -23,11 +23,10 @@ docker compose up
 
 ```bash
 # 1. Stop the services
-docker compose down
+make stop
 
 # 2. Switch back to template mode
-cd ..
-./template-mode.sh
+make template-mode
 
 # 3. Commit your changes
 git add .

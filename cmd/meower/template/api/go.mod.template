@@ -1,4 +1,4 @@
-module TEMPLATE_PROJECT_NAME/api
+module TEMPLATE_MODULE_PATH/api
 
 go 1.24.3
 

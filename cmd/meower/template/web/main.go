@@ -3,9 +3,9 @@ package main
 import (
 	"os"
 
-	"github.com/AlyxPink/meower/web/grpc"
-	"github.com/AlyxPink/meower/web/handlers"
-	"github.com/AlyxPink/meower/web/routing"
+	"TEMPLATE_MODULE_PATH/web/grpc"
+	"TEMPLATE_MODULE_PATH/web/handlers"
+	"TEMPLATE_MODULE_PATH/web/routing"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/compress"

@@ -6,10 +6,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/AlyxPink/meower/web/routes"
-	"github.com/AlyxPink/meower/web/views/pages/auth"
+	"TEMPLATE_MODULE_PATH/web/routes"
+	"TEMPLATE_MODULE_PATH/web/views/pages/auth"
 
-	userV1 "github.com/AlyxPink/meower/api/proto/user/v1"
+	userV1 "TEMPLATE_MODULE_PATH/api/proto/user/v1"
 	"github.com/gofiber/fiber/v2"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"

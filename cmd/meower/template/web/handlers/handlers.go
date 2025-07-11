@@ -3,8 +3,8 @@ package handlers
 import (
 	"errors"
 
-	"github.com/AlyxPink/meower/web/grpc"
-	"github.com/AlyxPink/meower/web/views/pages/custom_errors"
+	"TEMPLATE_MODULE_PATH/web/grpc"
+	"TEMPLATE_MODULE_PATH/web/views/pages/custom_errors"
 
 	"github.com/a-h/templ"
 	"github.com/gofiber/fiber/v2"

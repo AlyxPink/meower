@@ -1,9 +1,9 @@
 package handlers
 
 import (
-	meowV1 "github.com/AlyxPink/meower/api/proto/meow/v1"
+	meowV1 "TEMPLATE_MODULE_PATH/api/proto/meow/v1"
 
-	viewMeowV1 "github.com/AlyxPink/meower/web/views/services/meows/v1"
+	viewMeowV1 "TEMPLATE_MODULE_PATH/web/views/services/meows/v1"
 	"github.com/gofiber/fiber/v2"
 )
 

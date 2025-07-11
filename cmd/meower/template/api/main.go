@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/AlyxPink/meower/api/server"
+	"TEMPLATE_MODULE_PATH/api/server"
 )
 
 const (

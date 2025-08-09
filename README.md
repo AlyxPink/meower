@@ -1,29 +1,29 @@
-# 🐱 Meower Framework
+# Meower Framework
 
-**An opinionated, production-ready Go web framework that makes building modern applications delightfully simple.**
+**An opinionated CLI framework for generating production-ready Go web applications with modern architecture and developer-friendly tooling.**
 
-Meower combines the best of Go's ecosystem into a cohesive, Rails-like developer experience. Build full-stack applications with gRPC APIs, server-side rendering, and type-safe database queries—all with a single CLI command.
+Meower provides a comprehensive solution for building full-stack Go applications with gRPC APIs, server-side rendering, and type-safe database queries. Generate complete project scaffolding and components with simple CLI commands.
 
-## ✨ Features
+## Features
 
-### 🚀 **Full-Stack Go**
-- **API Server**: gRPC-based microservice architecture
-- **Web Server**: Fiber-powered HTTP server with server-side rendering
-- **Type Safety**: End-to-end type safety from database to frontend
+### Full-Stack Go Architecture
+- **API Server**: gRPC-based microservice architecture with Protocol Buffers
+- **Web Server**: GoFiber HTTP server with server-side rendering
+- **Type Safety**: End-to-end type safety from database to frontend using SQLC and Templ
 
-### 🛠️ **Developer Experience**
-- **One Command Setup**: `meower new my-app` creates a complete project
-- **Code Generators**: Generate services, handlers, and models instantly
-- **Hot Reload**: Live reloading for both backend and frontend changes
-- **Docker Integration**: Complete development environment in one command
+### Developer Experience
+- **One Command Setup**: Generate complete projects with `meower new`
+- **Code Generators**: Create services, handlers, and models instantly
+- **Hot Reload**: Live reloading for both backend and frontend development
+- **Docker Integration**: Complete development environment with Docker Compose
 
-### 🔧 **Tech Stack**
+### Technology Stack
 - **Backend**: Go + gRPC + PostgreSQL + SQLC
-- **Frontend**: Go Fiber + Templ templates + TailwindCSS
-- **Development**: Docker Compose + hot reload
-- **API**: Protocol Buffers for type-safe communication
+- **Frontend**: GoFiber + Templ templates + TailwindCSS
+- **Development**: Docker Compose with hot reload
+- **API**: Protocol Buffers for type-safe service communication
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Installation
 
@@ -57,11 +57,11 @@ meower create handler PostService
 meower create handler UserService -m Create,Get,Update,Delete,List
 ```
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 my-app/
-├── 🖥️  api/                  # gRPC API Server
+├── api/                      # gRPC API Server
 │   ├── proto/                # Protocol Buffer definitions
 │   │   ├── user/v1/          # Versioned service definitions
 │   │   └── post/v1/
@@ -72,7 +72,7 @@ my-app/
 │   │   └── *.go              # Generated type-safe code
 │   └── main.go               # API server entry point
 │
-├── 🌐 web/                   # Web Server
+├── web/                      # Web Server
 │   ├── handlers/             # HTTP request handlers
 │   ├── views/                # Templ templates
 │   │   ├── layouts/          # Base layouts
@@ -82,29 +82,29 @@ my-app/
 │   ├── routes/               # Route definitions
 │   └── main.go               # Web server entry point
 │
-├── 🐳 docker-compose.yml     # Development environment
-└── 📜 scripts/               # Build and utility scripts
+├── docker-compose.yml        # Development environment
+└── scripts/                  # Build and utility scripts
 ```
 
-## 🎯 Core Concepts
+## Architecture
 
-### **Split Architecture**
-Meower uses a clean separation between your API and web layers:
-- **API Server**: Pure business logic, database operations, gRPC endpoints
-- **Web Server**: HTTP handlers, template rendering, static assets
+### Split Architecture
+Meower uses a clean separation between API and web layers:
+- **API Server**: Business logic, database operations, and gRPC endpoints
+- **Web Server**: HTTP handlers, template rendering, and static assets
 - **Communication**: Type-safe gRPC calls between services
 
-### **Type Safety Everywhere**
+### Type Safety
 - **Database**: SQLC generates type-safe Go code from SQL queries
 - **API**: Protocol Buffers ensure type safety across service boundaries
 - **Frontend**: Templ provides type-safe HTML templating
 
-### **Convention Over Configuration**
-- **Standard Structure**: Consistent project layout across all Meower apps
+### Convention Over Configuration
+- **Standard Structure**: Consistent project layout across all applications
 - **Naming Conventions**: Predictable file and package naming
-- **Code Generation**: Smart generators that follow established patterns
+- **Code Generation**: Smart generators following established patterns
 
-## 🛠️ Commands Reference
+## Commands Reference
 
 ### Project Management
 ```bash
@@ -126,9 +126,9 @@ meower create handler PostService -m Create,Get,List
 meower create handler AuthService -m Login,Logout,Register
 ```
 
-## 🔄 Development Workflow
+## Development Workflow
 
-### 1. **Start Development Environment**
+### 1. Start Development Environment
 ```bash
 docker compose up
 ```
@@ -139,13 +139,13 @@ This starts all services with hot reload enabled:
 - PostgreSQL database
 - Development tools (pgweb, mailpit)
 
-### 2. **Make Changes**
+### 2. Make Changes
 - **API Changes**: Edit files in `api/`, server restarts automatically
 - **Frontend Changes**: Edit `.templ` files, browser refreshes automatically
 - **Database Changes**: Update `schema.sql`, run migrations
 - **Styles**: Edit CSS files, TailwindCSS rebuilds automatically
 
-### 3. **Generate Code**
+### 3. Generate Code
 ```bash
 # After adding new SQL queries
 sqlc generate
@@ -157,7 +157,7 @@ sqlc generate
 meower create handler PaymentService
 ```
 
-## 🔧 Configuration
+## Configuration
 
 ### Environment Variables
 ```bash
@@ -178,7 +178,7 @@ Meower uses PostgreSQL with SQLC for type-safe queries:
 3. **Generate Code**: Run `sqlc generate`
 4. **Use in Handlers**: Import and use generated functions
 
-## 🎨 Frontend Development
+## Frontend Development
 
 ### Templ Templates
 Meower uses [Templ](https://templ.guide/) for type-safe HTML templating:
@@ -204,7 +204,7 @@ templ HomePage(title string, posts []Post) {
 - **Component Classes**: Organized in `web/static/src/css/`
 - **Production Optimization**: Minified builds for deployment
 
-## 🚀 Deployment
+## Deployment
 
 ### Production Build
 ```bash
@@ -225,7 +225,7 @@ docker build -f api/Dockerfile -t my-app-api .
 docker build -f web/Dockerfile -t my-app-web .
 ```
 
-## 🤝 Contributing
+## Contributing
 
 We welcome contributions! Here's how to get started:
 
@@ -243,23 +243,20 @@ go mod tidy
 go build -o meower ./cmd/meower
 ```
 
-## 📄 License
+## License
 
 GNU Affero General Public License v3.0 - see [LICENSE](LICENSE) file for details.
 
-## 🎉 Why Meower?
+## Why Meower?
 
-**"Building web applications shouldn't require assembling 20 different tools."**
+Building web applications shouldn't require assembling 20 different tools. Meower provides:
 
-Meower gives you:
-- ✅ **Batteries Included**: Everything you need out of the box
-- ✅ **Type Safety**: Catch errors at compile time, not runtime
-- ✅ **Developer Joy**: Fast feedback loops and intuitive workflows
-- ✅ **Production Ready**: Built for real applications, not just demos
-- ✅ **Go All The Way**: Pure Go stack with excellent performance
+- **Batteries Included**: Complete development environment and toolchain
+- **Type Safety**: Catch errors at compile time across the entire stack
+- **Fast Feedback**: Hot reload and rapid development cycles
+- **Production Ready**: Built for real applications with performance in mind
+- **Pure Go**: Consistent language and patterns throughout
 
 ---
 
-**Made with 🩷 by [AlyxPink](https://github.com/AlyxPink/).**
-
-*May your code purr smoothly and your builds never hiss!* 🚀
+**Made by [AlyxPink](https://github.com/AlyxPink/)**

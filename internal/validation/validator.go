@@ -13,8 +13,8 @@ var (
 	// Service name validation
 	serviceNameRegex = regexp.MustCompile(`^[A-Z][a-zA-Z0-9]*$`)
 
-	// Module path validation
-	modulePathRegex = regexp.MustCompile(`^[a-zA-Z0-9.-]+(/[a-zA-Z0-9.-]+)*$`)
+	// Module path validation (supports SourceHut format with ~ character)
+	modulePathRegex = regexp.MustCompile(`^[a-zA-Z0-9.-]+(/[a-zA-Z0-9.~-]+)*$`)
 )
 
 // ValidationError represents a validation error with context
@@ -67,6 +67,15 @@ func (v *ProjectValidator) ValidateProjectName(name string) error {
 			Value:   name,
 			Rule:    "format",
 			Message: "project name must be lowercase, start with letter, contain only letters/numbers/hyphens, and not end with hyphen",
+		}
+	}
+
+	if strings.Contains(name, "--") {
+		return ValidationError{
+			Field:   "project name",
+			Value:   name,
+			Rule:    "format",
+			Message: "project name cannot contain consecutive hyphens",
 		}
 	}
 

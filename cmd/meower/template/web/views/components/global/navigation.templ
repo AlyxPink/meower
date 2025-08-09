@@ -2,59 +2,116 @@ package global
 
 import (
 	"TEMPLATE_MODULE_PATH/web/routes"
+	"fmt"
 	"github.com/gofiber/fiber/v2"
 )
 
 templ Navigation(c *fiber.Ctx) {
 	<nav class="bg-blue-600 text-white p-4">
-		<div class="max-w-7xl mx-auto flex justify-between items-center">
-			<div class="flex items-center space-x-4">
-				<a href={ templ.SafeURL(c.App().GetRoute(routes.Homepage.Name).Path) } class="text-2xl font-bold hover:text-blue-200">
-					<h1 class="text-3xl font-black uppercase tracking-tight lg:leading-none lg:text-6xl">Meower</h1>
-				</a>
+		<div class="max-w-7xl mx-auto">
+			<div class="flex justify-between items-center">
+				<div class="flex items-center space-x-4">
+					<a href={ templ.SafeURL(c.App().GetRoute(routes.Homepage.Name).Path) } class="text-2xl font-bold hover:text-blue-100">
+						<h1 class="text-3xl font-black uppercase tracking-tight lg:leading-none lg:text-6xl">Meower</h1>
+					</a>
+				</div>
+				<div class="hidden md:flex items-center space-x-6">
+					if c.Locals("user_id") != nil {
+						// User is logged in
+						<span class="text-blue-200">
+							Welcome, { fmt.Sprint(c.Locals("display_name")) }!
+						</span>
+						<a class="hover:text-blue-200 underline" href={ templ.SafeURL(c.App().GetRoute(routes.MeowIndex.Name).Path) }>
+							See Meows
+						</a>
+						<a class="hover:text-blue-200 underline" href={ templ.SafeURL(c.App().GetRoute(routes.MeowNew.Name).Path) }>
+							Create a Meow
+						</a>
+						<form action={ templ.SafeURL(c.App().GetRoute(routes.Logout.Name).Path) } method="POST" class="inline">
+							<button type="submit" class="bg-red-500 hover:bg-red-600 px-3 py-1 rounded transition duration-200">
+								Logout
+							</button>
+						</form>
+					} else {
+						// User is not logged in
+						<a class="hover:text-blue-200 underline" href={ templ.SafeURL(c.App().GetRoute(routes.LoginShow.Name).Path) }>
+							Login
+						</a>
+						<a class="bg-green-600 hover:bg-green-700 px-3 py-1 rounded transition duration-200" href={ templ.SafeURL(c.App().GetRoute(routes.SignupShow.Name).Path) }>
+							Sign Up
+						</a>
+					}
+				</div>
+				<!-- Mobile menu button -->
+				<div class="md:hidden">
+					<button id="mobile-menu-button" class="text-white hover:text-blue-200 focus:outline-none focus:text-blue-200">
+						<svg id="menu-icon" class="h-6 w-6 fill-current" viewBox="0 0 24 24">
+							<path d="M4 5h16a1 1 0 0 1 0 2H4a1 1 0 1 1 0-2zm0 6h16a1 1 0 0 1 0 2H4a1 1 0 0 1 0-2zm0 6h16a1 1 0 0 1 0 2H4a1 1 0 0 1 0-2z"></path>
+						</svg>
+						<svg id="close-icon" class="h-6 w-6 fill-current hidden" viewBox="0 0 24 24">
+							<path d="M18.3 5.71a.996.996 0 0 0-1.41 0L12 10.59 7.11 5.7A.996.996 0 1 0 5.7 7.11L10.59 12 5.7 16.89a.996.996 0 1 0 1.41 1.41L12 13.41l4.89 4.89a.996.996 0 0 0 1.41-1.41L13.41 12l4.89-4.89c.38-.38.38-1.02 0-1.4z"></path>
+						</svg>
+					</button>
+				</div>
 			</div>
-			<div class="hidden md:flex items-center space-x-6">
-				if c.Locals("user_id") != nil {
-					// User is logged in
-					<span class="text-blue-200">
-						Welcome, { getString(c.Locals("display_name")) }!
-					</span>
-					<a class="hover:text-blue-200 underline" href={ templ.SafeURL(c.App().GetRoute(routes.MeowIndex.Name).Path) }>
-						See Meows
-					</a>
-					<a class="hover:text-blue-200 underline" href={ templ.SafeURL(c.App().GetRoute(routes.MeowNew.Name).Path) }>
-						Create a Meow
-					</a>
-					<form action={ templ.SafeURL(c.App().GetRoute(routes.Logout.Name).Path) } method="POST" class="inline">
-						<button type="submit" class="bg-red-500 hover:bg-red-600 px-3 py-1 rounded transition duration-200">
-							Logout
-						</button>
-					</form>
-				} else {
-					// User is not logged in
-					<a class="hover:text-blue-200 underline" href={ templ.SafeURL(c.App().GetRoute(routes.LoginShow.Name).Path) }>
-						Login
-					</a>
-					<a class="bg-green-600 hover:bg-green-700 px-3 py-1 rounded transition duration-200" href={ templ.SafeURL(c.App().GetRoute(routes.SignupShow.Name).Path) }>
-						Sign Up
-					</a>
-				}
-			</div>
-			<!-- Mobile menu button -->
-			<div class="md:hidden">
-				<button class="text-white hover:text-blue-200 focus:outline-none focus:text-blue-200">
-					<svg class="h-6 w-6 fill-current" viewBox="0 0 24 24">
-						<path d="M4 5h16a1 1 0 0 1 0 2H4a1 1 0 1 1 0-2zm0 6h16a1 1 0 0 1 0 2H4a1 1 0 0 1 0-2zm0 6h16a1 1 0 0 1 0 2H4a1 1 0 0 1 0-2z"></path>
-					</svg>
-				</button>
+			<!-- Mobile menu -->
+			<div id="mobile-menu" class="md:hidden hidden mt-4 pb-4">
+				<!-- Mobile Navigation Items -->
+				<div class="space-y-3">
+					if c.Locals("user_id") != nil {
+						// User is logged in
+						<a class="block py-2 hover:text-blue-200 underline" href={ templ.SafeURL(c.App().GetRoute(routes.MeowIndex.Name).Path) }>
+							See Meows
+						</a>
+						<a class="block py-2 hover:text-blue-200 underline" href={ templ.SafeURL(c.App().GetRoute(routes.MeowNew.Name).Path) }>
+							Create a Meow
+						</a>
+						<div class="text-blue-200 font-bold text-lg py-2">
+							Welcome, { fmt.Sprint(c.Locals("display_name")) }!
+						</div>
+						<form action={ templ.SafeURL(c.App().GetRoute(routes.Logout.Name).Path) } method="POST" class="block">
+							<button type="submit" class="w-full text-left bg-red-500 hover:bg-red-600 px-3 py-2 rounded transition duration-200">
+								Logout
+							</button>
+						</form>
+					} else {
+						// User is not logged in
+						<a class="block py-2 hover:text-blue-200 underline" href={ templ.SafeURL(c.App().GetRoute(routes.LoginShow.Name).Path) }>
+							Login
+						</a>
+						<a class="block bg-green-600 hover:bg-green-700 px-3 py-2 rounded transition duration-200 text-center" href={ templ.SafeURL(c.App().GetRoute(routes.SignupShow.Name).Path) }>
+							Sign Up
+						</a>
+					}
+				</div>
 			</div>
 		</div>
-	</nav>
-}
+		<script>
+			// Mobile menu toggle functionality
+			document.addEventListener('DOMContentLoaded', function() {
+				const mobileMenuButton = document.getElementById('mobile-menu-button');
+				const mobileMenu = document.getElementById('mobile-menu');
+				const menuIcon = document.getElementById('menu-icon');
+				const closeIcon = document.getElementById('close-icon');
 
-func getString(value interface{}) string {
-	if str, ok := value.(string); ok {
-		return str
-	}
-	return ""
+				if (mobileMenuButton && mobileMenu && menuIcon && closeIcon) {
+					mobileMenuButton.addEventListener('click', function() {
+						const isHidden = mobileMenu.classList.contains('hidden');
+
+						if (isHidden) {
+							// Show menu
+							mobileMenu.classList.remove('hidden');
+							menuIcon.classList.add('hidden');
+							closeIcon.classList.remove('hidden');
+						} else {
+							// Hide menu
+							mobileMenu.classList.add('hidden');
+							menuIcon.classList.remove('hidden');
+							closeIcon.classList.add('hidden');
+						}
+					});
+				}
+			});
+		</script>
+	</nav>
 }

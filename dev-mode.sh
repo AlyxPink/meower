@@ -5,7 +5,7 @@
 
 set -e
 
-TEMPLATE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/template"
+TEMPLATE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/cmd/meower/template"
 
 echo "🔧 Enabling development mode..."
 

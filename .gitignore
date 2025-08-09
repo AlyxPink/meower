@@ -36,9 +36,6 @@ tmp/
 # OS generated files
 **/.DS_Store
 
-# Generated CSS
-web/static/public/css/**.css
-
 # Dependency directories
 **/node_modules
 

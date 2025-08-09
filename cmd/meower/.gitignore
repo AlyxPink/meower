@@ -16,3 +16,6 @@ template/web/go.sum
 # Generated files that shouldn't be in templates
 template/**/*.pb.go
 template/**/query.*.sql.go
+
+# Generated assets
+template/web/static/public/css/main.css

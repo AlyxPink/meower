@@ -12,9 +12,15 @@ func TestProjectValidator_ValidateProjectName(t *testing.T) {
 		projectName string
 		expectError bool
 	}{
+		// Valid cases
 		{
 			name:        "valid project name",
 			projectName: "my-awesome-project",
+			expectError: false,
+		},
+		{
+			name:        "valid simple name",
+			projectName: "my-project",
 			expectError: false,
 		},
 		{
@@ -27,6 +33,43 @@ func TestProjectValidator_ValidateProjectName(t *testing.T) {
 			projectName: "project123",
 			expectError: false,
 		},
+		{
+			name:        "valid simple lowercase",
+			projectName: "myproject",
+			expectError: false,
+		},
+		{
+			name:        "valid with hyphens in middle",
+			projectName: "my-awesome-project-name",
+			expectError: false,
+		},
+		// Invalid cases - Mixed case variations
+		{
+			name:        "uppercase letters - MyProject",
+			projectName: "MyProject",
+			expectError: true,
+		},
+		{
+			name:        "mixed case with hyphens - My-Project",
+			projectName: "My-Project",
+			expectError: true,
+		},
+		{
+			name:        "mixed case - myProject",
+			projectName: "myProject",
+			expectError: true,
+		},
+		{
+			name:        "all uppercase",
+			projectName: "MYPROJECT",
+			expectError: true,
+		},
+		{
+			name:        "camelCase",
+			projectName: "myAwesomeProject",
+			expectError: true,
+		},
+		// Invalid cases - Structure issues
 		{
 			name:        "empty name",
 			projectName: "",
@@ -53,13 +96,13 @@ func TestProjectValidator_ValidateProjectName(t *testing.T) {
 			expectError: true,
 		},
 		{
-			name:        "contains spaces",
-			projectName: "invalid project",
+			name:        "double hyphens",
+			projectName: "my--project",
 			expectError: true,
 		},
 		{
-			name:        "uppercase letters",
-			projectName: "InvalidProject",
+			name:        "contains spaces",
+			projectName: "invalid project",
 			expectError: true,
 		},
 		{
@@ -70,6 +113,16 @@ func TestProjectValidator_ValidateProjectName(t *testing.T) {
 		{
 			name:        "starts with number",
 			projectName: "123project",
+			expectError: true,
+		},
+		{
+			name:        "underscore instead of hyphen",
+			projectName: "my_project",
+			expectError: true,
+		},
+		{
+			name:        "dot characters",
+			projectName: "my.project",
 			expectError: true,
 		},
 	}
@@ -96,6 +149,7 @@ func TestProjectValidator_ValidateModulePath(t *testing.T) {
 		modulePath  string
 		expectError bool
 	}{
+		// Valid cases - Standard module paths
 		{
 			name:        "valid github path",
 			modulePath:  "github.com/user/project",
@@ -116,14 +170,91 @@ func TestProjectValidator_ValidateModulePath(t *testing.T) {
 			modulePath:  "github.com/org/team/project",
 			expectError: false,
 		},
+		// Valid cases - Common scenarios from user request
+		{
+			name:        "simple module name - myproject",
+			modulePath:  "myproject",
+			expectError: false,
+		},
+		{
+			name:        "simple with hyphens - my-project",
+			modulePath:  "my-project",
+			expectError: false,
+		},
+		{
+			name:        "mixed case simple - My-Project",
+			modulePath:  "My-Project",
+			expectError: false,
+		},
+		{
+			name:        "github with simple name - github.com/AlyxPink/myproject",
+			modulePath:  "github.com/AlyxPink/myproject",
+			expectError: false,
+		},
+		{
+			name:        "github with hyphens - github.com/Alyx-Pink/My-Project",
+			modulePath:  "github.com/Alyx-Pink/My-Project",
+			expectError: false,
+		},
+		{
+			name:        "github with hyphens in project - github.com/AlyxPink/my-project",
+			modulePath:  "github.com/AlyxPink/my-project",
+			expectError: false,
+		},
+		{
+			name:        "valid with dots in domain",
+			modulePath:  "git.example.org/user/project",
+			expectError: false,
+		},
+		{
+			name:        "valid with numbers in path",
+			modulePath:  "github.com/user123/project456",
+			expectError: false,
+		},
+		{
+			name:        "valid deep nested path",
+			modulePath:  "github.com/org/team/subteam/project/module",
+			expectError: false,
+		},
+		{
+			name:        "valid with uppercase domain",
+			modulePath:  "GitHub.com/User/Project",
+			expectError: false,
+		},
+		{
+			name:        "valid bitbucket path",
+			modulePath:  "bitbucket.org/user/project",
+			expectError: false,
+		},
+		{
+			name:        "valid sourcehut path",
+			modulePath:  "git.sr.ht/~user/project",
+			expectError: false,
+		},
+		{
+			name:        "valid codeberg path",
+			modulePath:  "codeberg.org/user/project",
+			expectError: false,
+		},
+		// Invalid cases
 		{
 			name:        "empty path",
 			modulePath:  "",
 			expectError: true,
 		},
 		{
-			name:        "invalid characters",
+			name:        "invalid characters - @",
 			modulePath:  "github.com/user/project@123",
+			expectError: true,
+		},
+		{
+			name:        "invalid characters - #",
+			modulePath:  "github.com/user/project#branch",
+			expectError: true,
+		},
+		{
+			name:        "invalid characters - ?",
+			modulePath:  "github.com/user/project?param=value",
 			expectError: true,
 		},
 		{
@@ -139,6 +270,26 @@ func TestProjectValidator_ValidateModulePath(t *testing.T) {
 		{
 			name:        "contains spaces",
 			modulePath:  "github.com/user/my project",
+			expectError: true,
+		},
+		{
+			name:        "double slash",
+			modulePath:  "github.com//user/project",
+			expectError: true,
+		},
+		{
+			name:        "protocol included",
+			modulePath:  "https://github.com/user/project",
+			expectError: true,
+		},
+		{
+			name:        "invalid characters - asterisk",
+			modulePath:  "github.com/user/*project",
+			expectError: true,
+		},
+		{
+			name:        "invalid characters - percent",
+			modulePath:  "github.com/user/project%20name",
 			expectError: true,
 		},
 	}

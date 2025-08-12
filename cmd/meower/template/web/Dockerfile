@@ -13,7 +13,7 @@ RUN --mount=type=cache,target=/go/pkg/mod/ \
     go mod download -x
 
 # Copy a-h/templ binary from the templ image
-COPY --from=ghcr.io/a-h/templ:v0.3.898 /ko-app/templ /usr/local/bin/templ
+COPY --from=ghcr.io/a-h/templ:v0.3.924 /ko-app/templ /usr/local/bin/templ
 
 # Build the application.
 # Leverage a cache mount to /go/pkg/mod/ to speed up subsequent builds.

@@ -1,7 +1,7 @@
 package layouts
 
 import (
-	"TEMPLATE_MODULE_PATH/web/views/components/global"
+	"TEMPLATE_MODULE_PATH/web/views/components"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -22,11 +22,11 @@ templ Main(c *fiber.Ctx) {
 			<link rel="stylesheet" type="text/css" href="/static/css/main.css"/>
 		</head>
 		<body class="flex flex-col h-screen justify-between bg-gray-50 min-h-screen">
-			@global.Navigation(c)
+			@components.Navigation(c)
 			<main class="mb-auto py-4 sm:px-6 lg:px-8">
 				{ children... }
 			</main>
-			@global.Footer()
+			@components.Footer()
 		</body>
 	</html>
 }

@@ -11,7 +11,7 @@ func RegisterRoutes(app *handlers.App) {
 
 	// Homepage (available to all) - Register first to avoid conflicts
 	homepage := handlers.Homepage{App: app}
-	app.Web.Get(routes.Homepage.Path, homepage.Index).Name(routes.Homepage.Name)
+	app.Web.Get(routes.Homepage.Path, handlers.OptionalAuthMiddleware(app.SessionStore), homepage.Homepage).Name(routes.Homepage.Name)
 
 	// Debug route (temporary)
 	auth := handlers.Auth{App: app}

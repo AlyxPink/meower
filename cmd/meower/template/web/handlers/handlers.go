@@ -4,7 +4,7 @@ import (
 	"errors"
 
 	"TEMPLATE_MODULE_PATH/web/grpc"
-	"TEMPLATE_MODULE_PATH/web/views/pages/custom_errors"
+	"TEMPLATE_MODULE_PATH/web/views"
 
 	"github.com/a-h/templ"
 	"github.com/gofiber/fiber/v2"
@@ -33,9 +33,9 @@ func ErrorHandler(ctx *fiber.Ctx, err error) error {
 
 	switch code {
 	case 500:
-		err = renderTempl(ctx, custom_errors.Error500(ctx), templ.WithStatus(code))
+		err = renderTempl(ctx, views.Error500(ctx), templ.WithStatus(code))
 	case 404:
-		err = renderTempl(ctx, custom_errors.Error404(ctx), templ.WithStatus(code))
+		err = renderTempl(ctx, views.Error404(ctx), templ.WithStatus(code))
 	default:
 		return ctx.Status(fiber.StatusInternalServerError).SendString("Internal Server Error")
 	}

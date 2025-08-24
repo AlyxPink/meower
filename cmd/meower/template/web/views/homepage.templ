@@ -1,4 +1,4 @@
-package viewHomepage
+package views
 
 import (
 	"TEMPLATE_MODULE_PATH/web/routes"
@@ -6,7 +6,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-templ Index(c *fiber.Ctx) {
+templ Homepage(c *fiber.Ctx) {
 	@layouts.Main(c) {
 		<div class="max-w-4xl mx-auto py-12">
 			if c.Locals("user_id") != nil {

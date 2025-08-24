@@ -1,0 +1,47 @@
+package views
+
+import (
+	meowV1 "TEMPLATE_MODULE_PATH/api/proto/meow/v1"
+	"TEMPLATE_MODULE_PATH/web/routes"
+	"TEMPLATE_MODULE_PATH/web/views/layouts"
+
+	"fmt"
+	"github.com/gofiber/fiber/v2"
+)
+
+templ CreateMeow(c *fiber.Ctx, r *meowV1.CreateMeowResponse) {
+	@layouts.Main(c) {
+		<h1>Meow Created</h1>
+		<ul>
+			<li class="py-2">
+				<span class="font-mono rounded bg-pink-200 p-2">#{ r.Meow.Id } { `@` } { r.Meow.CreatedAt.AsTime().String() }</span>
+				<span class="font-bold">{ r.Meow.Content }</span>
+			</li>
+		</ul>
+		<a class="underline" href={ templ.SafeURL(c.App().GetRoute(routes.MeowIndex.Name).Path) }>See all Meows</a>
+	}
+}
+
+templ IndexMeows(c *fiber.Ctx, r *meowV1.IndexMeowResponse) {
+	@layouts.Main(c) {
+		<h1>{ fmt.Sprint(len(r.Meows)) } Meows found</h1>
+		<ul>
+			for _, m := range r.Meows {
+				<li class="py-2 rounded bg-pink-200 p-2 my-4">
+					<p class="font-bold">{ m.Content }</p>
+					<p class="font-mono">#{ m.Id } { `@` } { m.CreatedAt.AsTime().String() }</p>
+				</li>
+			}
+		</ul>
+	}
+}
+
+templ NewMeow(c *fiber.Ctx) {
+	@layouts.Main(c) {
+		<h1 class="text-3xl font-black uppercase tracking-tight lg:leading-none lg:text-4xl mb-4">Create a meow</h1>
+		<form action={ templ.SafeURL(c.App().GetRoute(routes.MeowCreate.Name).Path) } method="post">
+			<input type="text" name="content" placeholder="What's up?" class="border border-1 border-black"/>
+			<button type="submit">Meow!</button>
+		</form>
+	}
+}

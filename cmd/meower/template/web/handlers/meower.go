@@ -3,14 +3,15 @@ package handlers
 import (
 	meowV1 "TEMPLATE_MODULE_PATH/api/proto/meow/v1"
 
-	viewMeowV1 "TEMPLATE_MODULE_PATH/web/views/services/meows/v1"
+	"TEMPLATE_MODULE_PATH/web/views"
+
 	"github.com/gofiber/fiber/v2"
 )
 
 type Meower struct{ *App }
 
 func (h *Meower) New(c *fiber.Ctx) error {
-	return renderTempl(c, viewMeowV1.New(c))
+	return renderTempl(c, views.NewMeow(c))
 }
 
 func (h *Meower) Create(c *fiber.Ctx) error {
@@ -22,7 +23,7 @@ func (h *Meower) Create(c *fiber.Ctx) error {
 		return err
 	}
 
-	return renderTempl(c, viewMeowV1.Create(c, resp))
+	return renderTempl(c, views.CreateMeow(c, resp))
 }
 
 func (h *Meower) Index(c *fiber.Ctx) error {
@@ -33,5 +34,5 @@ func (h *Meower) Index(c *fiber.Ctx) error {
 		return err
 	}
 
-	return renderTempl(c, viewMeowV1.Index(c, resp))
+	return renderTempl(c, views.IndexMeows(c, resp))
 }

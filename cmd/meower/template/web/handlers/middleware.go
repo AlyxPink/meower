@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"fmt"
+	"github.com/charmbracelet/log"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/session"
@@ -10,26 +10,32 @@ import (
 // AuthMiddleware checks if the user is authenticated
 func AuthMiddleware(store *session.Store) fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		fmt.Printf("DEBUG: AuthMiddleware called for path: %s\n", c.Path())
+		log.Debug("AuthMiddleware called",
+			"path", c.Path(),
+			"method", c.Method())
 
-		sess, err := store.Get(c)
+		// Get user ID and verify authentication
+		userID, err := RequireAuthentication(c, store)
 		if err != nil {
-			fmt.Printf("DEBUG: Session error in AuthMiddleware: %v\n", err)
+			log.Debug("Authentication failed",
+				"path", c.Path(),
+				"error", err)
 			return c.Redirect("/login")
 		}
 
-		userID := sess.Get("user_id")
-		if userID == nil {
-			fmt.Printf("DEBUG: No user_id in session, redirecting to login\n")
+		log.Debug("User authenticated",
+			"user_id", userID,
+			"path", c.Path())
+
+		// Set authentication data in locals
+		err = SetAuthLocals(c, store)
+		if err != nil {
+			log.Debug("Failed to set auth locals",
+				"user_id", userID,
+				"path", c.Path(),
+				"error", err)
 			return c.Redirect("/login")
 		}
-
-		fmt.Printf("DEBUG: User authenticated: %v\n", userID)
-
-		// Add user info to locals for use in handlers
-		c.Locals("user_id", userID)
-		c.Locals("username", sess.Get("username"))
-		c.Locals("display_name", sess.Get("display_name"))
 
 		return c.Next()
 	}
@@ -47,6 +53,24 @@ func GuestMiddleware(store *session.Store) fiber.Handler {
 		if userID != nil {
 			return c.Redirect("/")
 		}
+
+		return c.Next()
+	}
+}
+
+// OptionalAuthMiddleware sets user context if authenticated but allows all users through
+func OptionalAuthMiddleware(store *session.Store) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		// Attempt to get user authentication info (will succeed silently if not authenticated)
+		_, err := GetAuthenticatedUser(c, store)
+		if err != nil {
+			// Session error, but we'll allow the request to proceed anyway
+			return c.Next()
+		}
+
+		// Set authentication data in locals if the user is authenticated
+		// (this is a no-op if the user is not authenticated)
+		SetAuthLocals(c, store)
 
 		return c.Next()
 	}

@@ -7,9 +7,10 @@ import (
 	"time"
 
 	"TEMPLATE_MODULE_PATH/web/routes"
-	"TEMPLATE_MODULE_PATH/web/views/pages/auth"
+	"TEMPLATE_MODULE_PATH/web/views"
 
 	userV1 "TEMPLATE_MODULE_PATH/api/proto/user/v1"
+
 	"github.com/gofiber/fiber/v2"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -31,7 +32,7 @@ func (a *Auth) ShowLogin(c *fiber.Ctx) error {
 		return c.Redirect(routes.MeowIndex.Path)
 	}
 
-	return renderTempl(c, auth.Login(c, ""))
+	return renderTempl(c, views.Login(c, ""))
 }
 
 // Login handles the login form submission
@@ -40,7 +41,7 @@ func (a *Auth) Login(c *fiber.Ctx) error {
 	password := c.FormValue("password")
 
 	if usernameOrEmail == "" || password == "" {
-		return renderTempl(c, auth.Login(c, "Username/Email and password are required"))
+		return renderTempl(c, views.Login(c, "Username/Email and password are required"))
 	}
 
 	// Call the gRPC API
@@ -54,7 +55,7 @@ func (a *Auth) Login(c *fiber.Ctx) error {
 	if err != nil {
 		st, ok := status.FromError(err)
 		if !ok {
-			return renderTempl(c, auth.Login(c, "An error occurred"))
+			return renderTempl(c, views.Login(c, "An error occurred"))
 		}
 
 		var errorMsg string
@@ -67,7 +68,7 @@ func (a *Auth) Login(c *fiber.Ctx) error {
 			errorMsg = "An error occurred"
 		}
 
-		return renderTempl(c, auth.Login(c, errorMsg))
+		return renderTempl(c, views.Login(c, errorMsg))
 	}
 
 	// Store user session
@@ -103,7 +104,7 @@ func (a *Auth) ShowSignup(c *fiber.Ctx) error {
 		return c.Redirect(routes.MeowIndex.Path)
 	}
 
-	return renderTempl(c, auth.Signup(c, ""))
+	return renderTempl(c, views.Signup(c, ""))
 }
 
 // Signup handles the signup form submission
@@ -116,19 +117,19 @@ func (a *Auth) Signup(c *fiber.Ctx) error {
 
 	// Basic validation
 	if username == "" || displayName == "" || email == "" || password == "" {
-		return renderTempl(c, auth.Signup(c, "All fields are required"))
+		return renderTempl(c, views.Signup(c, "All fields are required"))
 	}
 
 	if password != confirmPassword {
-		return renderTempl(c, auth.Signup(c, "Passwords do not match"))
+		return renderTempl(c, views.Signup(c, "Passwords do not match"))
 	}
 
 	if len(password) < 8 {
-		return renderTempl(c, auth.Signup(c, "Password must be at least 8 characters long"))
+		return renderTempl(c, views.Signup(c, "Password must be at least 8 characters long"))
 	}
 
 	if !strings.Contains(email, "@") {
-		return renderTempl(c, auth.Signup(c, "Please enter a valid email address"))
+		return renderTempl(c, views.Signup(c, "Please enter a valid email address"))
 	}
 
 	// Call the gRPC API
@@ -144,7 +145,7 @@ func (a *Auth) Signup(c *fiber.Ctx) error {
 	if err != nil {
 		st, ok := status.FromError(err)
 		if !ok {
-			return renderTempl(c, auth.Signup(c, "An error occurred"))
+			return renderTempl(c, views.Signup(c, "An error occurred"))
 		}
 
 		var errorMsg string
@@ -161,7 +162,7 @@ func (a *Auth) Signup(c *fiber.Ctx) error {
 			errorMsg = "An error occurred"
 		}
 
-		return renderTempl(c, auth.Signup(c, errorMsg))
+		return renderTempl(c, views.Signup(c, errorMsg))
 	}
 
 	// Auto-login after successful signup

@@ -26,7 +26,6 @@ services:
     tty: true
     stop_signal: SIGINT # Graceful shutdown will cleanup the txt files created
     stop_grace_period: 3s
-    restart: always
     environment:
       API_ENDPOINT: "api:50051"
       COOKIE_SECRET_KEY: "5TIyDD81Laz/xdxEw2yJVPKdJYyPqxmyONaSVJHs6jY="
@@ -41,29 +40,47 @@ services:
       - go_modules:/go/pkg/mod/
     depends_on:
       - api
-      - tailwind
       - development-web
+      - javascript
       - redis
+      - rustywind
+      - tailwind
     command: 'templ generate -v --watch --proxy="http://localhost:3000" --proxybind="0.0.0.0" --open-browser=false --cmd="go run main.go"'
 
   tailwind:
     image: meower:development-web
     pull_policy: never
-    restart: unless-stopped
     stop_signal: SIGKILL
     working_dir: /src/web/
     volumes:
       - ./web/:/src/web/
-      - node_modules:/src/node_modules/
     depends_on:
       - development-web
-    command: [ "/usr/local/bin/tailwindcss", "-i", "/src/web/static/src/css/main.css", "-o", "/src/web/static/public/css/main.css", "--watch=always", "--content", "/src/web/views/**/*.templ", "/src/web/static/src/css/**.css" ]
+    command: "tailwindcss -i ./static/src/css/main.css -o ./static/public/css/main.css --config ./tailwind.config.js --watch=always"
+
+  javascript:
+    image: oven/bun:alpine
+    stop_signal: SIGKILL
+    working_dir: /src/web/
+    volumes:
+      - ./web/:/src/web/
+    command: "bun run build-js"
+
+  rustywind:
+    image: meower:development-web
+    pull_policy: never
+    stop_signal: SIGKILL
+    working_dir: /src/web/
+    volumes:
+      - ./web/:/src/web/
+    depends_on:
+      - development-web
+    command: "wgo -verbose -file=\\.templ$ rustywind --write views/**/*.templ"
 
   api:
     image: meower:development-api
     pull_policy: never
     tty: true
-    restart: unless-stopped
     environment:
       DATABASE_URL: "postgres://meower:meower@db:5432/meower?sslmode=disable"
     ports:
@@ -72,7 +89,6 @@ services:
     volumes:
       - ./api/:/src/api/
       - go_modules:/go/pkg/mod/
-      - node_modules:/src/node_modules/
     healthcheck:
       test: [ "CMD", "grpc-health-probe", "-addr=:50051" ]
       interval: 1s
@@ -89,7 +105,6 @@ services:
   proto:
     image: meower:development-api
     pull_policy: never
-    restart: unless-stopped
     working_dir: /src/
     volumes:
       - ./api/:/src/api/
@@ -112,12 +127,10 @@ services:
     image: meower:development-api
     pull_policy: never
     tty: true
-    restart: always
     working_dir: /src/api/db/
     volumes:
       - ./api/db/:/src/api/db/
       - go_modules:/go/pkg/mod/
-      - node_modules:/src/node_modules/
     depends_on:
       - development-api
     command: "wgo -file=sqlc.yaml -file=.sql -xfile=.go -dir /src/api/db sqlc generate -f /src/api/db/sqlc.yaml"
@@ -170,4 +183,3 @@ services:
 
 volumes:
   go_modules:
-  node_modules:

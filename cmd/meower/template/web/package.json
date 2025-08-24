@@ -1,12 +1,20 @@
 {
   "scripts": {
     "build-css": "tailwindcss -i ./static/src/css/main.css -o ./static/public/css/main.css --watch",
-    "build-css-prod": "tailwindcss -i ./static/src/css/main.css -o ./static/public/css/main.css --minify"
+    "build-css-prod": "tailwindcss -i ./static/src/css/main.css -o ./static/public/css/main.css --minify",
+    "build-js": "bun build static/src/js/*.js --outdir static/public/js --format iife --watch",
+    "build-js-prod": "bun build static/src/js/*.js --outdir static/public/js --format iife --minify",
+    "build": "bun run build-css-prod && bun run build-js-prod",
+    "dev": "bun run build-css && bun run build-js",
+    "sort-classes": "docker compose exec rustywind rustywind views/**/*.templ",
+    "sort-classes:write": "docker compose exec rustywind rustywind --write views/**/*.templ",
+    "sort-classes:check": "docker compose exec rustywind rustywind --check-formatted views/**/*.templ"
   },
   "devDependencies": {
-    "tailwindcss": "^3.4.0"
+    "tailwindcss": "^3.4.17"
   },
   "dependencies": {
-    "tailwind-scrollbar-hide": "^1.1.7"
+    "caniuse-lite": "^1.0.30001737",
+    "tailwind-scrollbar-hide": "^1.3.1"
   }
 }

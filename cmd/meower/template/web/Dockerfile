@@ -82,6 +82,8 @@ USER meower
 COPY --chown=meower:meower --from=build-web /bin/web-server /opt/meower/
 # Copy the production CSS files from the "assets" stage.
 COPY --from=assets /opt/tailwind/main.css /opt/meower/main.css
+# Copy JavaScript files
+COPY --chown=meower:meower ./static/public/js/ /opt/meower/static/js/
 # Expose the port that the application listens on.
 EXPOSE 3000
 WORKDIR /opt/meower/
@@ -101,8 +103,9 @@ COPY --chown=meower:meower --from=build-web /bin/web-server /opt/meower/
 
 # Copy tailwind CLI binary from the "assets" stage.
 COPY --from=assets /usr/local/bin/tailwindcss /usr/local/bin/tailwindcss
-# Copy the production node_modules from the "assets" stage.
-COPY --from=assets /src/web/node_modules node_modules
+
+# Copy rustywind binary from the rustywind image
+COPY --from=avencera/rustywind:latest /rustywind /usr/local/bin/rustywind
 
 # Set the default target to be the final stage.
 FROM production-web

@@ -65,5 +65,6 @@ tmp/
 # The templ.go files are generated at build time
 *_templ.go
 
-# Generated CSS
-web/static/public/css/**.css
+# Generated CSS & JS
+web/static/public/css/*.css
+web/static/public/js/*.js

@@ -2,6 +2,7 @@ package main
 
 import (
 	"os"
+	"time"
 
 	"TEMPLATE_MODULE_PATH/web/grpc"
 	"TEMPLATE_MODULE_PATH/web/handlers"
@@ -15,20 +16,28 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/requestid"
 	"github.com/gofiber/fiber/v2/middleware/session"
 	"github.com/gofiber/fiber/v2/utils"
+	"github.com/gofiber/storage/redis/v3"
 )
 
 func main() {
 	// Connect to the internal gRPC API
 	GrpcClient := grpc.NewClient()
 
-	// Create session store
+	// Create Redis storage
+	redisStore := redis.New(redis.Config{
+		URL: os.Getenv("REDIS_URL"),
+	})
+
+	// Create session store with Redis storage
 	sessionStore := session.New(session.Config{
+		Storage:        redisStore,
 		KeyLookup:      "cookie:session_id",
 		CookieDomain:   "",
 		CookiePath:     "/",
 		CookieSecure:   os.Getenv("ENV") == "production",
 		CookieHTTPOnly: true,
 		CookieSameSite: "Lax",
+		Expiration:     365 * 24 * time.Hour, // 1 year
 	})
 
 	// Create the Fiber app

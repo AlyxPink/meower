@@ -30,6 +30,7 @@ services:
     environment:
       API_ENDPOINT: "api:50051"
       COOKIE_SECRET_KEY: "5TIyDD81Laz/xdxEw2yJVPKdJYyPqxmyONaSVJHs6jY="
+      REDIS_URL: "redis://redis:6379"
     ports:
       - "3000:3000"
       - "7331:7331"
@@ -42,6 +43,7 @@ services:
       - api
       - tailwind
       - development-web
+      - redis
     command: 'templ generate -v --watch --proxy="http://localhost:3000" --proxybind="0.0.0.0" --open-browser=false --cmd="go run main.go"'
 
   tailwind:
@@ -155,6 +157,16 @@ services:
     environment:
       MP_SMTP_AUTH_ACCEPT_ANY: 1
       MP_SMTP_AUTH_ALLOW_INSECURE: 1
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 1s
+      timeout: 3s
+      retries: 5
 
 volumes:
   go_modules:

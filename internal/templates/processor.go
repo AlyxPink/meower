@@ -6,6 +6,7 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 )
 
@@ -140,10 +141,8 @@ func (fp *FileProcessor) shouldSkip(path string, d fs.DirEntry) bool {
 		"internal", // Skip internal CLI code
 	}
 
-	for _, skipDir := range skipDirs {
-		if name == skipDir {
-			return true
-		}
+	if slices.Contains(skipDirs, name) {
+		return true
 	}
 
 	// Skip binary files

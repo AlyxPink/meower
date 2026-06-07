@@ -6,7 +6,7 @@ package middleware
 import (
 	"TEMPLATE_MODULE_PATH/pkg/urls"
 
-	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v3"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
 )
@@ -30,10 +30,10 @@ var sseStreamPath = urls.SSEStream{}.URL()
 // add an `enduser.id` attribute so traces can be filtered by user — see the
 // auth scaffold for the session key.
 func EnrichTraceWithContext() fiber.Handler {
-	return func(c *fiber.Ctx) error {
+	return func(c fiber.Ctx) error {
 		err := c.Next()
 
-		span := trace.SpanFromContext(c.UserContext())
+		span := trace.SpanFromContext(c.Context())
 		if !span.IsRecording() {
 			return err
 		}
@@ -53,10 +53,10 @@ func EnrichTraceWithContext() fiber.Handler {
 // as an X-Trace-Id response header, so a browser request can be correlated with
 // its Grafana Tempo trace. No header is written when there is no active trace.
 func SetTraceIDHeader() fiber.Handler {
-	return func(c *fiber.Ctx) error {
+	return func(c fiber.Ctx) error {
 		err := c.Next()
 
-		sc := trace.SpanFromContext(c.UserContext()).SpanContext()
+		sc := trace.SpanFromContext(c.Context()).SpanContext()
 		if sc.IsValid() {
 			c.Set("X-Trace-Id", sc.TraceID().String())
 		}

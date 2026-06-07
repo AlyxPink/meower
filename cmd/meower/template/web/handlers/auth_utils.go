@@ -4,8 +4,8 @@ package handlers
 import (
 	"errors"
 
-	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/session"
+	"github.com/gofiber/fiber/v3"
+	"github.com/gofiber/fiber/v3/middleware/session"
 )
 
 // Authentication errors
@@ -44,11 +44,12 @@ var (
 //	} else {
 //	    // Handle unauthenticated user
 //	}
-func GetAuthenticatedUser(c *fiber.Ctx, store *session.Store) (string, error) {
+func GetAuthenticatedUser(c fiber.Ctx, store *session.Store) (string, error) {
 	session, err := store.Get(c)
 	if err != nil {
 		return "", ErrSessionError
 	}
+	defer session.Release()
 
 	// Get user ID from session (if authenticated)
 	userIDHex := session.Get("user_id")
@@ -83,11 +84,12 @@ func GetAuthenticatedUser(c *fiber.Ctx, store *session.Store) (string, error) {
 //
 //	// User is authenticated, proceed with the request
 //	// using userID for operations that require authentication
-func RequireAuthentication(c *fiber.Ctx, store *session.Store) (string, error) {
+func RequireAuthentication(c fiber.Ctx, store *session.Store) (string, error) {
 	session, err := store.Get(c)
 	if err != nil {
 		return "", ErrSessionError
 	}
+	defer session.Release()
 
 	// Check if user is authenticated
 	userIDHex := session.Get("user_id")
@@ -120,11 +122,12 @@ func RequireAuthentication(c *fiber.Ctx, store *session.Store) (string, error) {
 //	} else {
 //	    // User is not authenticated, provide public experience
 //	}
-func GetAuthenticatedUserID(c *fiber.Ctx, store *session.Store) (string, error) {
+func GetAuthenticatedUserID(c fiber.Ctx, store *session.Store) (string, error) {
 	session, err := store.Get(c)
 	if err != nil {
 		return "", ErrSessionError
 	}
+	defer session.Release()
 
 	// Check if user is authenticated
 	userIDHex := session.Get("user_id")
@@ -156,11 +159,12 @@ func GetAuthenticatedUserID(c *fiber.Ctx, store *session.Store) (string, error) 
 //	}
 //
 //	// Continue with the request, templates can now access user info via c.Locals()
-func SetAuthLocals(c *fiber.Ctx, store *session.Store) error {
+func SetAuthLocals(c fiber.Ctx, store *session.Store) error {
 	session, err := store.Get(c)
 	if err != nil {
 		return ErrSessionError
 	}
+	defer session.Release()
 
 	userIDHex := session.Get("user_id")
 	if userIDHex != nil {
@@ -192,7 +196,7 @@ func SetAuthLocals(c *fiber.Ctx, store *session.Store) error {
 //	if err != nil {
 //	    return HandleAuthError(c, err)
 //	}
-func HandleAuthError(c *fiber.Ctx, err error) error {
+func HandleAuthError(c fiber.Ctx, err error) error {
 	switch err {
 	case ErrSessionError:
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
@@ -226,7 +230,7 @@ func HandleAuthError(c *fiber.Ctx, err error) error {
 //	if err != nil {
 //	    return HandleAuthErrorJSON(c, err)
 //	}
-func HandleAuthErrorJSON(c *fiber.Ctx, err error) error {
+func HandleAuthErrorJSON(c fiber.Ctx, err error) error {
 	switch err {
 	case ErrSessionError:
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{

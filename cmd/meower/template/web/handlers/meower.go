@@ -10,7 +10,7 @@ import (
 	"TEMPLATE_MODULE_PATH/web/views"
 
 	"github.com/a-h/templ"
-	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v3"
 )
 
 type Meower struct{ *App }
@@ -21,7 +21,7 @@ const meowsChannel = "meows"
 
 // currentUserID returns the logged-in user's id from the request locals (set by
 // AuthMiddleware), or "" if not available.
-func currentUserID(c *fiber.Ctx) string {
+func currentUserID(c fiber.Ctx) string {
 	if v, ok := c.Locals("user_id").(string); ok {
 		return v
 	}
@@ -31,9 +31,9 @@ func currentUserID(c *fiber.Ctx) string {
 // renderFragment renders a templ component to an HTML string for embedding in an
 // SSE event. It uses the request's user context (which carries the active trace
 // span under otelfiber) so cancellation and trace context propagate.
-func renderFragment(c *fiber.Ctx, component templ.Component) (string, error) {
+func renderFragment(c fiber.Ctx, component templ.Component) (string, error) {
 	var buf bytes.Buffer
-	if err := component.Render(c.UserContext(), &buf); err != nil {
+	if err := component.Render(c.Context(), &buf); err != nil {
 		return "", err
 	}
 	return buf.String(), nil
@@ -42,7 +42,7 @@ func renderFragment(c *fiber.Ctx, component templ.Component) (string, error) {
 // publish broadcasts an SSE event built from a templ fragment to the meows
 // channel. Broadcasting is best-effort: a render failure is returned, but a
 // missing hub (e.g. in tests) is silently ignored.
-func (h *Meower) publish(c *fiber.Ctx, event, id string, fragment templ.Component) error {
+func (h *Meower) publish(c fiber.Ctx, event, id string, fragment templ.Component) error {
 	if h.Hub == nil {
 		return nil
 	}
@@ -55,20 +55,20 @@ func (h *Meower) publish(c *fiber.Ctx, event, id string, fragment templ.Componen
 }
 
 // New renders the standalone composer page.
-func (h *Meower) New(c *fiber.Ctx) error {
+func (h *Meower) New(c fiber.Ctx) error {
 	return renderTempl(c, views.NewMeow(c))
 }
 
 // Create posts a new meow authored by the logged-in user, broadcasts it to the
 // timeline, and redirects back to the feed (where the live card is already in
 // place for the author too, via the SSE connection).
-func (h *Meower) Create(c *fiber.Ctx) error {
+func (h *Meower) Create(c fiber.Ctx) error {
 	content := c.FormValue("content")
 	if content == "" {
-		return c.Redirect(urls.MeowIndex{}.URL())
+		return c.Redirect().To(urls.MeowIndex{}.URL())
 	}
 
-	resp, err := h.API.MeowService.CreateMeow(c.UserContext(), &meowV1.CreateMeowRequest{
+	resp, err := h.API.MeowService.CreateMeow(c.Context(), &meowV1.CreateMeowRequest{
 		Content:  content,
 		AuthorId: currentUserID(c),
 	})
@@ -80,12 +80,12 @@ func (h *Meower) Create(c *fiber.Ctx) error {
 		return err
 	}
 
-	return c.Redirect(urls.MeowIndex{}.URL())
+	return c.Redirect().To(urls.MeowIndex{}.URL())
 }
 
 // Index renders the home timeline.
-func (h *Meower) Index(c *fiber.Ctx) error {
-	resp, err := h.API.MeowService.IndexMeow(c.UserContext(), &meowV1.IndexMeowRequest{})
+func (h *Meower) Index(c fiber.Ctx) error {
+	resp, err := h.API.MeowService.IndexMeow(c.Context(), &meowV1.IndexMeowRequest{})
 	if err != nil {
 		return err
 	}
@@ -94,8 +94,8 @@ func (h *Meower) Index(c *fiber.Ctx) error {
 }
 
 // Show renders the permalink page for a single meow.
-func (h *Meower) Show(c *fiber.Ctx) error {
-	resp, err := h.getMeow(c.UserContext(), c.Params("id"))
+func (h *Meower) Show(c fiber.Ctx) error {
+	resp, err := h.getMeow(c.Context(), c.Params("id"))
 	if err != nil {
 		return fiber.NewError(fiber.StatusNotFound, "meow not found")
 	}
@@ -105,8 +105,8 @@ func (h *Meower) Show(c *fiber.Ctx) error {
 }
 
 // Edit renders the edit form. Only the author may edit.
-func (h *Meower) Edit(c *fiber.Ctx) error {
-	resp, err := h.getMeow(c.UserContext(), c.Params("id"))
+func (h *Meower) Edit(c fiber.Ctx) error {
+	resp, err := h.getMeow(c.Context(), c.Params("id"))
 	if err != nil {
 		return fiber.NewError(fiber.StatusNotFound, "meow not found")
 	}
@@ -120,10 +120,10 @@ func (h *Meower) Edit(c *fiber.Ctx) error {
 
 // Update saves an edit, broadcasts the change to the timeline, and redirects to
 // the meow's permalink. Only the author may update.
-func (h *Meower) Update(c *fiber.Ctx) error {
+func (h *Meower) Update(c fiber.Ctx) error {
 	id := c.Params("id")
 
-	existing, err := h.getMeow(c.UserContext(), id)
+	existing, err := h.getMeow(c.Context(), id)
 	if err != nil {
 		return fiber.NewError(fiber.StatusNotFound, "meow not found")
 	}
@@ -133,10 +133,10 @@ func (h *Meower) Update(c *fiber.Ctx) error {
 
 	content := c.FormValue("content")
 	if content == "" {
-		return c.Redirect(urls.MeowEdit{ID: id}.URL())
+		return c.Redirect().To(urls.MeowEdit{ID: id}.URL())
 	}
 
-	resp, err := h.API.MeowService.UpdateMeow(c.UserContext(), &meowV1.UpdateMeowRequest{
+	resp, err := h.API.MeowService.UpdateMeow(c.Context(), &meowV1.UpdateMeowRequest{
 		Id:      id,
 		Content: content,
 	})
@@ -148,15 +148,15 @@ func (h *Meower) Update(c *fiber.Ctx) error {
 		return err
 	}
 
-	return c.Redirect(urls.Meow{ID: id}.URL())
+	return c.Redirect().To(urls.Meow{ID: id}.URL())
 }
 
 // Delete removes a meow, broadcasts its removal to the timeline, and redirects
 // to the feed. Only the author may delete.
-func (h *Meower) Delete(c *fiber.Ctx) error {
+func (h *Meower) Delete(c fiber.Ctx) error {
 	id := c.Params("id")
 
-	existing, err := h.getMeow(c.UserContext(), id)
+	existing, err := h.getMeow(c.Context(), id)
 	if err != nil {
 		return fiber.NewError(fiber.StatusNotFound, "meow not found")
 	}
@@ -164,7 +164,7 @@ func (h *Meower) Delete(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusForbidden, "you can only delete your own meows")
 	}
 
-	if _, err := h.API.MeowService.DeleteMeow(c.UserContext(), &meowV1.DeleteMeowRequest{Id: id}); err != nil {
+	if _, err := h.API.MeowService.DeleteMeow(c.Context(), &meowV1.DeleteMeowRequest{Id: id}); err != nil {
 		return err
 	}
 
@@ -172,7 +172,7 @@ func (h *Meower) Delete(c *fiber.Ctx) error {
 		return err
 	}
 
-	return c.Redirect(urls.MeowIndex{}.URL())
+	return c.Redirect().To(urls.MeowIndex{}.URL())
 }
 
 // getMeow fetches a single meow by id via the gRPC API.

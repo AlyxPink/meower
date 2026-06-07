@@ -3,10 +3,10 @@ package views
 import (
 	"TEMPLATE_MODULE_PATH/pkg/urls"
 	"TEMPLATE_MODULE_PATH/web/views/layouts"
-	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v3"
 )
 
-templ Homepage(c *fiber.Ctx) {
+templ Homepage(c fiber.Ctx) {
 	@layouts.Main(c) {
 		<div class="max-w-4xl mx-auto py-12">
 			if c.Locals("user_id") != nil {

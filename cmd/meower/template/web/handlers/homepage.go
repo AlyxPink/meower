@@ -3,11 +3,11 @@ package handlers
 import (
 	"TEMPLATE_MODULE_PATH/web/views"
 
-	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v3"
 )
 
 type Homepage struct{ *App }
 
-func (h *Homepage) Homepage(c *fiber.Ctx) error {
+func (h *Homepage) Homepage(c fiber.Ctx) error {
 	return renderTempl(c, views.Homepage(c))
 }

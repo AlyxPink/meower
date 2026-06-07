@@ -8,9 +8,9 @@ import (
 	"TEMPLATE_MODULE_PATH/web/views"
 
 	"github.com/a-h/templ"
-	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/adaptor"
-	"github.com/gofiber/fiber/v2/middleware/session"
+	"github.com/gofiber/fiber/v3"
+	"github.com/gofiber/fiber/v3/middleware/adaptor"
+	"github.com/gofiber/fiber/v3/middleware/session"
 
 	"github.com/charmbracelet/log"
 )
@@ -22,7 +22,7 @@ type App struct {
 	Hub          *sse.Hub
 }
 
-func ErrorHandler(ctx *fiber.Ctx, err error) error {
+func ErrorHandler(ctx fiber.Ctx, err error) error {
 	log.Error(err)
 	// Status code defaults to 500
 	code := fiber.StatusInternalServerError
@@ -51,7 +51,7 @@ func ErrorHandler(ctx *fiber.Ctx, err error) error {
 }
 
 // helper function to render a component using a-h/templ
-func renderTempl(c *fiber.Ctx, component templ.Component, options ...func(*templ.ComponentHandler)) error {
+func renderTempl(c fiber.Ctx, component templ.Component, options ...func(*templ.ComponentHandler)) error {
 	componentHandler := templ.Handler(component)
 	for _, o := range options {
 		o(componentHandler)

@@ -9,7 +9,7 @@ import (
 	"TEMPLATE_MODULE_PATH/web/sse"
 
 	"github.com/charmbracelet/log"
-	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v3"
 )
 
 // defaultHeartbeatInterval controls how often a keep-alive comment is written
@@ -48,7 +48,7 @@ func (h *SSEHandler) heartbeatInterval() time.Duration {
 // Channels are accepted as-is (after length/count validation). When you add
 // auth, restrict the accepted channels to those the authenticated user may
 // subscribe to — e.g. only allow a "user:<id>" channel for the logged-in user.
-func (h *SSEHandler) Stream(c *fiber.Ctx) error {
+func (h *SSEHandler) Stream(c fiber.Ctx) error {
 	channels := validateChannels(strings.Split(c.Query("channels"), ","))
 	if len(channels) == 0 {
 		return c.Status(fiber.StatusBadRequest).SendString("no valid channels requested")
@@ -65,13 +65,13 @@ func (h *SSEHandler) Stream(c *fiber.Ctx) error {
 
 	// SSE needs the connection held open and flushed incrementally, which
 	// Fiber's normal response pipeline can't do — hand the raw writer to
-	// SetBodyStreamWriter and format the events ourselves.
+	// SendStreamWriter and format the events ourselves.
 	c.Set("Content-Type", "text/event-stream")
 	c.Set("Cache-Control", "no-cache")
 	c.Set("Connection", "keep-alive")
 	c.Set("X-Accel-Buffering", "no") // disable proxy buffering (nginx)
 
-	c.Context().SetBodyStreamWriter(func(w *bufio.Writer) {
+	return c.SendStreamWriter(func(w *bufio.Writer) {
 		// Defers run LIFO; this order guarantees CloseDone → Unregister → log.
 		defer func() {
 			reason := client.GetEvictReason()
@@ -117,12 +117,10 @@ func (h *SSEHandler) Stream(c *fiber.Ctx) error {
 			}
 		}
 	})
-
-	return nil
 }
 
 // Health handles GET /events/health, returning hub metrics as JSON.
-func (h *SSEHandler) Health(c *fiber.Ctx) error {
+func (h *SSEHandler) Health(c fiber.Ctx) error {
 	return c.JSON(h.Hub.Health())
 }
 

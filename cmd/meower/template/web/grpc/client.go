@@ -28,7 +28,7 @@ type Client struct {
 // so the API server (which runs the matching otelgrpc server handler) continues
 // the same trace instead of starting a new one. This is what links a web trace
 // to its downstream API spans — for it to work, callers must pass the
-// request-scoped context that carries the web's span (c.UserContext() under
+// request-scoped context that carries the web's span (c.Context() under
 // otelfiber), not a fresh context.Background().
 func NewClient() *Client {
 	conn, err := grpc.NewClient(

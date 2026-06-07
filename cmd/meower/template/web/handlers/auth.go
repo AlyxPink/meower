@@ -11,7 +11,7 @@ import (
 
 	userV1 "TEMPLATE_MODULE_PATH/api/proto/user/v1"
 
-	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v3"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -21,22 +21,23 @@ type Auth struct {
 }
 
 // ShowLogin displays the login form
-func (a *Auth) ShowLogin(c *fiber.Ctx) error {
+func (a *Auth) ShowLogin(c fiber.Ctx) error {
 	// Check if user is already logged in
 	sess, err := a.App.SessionStore.Get(c)
 	if err != nil {
 		return err
 	}
+	defer sess.Release()
 
 	if sess.Get("user_id") != nil {
-		return c.Redirect(urls.MeowIndex{}.URL())
+		return c.Redirect().To(urls.MeowIndex{}.URL())
 	}
 
 	return renderTempl(c, views.Login(c, ""))
 }
 
 // Login handles the login form submission
-func (a *Auth) Login(c *fiber.Ctx) error {
+func (a *Auth) Login(c fiber.Ctx) error {
 	usernameOrEmail := c.FormValue("username_or_email")
 	password := c.FormValue("password")
 
@@ -45,7 +46,7 @@ func (a *Auth) Login(c *fiber.Ctx) error {
 	}
 
 	// Call the gRPC API
-	ctx, cancel := context.WithTimeout(c.UserContext(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(c.Context(), 5*time.Second)
 	defer cancel()
 
 	resp, err := a.App.API.UserService.Login(ctx, &userV1.LoginRequest{
@@ -76,6 +77,7 @@ func (a *Auth) Login(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
+	defer sess.Release()
 
 	sess.Set("user_id", resp.User.Id)
 	sess.Set("username", resp.User.Username)
@@ -89,26 +91,27 @@ func (a *Auth) Login(c *fiber.Ctx) error {
 	// Debug: Log successful login
 	fmt.Printf("DEBUG: User %s logged in successfully, redirecting to /\n", resp.User.Username)
 
-	return c.Redirect(urls.MeowIndex{}.URL())
+	return c.Redirect().To(urls.MeowIndex{}.URL())
 }
 
 // ShowSignup displays the signup form
-func (a *Auth) ShowSignup(c *fiber.Ctx) error {
+func (a *Auth) ShowSignup(c fiber.Ctx) error {
 	// Check if user is already logged in
 	sess, err := a.App.SessionStore.Get(c)
 	if err != nil {
 		return err
 	}
+	defer sess.Release()
 
 	if sess.Get("user_id") != nil {
-		return c.Redirect(urls.MeowIndex{}.URL())
+		return c.Redirect().To(urls.MeowIndex{}.URL())
 	}
 
 	return renderTempl(c, views.Signup(c, ""))
 }
 
 // Signup handles the signup form submission
-func (a *Auth) Signup(c *fiber.Ctx) error {
+func (a *Auth) Signup(c fiber.Ctx) error {
 	username := c.FormValue("username")
 	displayName := c.FormValue("display_name")
 	email := c.FormValue("email")
@@ -133,7 +136,7 @@ func (a *Auth) Signup(c *fiber.Ctx) error {
 	}
 
 	// Call the gRPC API
-	ctx, cancel := context.WithTimeout(c.UserContext(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(c.Context(), 5*time.Second)
 	defer cancel()
 
 	resp, err := a.App.API.UserService.CreateUser(ctx, &userV1.CreateUserRequest{
@@ -170,6 +173,7 @@ func (a *Auth) Signup(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
+	defer sess.Release()
 
 	sess.Set("user_id", resp.User.Id)
 	sess.Set("username", resp.User.Username)
@@ -179,18 +183,19 @@ func (a *Auth) Signup(c *fiber.Ctx) error {
 		return err
 	}
 
-	return c.Redirect(urls.MeowIndex{}.URL())
+	return c.Redirect().To(urls.MeowIndex{}.URL())
 }
 
 // Logout handles user logout
-func (a *Auth) Logout(c *fiber.Ctx) error {
+func (a *Auth) Logout(c fiber.Ctx) error {
 	sess, err := a.App.SessionStore.Get(c)
 	if err != nil {
 		return err
 	}
+	defer sess.Release()
 
 	// Call the gRPC API
-	ctx, cancel := context.WithTimeout(c.UserContext(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(c.Context(), 5*time.Second)
 	defer cancel()
 
 	_, err = a.App.API.UserService.Logout(ctx, &userV1.LogoutRequest{})
@@ -204,5 +209,5 @@ func (a *Auth) Logout(c *fiber.Ctx) error {
 		return err
 	}
 
-	return c.Redirect(urls.LoginShow{}.URL())
+	return c.Redirect().To(urls.LoginShow{}.URL())
 }

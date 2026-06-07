@@ -3,10 +3,10 @@ package components
 import (
 	"TEMPLATE_MODULE_PATH/pkg/urls"
 	"fmt"
-	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v3"
 )
 
-templ Navigation(c *fiber.Ctx) {
+templ Navigation(c fiber.Ctx) {
 	<nav class="bg-blue-600 text-white p-4">
 		<div class="max-w-7xl mx-auto">
 			<div class="flex justify-between items-center">

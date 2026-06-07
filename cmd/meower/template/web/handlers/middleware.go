@@ -3,13 +3,13 @@ package handlers
 import (
 	"github.com/charmbracelet/log"
 
-	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/session"
+	"github.com/gofiber/fiber/v3"
+	"github.com/gofiber/fiber/v3/middleware/session"
 )
 
 // AuthMiddleware checks if the user is authenticated
 func AuthMiddleware(store *session.Store) fiber.Handler {
-	return func(c *fiber.Ctx) error {
+	return func(c fiber.Ctx) error {
 		log.Debug("AuthMiddleware called",
 			"path", c.Path(),
 			"method", c.Method())
@@ -20,7 +20,7 @@ func AuthMiddleware(store *session.Store) fiber.Handler {
 			log.Debug("Authentication failed",
 				"path", c.Path(),
 				"error", err)
-			return c.Redirect("/login")
+			return c.Redirect().To("/login")
 		}
 
 		log.Debug("User authenticated",
@@ -34,7 +34,7 @@ func AuthMiddleware(store *session.Store) fiber.Handler {
 				"user_id", userID,
 				"path", c.Path(),
 				"error", err)
-			return c.Redirect("/login")
+			return c.Redirect().To("/login")
 		}
 
 		return c.Next()
@@ -43,15 +43,16 @@ func AuthMiddleware(store *session.Store) fiber.Handler {
 
 // GuestMiddleware redirects authenticated users away from guest-only pages
 func GuestMiddleware(store *session.Store) fiber.Handler {
-	return func(c *fiber.Ctx) error {
+	return func(c fiber.Ctx) error {
 		sess, err := store.Get(c)
 		if err != nil {
 			return c.Next()
 		}
+		defer sess.Release()
 
 		userID := sess.Get("user_id")
 		if userID != nil {
-			return c.Redirect("/")
+			return c.Redirect().To("/")
 		}
 
 		return c.Next()
@@ -60,7 +61,7 @@ func GuestMiddleware(store *session.Store) fiber.Handler {
 
 // OptionalAuthMiddleware sets user context if authenticated but allows all users through
 func OptionalAuthMiddleware(store *session.Store) fiber.Handler {
-	return func(c *fiber.Ctx) error {
+	return func(c fiber.Ctx) error {
 		// Attempt to get user authentication info (will succeed silently if not authenticated)
 		_, err := GetAuthenticatedUser(c, store)
 		if err != nil {

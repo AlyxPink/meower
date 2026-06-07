@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v3"
 )
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -143,7 +143,7 @@ func meowDeleteURL(id string) string { return urls.MeowDelete{ID: id}.URL() }
 //
 // See handlers.Meower.{Create,Update,Delete}, which publish these. currentUserID
 // is the viewer's id, used to decide which cards show edit/delete controls.
-templ IndexMeows(c *fiber.Ctx, r *meowV1.IndexMeowResponse, currentUserID string) {
+templ IndexMeows(c fiber.Ctx, r *meowV1.IndexMeowResponse, currentUserID string) {
 	@layouts.Main(c) {
 		<div class="max-w-xl mx-auto bg-white sm:rounded-xl sm:shadow sm:my-4 overflow-hidden">
 			<div class="px-4 py-3 border-b border-gray-200">
@@ -202,7 +202,7 @@ templ MeowComposer() {
 // ─── Single meow ─────────────────────────────────────────────────────────────
 
 // ShowMeow is the permalink page for one meow at /meows/:id.
-templ ShowMeow(c *fiber.Ctx, m *meowV1.Meow, canManage bool) {
+templ ShowMeow(c fiber.Ctx, m *meowV1.Meow, canManage bool) {
 	@layouts.Main(c) {
 		<div class="max-w-xl mx-auto bg-white sm:rounded-xl sm:shadow sm:my-4 overflow-hidden">
 			<div class="px-4 py-3 border-b border-gray-200 flex items-center gap-4">
@@ -222,7 +222,7 @@ templ ShowMeow(c *fiber.Ctx, m *meowV1.Meow, canManage bool) {
 // ─── New / Edit forms ────────────────────────────────────────────────────────
 
 // NewMeow is the standalone composer page (also reachable inline on the timeline).
-templ NewMeow(c *fiber.Ctx) {
+templ NewMeow(c fiber.Ctx) {
 	@layouts.Main(c) {
 		<div class="max-w-xl mx-auto bg-white sm:rounded-xl sm:shadow sm:my-4 overflow-hidden">
 			<div class="px-4 py-3 border-b border-gray-200">
@@ -234,7 +234,7 @@ templ NewMeow(c *fiber.Ctx) {
 }
 
 // EditMeow is the edit form for an existing meow.
-templ EditMeow(c *fiber.Ctx, m *meowV1.Meow) {
+templ EditMeow(c fiber.Ctx, m *meowV1.Meow) {
 	@layouts.Main(c) {
 		<div class="max-w-xl mx-auto bg-white sm:rounded-xl sm:shadow sm:my-4 overflow-hidden">
 			<div class="px-4 py-3 border-b border-gray-200 flex items-center gap-4">

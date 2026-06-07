@@ -12,7 +12,7 @@ package router
 import (
 	"TEMPLATE_MODULE_PATH/pkg/urls"
 
-	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v3"
 )
 
 // Register binds a single route to one HTTP method, using the route's own
@@ -23,22 +23,20 @@ func Register(app fiber.Router, method string, route urls.URLer, handlers ...fib
 
 // RegisterRoute binds a route to one or more HTTP methods. The route's
 // Pattern() supplies the path and Name() supplies the Fiber route name (used
-// for reverse URL lookup). Unknown methods are ignored.
+// for reverse URL lookup). A route with no handlers is ignored.
+//
+// Fiber v3's router takes the first handler as a distinct argument
+// (Add(methods, path, handler, handlers...)) and accepts handlers as `any`, so
+// we split the first handler out and widen the rest to []any.
 func RegisterRoute(app fiber.Router, methods []string, route urls.URLer, handlers ...fiber.Handler) {
-	for _, method := range methods {
-		switch method {
-		case fiber.MethodGet:
-			app.Get(route.Pattern(), handlers...).Name(route.Name())
-		case fiber.MethodPost:
-			app.Post(route.Pattern(), handlers...).Name(route.Name())
-		case fiber.MethodPut:
-			app.Put(route.Pattern(), handlers...).Name(route.Name())
-		case fiber.MethodDelete:
-			app.Delete(route.Pattern(), handlers...).Name(route.Name())
-		case fiber.MethodPatch:
-			app.Patch(route.Pattern(), handlers...).Name(route.Name())
-		case fiber.MethodOptions:
-			app.Options(route.Pattern(), handlers...).Name(route.Name())
-		}
+	if len(handlers) == 0 {
+		return
 	}
+
+	rest := make([]any, len(handlers)-1)
+	for i, h := range handlers[1:] {
+		rest[i] = h
+	}
+
+	app.Add(methods, route.Pattern(), handlers[0], rest...).Name(route.Name())
 }

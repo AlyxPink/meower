@@ -284,7 +284,7 @@ func (g *HandlerGenerator) GenerateWebHandler(methods []string) error {
 	webHandlerTemplate := `package handlers
 
 import (
-	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v3"
 	{{.ServiceNameLower}}V1 "{{.ModulePath}}/api/proto/{{.ServiceNameLower}}/v1"
 )
 
@@ -294,7 +294,7 @@ type {{.ServiceName}} struct {
 
 // TODO: Implement web handlers that call the gRPC service
 // Example:
-// func (h *{{.ServiceName}}) List{{.ResourceName}}(c *fiber.Ctx) error {
+// func (h *{{.ServiceName}}) List{{.ResourceName}}(c fiber.Ctx) error {
 //     resp, err := h.API.{{.ServiceName}}.List{{.ResourceName}}(c.Context(), &{{.ServiceNameLower}}V1.List{{.ResourceName}}Request{})
 //     if err != nil {
 //         return err

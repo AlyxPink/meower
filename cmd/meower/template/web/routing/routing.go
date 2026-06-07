@@ -5,7 +5,8 @@ import (
 	"TEMPLATE_MODULE_PATH/web/handlers"
 	"TEMPLATE_MODULE_PATH/web/router"
 
-	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v3"
+	"github.com/gofiber/fiber/v3/middleware/static"
 )
 
 // RegisterRoutes wires every route to its handler. Routes are defined as typed
@@ -15,8 +16,10 @@ import (
 func RegisterRoutes(app *handlers.App) {
 	web := app.Web
 
-	// Static assets
-	web.Static("/static", "/src/web/static/public/").Name("static")
+	// Static assets. In Fiber v3 app.Static is gone; the static middleware
+	// mounted on a wildcard route serves files and strips the route prefix
+	// (so /static/css/x.css resolves to /src/web/static/public/css/x.css).
+	web.Get("/static/*", static.New("/src/web/static/public")).Name("static")
 
 	// Homepage (available to all)
 	homepage := handlers.Homepage{App: app}

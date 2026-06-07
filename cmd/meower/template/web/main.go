@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"os"
+	"strings"
 	"time"
 
 	"TEMPLATE_MODULE_PATH/pkg/observability"
@@ -15,16 +16,17 @@ import (
 	"TEMPLATE_MODULE_PATH/web/sse"
 
 	"github.com/charmbracelet/log"
-	"github.com/gofiber/contrib/otelfiber/v2"
-	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/compress"
-	"github.com/gofiber/fiber/v2/middleware/csrf"
-	"github.com/gofiber/fiber/v2/middleware/encryptcookie"
-	"github.com/gofiber/fiber/v2/middleware/logger"
-	"github.com/gofiber/fiber/v2/middleware/requestid"
-	"github.com/gofiber/fiber/v2/middleware/session"
-	"github.com/gofiber/fiber/v2/utils"
+	otelfiber "github.com/gofiber/contrib/v3/otel"
+	"github.com/gofiber/fiber/v3"
+	"github.com/gofiber/fiber/v3/extractors"
+	"github.com/gofiber/fiber/v3/middleware/compress"
+	"github.com/gofiber/fiber/v3/middleware/csrf"
+	"github.com/gofiber/fiber/v3/middleware/encryptcookie"
+	"github.com/gofiber/fiber/v3/middleware/logger"
+	"github.com/gofiber/fiber/v3/middleware/requestid"
+	"github.com/gofiber/fiber/v3/middleware/session"
 	"github.com/gofiber/storage/redis/v3"
+	"github.com/gofiber/utils/v2"
 )
 
 func main() {
@@ -56,28 +58,34 @@ func main() {
 	})
 
 	// Create session store with Redis storage
-	sessionStore := session.New(session.Config{
+	sessionStore := session.NewStore(session.Config{
 		Storage:        redisStore,
-		KeyLookup:      "cookie:session_id",
+		Extractor:      extractors.FromCookie("session_id"),
 		CookieDomain:   "",
 		CookiePath:     "/",
 		CookieSecure:   os.Getenv("ENV") == "production",
 		CookieHTTPOnly: true,
 		CookieSameSite: "Lax",
-		Expiration:     365 * 24 * time.Hour, // 1 year
+		IdleTimeout:    365 * 24 * time.Hour, // 1 year
 	})
 
 	// Create the Fiber app
 	fiberApp := fiber.New(fiber.Config{
-		ErrorHandler:      handlers.ErrorHandler,
-		EnablePrintRoutes: true,
+		ErrorHandler: handlers.ErrorHandler,
 	})
 
 	// Observability middleware, mounted first so every request is traced:
 	//   otelfiber          — opens the request span
 	//   SetTraceIDHeader   — echoes the trace ID back as X-Trace-Id
 	//   EnrichTraceContext — decorates the span with request-shape attributes
-	fiberApp.Use(otelfiber.Middleware())
+	//
+	// Static assets are skipped: the v3 otel middleware wraps streamed
+	// response bodies to measure their size, but the static middleware serves
+	// files as a body stream that the wrapper can't drive, which hangs the
+	// response. Static files don't need tracing, so we opt them out here.
+	fiberApp.Use(otelfiber.Middleware(otelfiber.WithNext(func(c fiber.Ctx) bool {
+		return strings.HasPrefix(c.Path(), "/static")
+	})))
 	fiberApp.Use(middleware.SetTraceIDHeader())
 	fiberApp.Use(middleware.EnrichTraceWithContext())
 
@@ -106,7 +114,7 @@ func main() {
 
 	// Mount public routes
 	routing.RegisterRoutes(app)
-	if err := app.Web.Listen("0.0.0.0:3000"); err != nil {
+	if err := app.Web.Listen("0.0.0.0:3000", fiber.ListenConfig{EnablePrintRoutes: true}); err != nil {
 		panic(err)
 	}
 }

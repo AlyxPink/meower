@@ -3,15 +3,16 @@ package handlers
 import (
 	"fmt"
 
-	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v3"
 )
 
 // Debug handler to check session state
-func (a *Auth) Debug(c *fiber.Ctx) error {
+func (a *Auth) Debug(c fiber.Ctx) error {
 	sess, err := a.App.SessionStore.Get(c)
 	if err != nil {
 		return c.Status(500).SendString(fmt.Sprintf("Session error: %v", err))
 	}
+	defer sess.Release()
 
 	userID := sess.Get("user_id")
 	username := sess.Get("username")

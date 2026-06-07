@@ -2,10 +2,10 @@ package views
 
 import (
 	"TEMPLATE_MODULE_PATH/web/views/layouts"
-	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v3"
 )
 
-templ Error500(c *fiber.Ctx) {
+templ Error500(c fiber.Ctx) {
 	@layouts.Main(c) {
 		<section>
 			<div class="max-w-3xl mx-auto text-center lg:py-32">

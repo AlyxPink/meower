@@ -95,6 +95,9 @@ func Serve() {
 	pbMeowV1.RegisterMeowServiceServer(g, handlers.NewMeowerServer(db))
 	pbUserV1.RegisterUserServiceServer(g, handlers.NewUserServer(db))
 
+	// Start background workers (no-op when generated with --no-workers).
+	startWorkers(ctx, db)
+
 	// Serve the gRPC server.
 	log.Info("API server listening", "addr", lis.Addr().String())
 	if err := g.Serve(lis); err != nil {

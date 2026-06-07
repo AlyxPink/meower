@@ -13,6 +13,8 @@ var (
 	// Flags for new command
 	modulePath string
 	force      bool
+	noAuth     bool
+	noWorkers  bool
 )
 
 // newCmd represents the new command
@@ -35,15 +37,20 @@ func init() {
 
 	newCmd.Flags().StringVarP(&modulePath, "module", "m", "", "Go module path (e.g. github.com/user/project)")
 	newCmd.Flags().BoolVarP(&force, "force", "f", false, "Force creation even if directory exists")
+	newCmd.Flags().BoolVar(&noAuth, "no-auth", false, "Omit the authentication scaffold (login/signup/session)")
+	newCmd.Flags().BoolVar(&noWorkers, "no-workers", false, "Omit the background worker harness")
 }
 
 // implements the core project scaffolding logic using the refactored architecture
 func runNewCommand(cmd *cobra.Command, args []string) error {
-	// Create project configuration
+	// Create project configuration. Features are enabled by default
+	// (batteries-included); the --no-* flags turn them off.
 	config := &ProjectConfig{
 		ProjectName: args[0],
 		ModulePath:  modulePath,
 		Force:       force,
+		Auth:        !noAuth,
+		Workers:     !noWorkers,
 	}
 
 	// Create and execute project generator

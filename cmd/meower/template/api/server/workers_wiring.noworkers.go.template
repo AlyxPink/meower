@@ -1,0 +1,11 @@
+package server
+
+import (
+	"context"
+
+	"github.com/jackc/pgx/v5/pgxpool"
+)
+
+// startWorkers is a no-op in projects generated with --no-workers. Regenerate
+// with the worker scaffold enabled, or add your own background-job mechanism.
+func startWorkers(_ context.Context, _ *pgxpool.Pool) {}

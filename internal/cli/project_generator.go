@@ -15,6 +15,12 @@ type ProjectConfig struct {
 	ModulePath  string
 	Force       bool
 	DestDir     string
+
+	// Feature toggles. Enabled by default (batteries-included); the --no-*
+	// flags turn them off, which removes the corresponding code from the
+	// generated project entirely.
+	Auth    bool
+	Workers bool
 }
 
 // ProjectGenerator handles the project generation workflow
@@ -83,8 +89,12 @@ func (pg *ProjectGenerator) ProcessTemplates() error {
 		return fmt.Errorf("failed to set project variables: %w", err)
 	}
 
-	// Use optimized processor for better performance
-	processor := templates.NewOptimizedProcessorWithStats(vars)
+	// Use optimized processor for better performance, honoring the feature
+	// toggles so disabled features' files are skipped.
+	processor := templates.NewOptimizedProcessorWithFeatures(vars, templates.Features{
+		Auth:    pg.config.Auth,
+		Workers: pg.config.Workers,
+	})
 
 	fmt.Println(subtitleStyle.Render("📂 Copying project structure..."))
 

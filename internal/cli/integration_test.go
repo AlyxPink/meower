@@ -686,3 +686,90 @@ func countFiles(t *testing.T, dir string) int {
 
 	return count
 }
+
+// TestFeatureFlags verifies the --no-auth / --no-workers flags include or omit
+// the right files across all four combinations, and that the no-feature variant
+// files are renamed into their canonical place (no stray *.noauth/*.noworkers
+// files remain). Builds are validated separately; this is a fast structural
+// check.
+func TestFeatureFlags(t *testing.T) {
+	if testing.Short() {
+		t.Skip("Skipping feature-flag integration test in short mode")
+	}
+
+	cliPath := buildCLIBinary(t)
+	defer os.Remove(cliPath)
+
+	tempDir := t.TempDir()
+
+	cases := []struct {
+		name    string
+		flags   []string
+		auth    bool
+		workers bool
+	}{
+		{"default", nil, true, true},
+		{"no-auth", []string{"--no-auth"}, false, true},
+		{"no-workers", []string{"--no-workers"}, true, false},
+		{"lean", []string{"--no-auth", "--no-workers"}, false, false},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			projectName := "feat-" + tc.name
+			projectDir := filepath.Join(tempDir, projectName)
+
+			args := append([]string{"new", projectName, "--module", "github.com/test/" + projectName}, tc.flags...)
+			cmd := exec.Command(cliPath, args...)
+			cmd.Dir = tempDir
+			if out, err := cmd.CombinedOutput(); err != nil {
+				t.Fatalf("generation failed: %v\n%s", err, out)
+			}
+
+			exists := func(rel string) bool {
+				_, err := os.Stat(filepath.Join(projectDir, rel))
+				return err == nil
+			}
+
+			// Auth-only files present iff auth enabled.
+			for _, f := range []string{"web/handlers/auth.go", "web/views/login.templ", "web/views/signup.templ"} {
+				if exists(f) != tc.auth {
+					t.Errorf("auth=%v but %s present=%v", tc.auth, f, exists(f))
+				}
+			}
+
+			// Worker harness present iff workers enabled.
+			if exists("api/server/workers/worker.go") != tc.workers {
+				t.Errorf("workers=%v but workers/worker.go present=%v", tc.workers, exists("api/server/workers/worker.go"))
+			}
+
+			// routing.go always exists; it must be the no-auth variant exactly
+			// when auth is disabled. No stray .noauth file should survive.
+			routing, err := os.ReadFile(filepath.Join(projectDir, "web/routing/routing.go"))
+			if err != nil {
+				t.Fatalf("routing.go missing: %v", err)
+			}
+			isNoAuthVariant := strings.Contains(string(routing), "--no-auth variant")
+			if isNoAuthVariant == tc.auth {
+				t.Errorf("auth=%v but routing.go is-noauth-variant=%v", tc.auth, isNoAuthVariant)
+			}
+			if exists("web/routing/routing.noauth.go") {
+				t.Errorf("stray routing.noauth.go left behind")
+			}
+
+			// workers_wiring.go always exists; the no-op stub exactly when
+			// workers are disabled.
+			wiring, err := os.ReadFile(filepath.Join(projectDir, "api/server/workers_wiring.go"))
+			if err != nil {
+				t.Fatalf("workers_wiring.go missing: %v", err)
+			}
+			isNoOp := strings.Contains(string(wiring), "no-op in projects")
+			if isNoOp == tc.workers {
+				t.Errorf("workers=%v but workers_wiring.go is-noop=%v", tc.workers, isNoOp)
+			}
+			if exists("api/server/workers_wiring.noworkers.go") {
+				t.Errorf("stray workers_wiring.noworkers.go left behind")
+			}
+		})
+	}
+}

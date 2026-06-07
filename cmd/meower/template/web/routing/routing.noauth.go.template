@@ -1,0 +1,39 @@
+package routing
+
+import (
+	"TEMPLATE_MODULE_PATH/pkg/urls"
+	"TEMPLATE_MODULE_PATH/web/handlers"
+	"TEMPLATE_MODULE_PATH/web/router"
+
+	"github.com/gofiber/fiber/v2"
+)
+
+// RegisterRoutes wires every route to its handler. Routes are defined as typed
+// structs in pkg/urls (the single source of truth for paths and names) and
+// registered here via router.Register.
+//
+// This is the --no-auth variant: it omits the login/signup/logout routes and
+// the auth middleware, so every route is public. Add your own auth scaffold
+// when you need it (or regenerate with auth enabled).
+func RegisterRoutes(app *handlers.App) {
+	web := app.Web
+
+	// Static assets
+	web.Static("/static", "/src/web/static/public/").Name("static")
+
+	// Homepage
+	homepage := handlers.Homepage{App: app}
+	router.Register(web, fiber.MethodGet, urls.Homepage{}, homepage.Homepage)
+
+	// Meows
+	meower := handlers.Meower{App: app}
+	router.Register(web, fiber.MethodGet, urls.MeowIndex{}, meower.Index)
+	router.Register(web, fiber.MethodGet, urls.MeowNew{}, meower.New)
+	router.Register(web, fiber.MethodPost, urls.MeowCreate{}, meower.Create)
+
+	// Server-sent events: the browser subscribes at /events/stream and the hub
+	// fans published events out to it. /events/health exposes hub metrics.
+	sseHandler := &handlers.SSEHandler{App: app, Hub: app.Hub}
+	router.Register(web, fiber.MethodGet, urls.SSEStream{}, sseHandler.Stream)
+	router.Register(web, fiber.MethodGet, urls.SSEHealth{}, sseHandler.Health)
+}

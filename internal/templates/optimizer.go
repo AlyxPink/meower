@@ -150,14 +150,23 @@ type FileProcessingStats struct {
 // OptimizedProcessorWithStats extends OptimizedProcessor with statistics tracking
 type OptimizedProcessorWithStats struct {
 	*OptimizedProcessor
-	Stats FileProcessingStats
+	Stats    FileProcessingStats
+	features Features
 }
 
-// NewOptimizedProcessorWithStats creates a processor that tracks statistics
+// NewOptimizedProcessorWithStats creates a processor that tracks statistics with
+// the batteries-included default feature set.
 func NewOptimizedProcessorWithStats(vars *TemplateVars) *OptimizedProcessorWithStats {
+	return NewOptimizedProcessorWithFeatures(vars, DefaultFeatures())
+}
+
+// NewOptimizedProcessorWithFeatures creates a stats-tracking processor that
+// includes only the enabled features (disabled features' files are skipped).
+func NewOptimizedProcessorWithFeatures(vars *TemplateVars, features Features) *OptimizedProcessorWithStats {
 	return &OptimizedProcessorWithStats{
 		OptimizedProcessor: NewOptimizedProcessor(vars),
 		Stats:              FileProcessingStats{},
+		features:           features,
 	}
 }
 
@@ -187,6 +196,22 @@ func (ops *OptimizedProcessorWithStats) ProcessEmbeddedFiles(destDir string) err
 
 		// Handle .template files
 		cleanPath = strings.TrimSuffix(cleanPath, ".template")
+
+		// Apply feature toggles: skip files belonging to a disabled feature, and
+		// redirect no-feature variant files into their canonical place.
+		skip, renameTo := ops.features.skipForFeatures(cleanPath)
+		if skip {
+			if !d.IsDir() {
+				ops.Stats.FilesSkipped++
+			}
+			if d.IsDir() {
+				return fs.SkipDir
+			}
+			return nil
+		}
+		if renameTo != "" {
+			cleanPath = renameTo
+		}
 
 		destPath := filepath.Join(destDir, cleanPath)
 

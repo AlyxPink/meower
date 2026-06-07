@@ -29,10 +29,11 @@ func currentUserID(c *fiber.Ctx) string {
 }
 
 // renderFragment renders a templ component to an HTML string for embedding in an
-// SSE event. It uses the request context so cancellation propagates.
+// SSE event. It uses the request's user context (which carries the active trace
+// span under otelfiber) so cancellation and trace context propagate.
 func renderFragment(c *fiber.Ctx, component templ.Component) (string, error) {
 	var buf bytes.Buffer
-	if err := component.Render(c.Context(), &buf); err != nil {
+	if err := component.Render(c.UserContext(), &buf); err != nil {
 		return "", err
 	}
 	return buf.String(), nil
@@ -67,7 +68,7 @@ func (h *Meower) Create(c *fiber.Ctx) error {
 		return c.Redirect(urls.MeowIndex{}.URL())
 	}
 
-	resp, err := h.API.MeowService.CreateMeow(c.Context(), &meowV1.CreateMeowRequest{
+	resp, err := h.API.MeowService.CreateMeow(c.UserContext(), &meowV1.CreateMeowRequest{
 		Content:  content,
 		AuthorId: currentUserID(c),
 	})
@@ -84,7 +85,7 @@ func (h *Meower) Create(c *fiber.Ctx) error {
 
 // Index renders the home timeline.
 func (h *Meower) Index(c *fiber.Ctx) error {
-	resp, err := h.API.MeowService.IndexMeow(c.Context(), &meowV1.IndexMeowRequest{})
+	resp, err := h.API.MeowService.IndexMeow(c.UserContext(), &meowV1.IndexMeowRequest{})
 	if err != nil {
 		return err
 	}
@@ -94,7 +95,7 @@ func (h *Meower) Index(c *fiber.Ctx) error {
 
 // Show renders the permalink page for a single meow.
 func (h *Meower) Show(c *fiber.Ctx) error {
-	resp, err := h.getMeow(c.Context(), c.Params("id"))
+	resp, err := h.getMeow(c.UserContext(), c.Params("id"))
 	if err != nil {
 		return fiber.NewError(fiber.StatusNotFound, "meow not found")
 	}
@@ -105,7 +106,7 @@ func (h *Meower) Show(c *fiber.Ctx) error {
 
 // Edit renders the edit form. Only the author may edit.
 func (h *Meower) Edit(c *fiber.Ctx) error {
-	resp, err := h.getMeow(c.Context(), c.Params("id"))
+	resp, err := h.getMeow(c.UserContext(), c.Params("id"))
 	if err != nil {
 		return fiber.NewError(fiber.StatusNotFound, "meow not found")
 	}
@@ -122,7 +123,7 @@ func (h *Meower) Edit(c *fiber.Ctx) error {
 func (h *Meower) Update(c *fiber.Ctx) error {
 	id := c.Params("id")
 
-	existing, err := h.getMeow(c.Context(), id)
+	existing, err := h.getMeow(c.UserContext(), id)
 	if err != nil {
 		return fiber.NewError(fiber.StatusNotFound, "meow not found")
 	}
@@ -135,7 +136,7 @@ func (h *Meower) Update(c *fiber.Ctx) error {
 		return c.Redirect(urls.MeowEdit{ID: id}.URL())
 	}
 
-	resp, err := h.API.MeowService.UpdateMeow(c.Context(), &meowV1.UpdateMeowRequest{
+	resp, err := h.API.MeowService.UpdateMeow(c.UserContext(), &meowV1.UpdateMeowRequest{
 		Id:      id,
 		Content: content,
 	})
@@ -155,7 +156,7 @@ func (h *Meower) Update(c *fiber.Ctx) error {
 func (h *Meower) Delete(c *fiber.Ctx) error {
 	id := c.Params("id")
 
-	existing, err := h.getMeow(c.Context(), id)
+	existing, err := h.getMeow(c.UserContext(), id)
 	if err != nil {
 		return fiber.NewError(fiber.StatusNotFound, "meow not found")
 	}
@@ -163,7 +164,7 @@ func (h *Meower) Delete(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusForbidden, "you can only delete your own meows")
 	}
 
-	if _, err := h.API.MeowService.DeleteMeow(c.Context(), &meowV1.DeleteMeowRequest{Id: id}); err != nil {
+	if _, err := h.API.MeowService.DeleteMeow(c.UserContext(), &meowV1.DeleteMeowRequest{Id: id}); err != nil {
 		return err
 	}
 

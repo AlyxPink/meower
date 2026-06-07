@@ -45,7 +45,7 @@ func (a *Auth) Login(c *fiber.Ctx) error {
 	}
 
 	// Call the gRPC API
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(c.UserContext(), 5*time.Second)
 	defer cancel()
 
 	resp, err := a.App.API.UserService.Login(ctx, &userV1.LoginRequest{
@@ -133,7 +133,7 @@ func (a *Auth) Signup(c *fiber.Ctx) error {
 	}
 
 	// Call the gRPC API
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(c.UserContext(), 5*time.Second)
 	defer cancel()
 
 	resp, err := a.App.API.UserService.CreateUser(ctx, &userV1.CreateUserRequest{
@@ -190,7 +190,7 @@ func (a *Auth) Logout(c *fiber.Ctx) error {
 	}
 
 	// Call the gRPC API
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(c.UserContext(), 5*time.Second)
 	defer cancel()
 
 	_, err = a.App.API.UserService.Logout(ctx, &userV1.LogoutRequest{})

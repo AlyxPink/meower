@@ -1,4 +1,4 @@
-go 1.24.3
+go 1.26.0
 
 // This Go workspace ties the project's modules together so they resolve each
 // other during local development and `wgo` hot-reload without publishing. Each

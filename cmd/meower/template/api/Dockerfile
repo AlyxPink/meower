@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 
-ARG GO_VERSION=1.24
-ARG SQLC_VERSION=1.29.0
+ARG GO_VERSION=1.26
+ARG SQLC_VERSION=1.31.1
 
 # "COPY --from" does not expand ARG variables, so we need to use a temporary image to get the SQLC version
 FROM sqlc/sqlc:${SQLC_VERSION} AS sqlc-version
@@ -31,8 +31,8 @@ RUN --mount=type=cache,target=/go/pkg/mod/ \
 # and build. The bind mount is read-write so generated .go files land alongside
 # the sources for the build; they're discarded with the ephemeral mount.
 RUN --mount=type=cache,target=/go/pkg/mod/ \
-    go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.36.6 && \
-    go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.5.1
+    go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.36.11 && \
+    go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.6.2
 RUN --mount=type=cache,target=/go/pkg/mod/ \
     --mount=rw,type=bind,source=./api/,target=/src/api/ \
     --mount=type=bind,source=./pkg/observability/,target=/src/pkg/observability/ \
@@ -41,7 +41,7 @@ RUN --mount=type=cache,target=/go/pkg/mod/ \
     cd /src/api && sqlc generate -f /src/api/db/sqlc.yaml && \
     go build -o /bin/api-server ./
 
-FROM alpine:3.21 AS production-api
+FROM alpine:3.23 AS production-api
 
 # Install any runtime dependencies that are needed to run your application.
 # Leverage a cache mount to /var/cache/apk/ to speed up subsequent builds.
@@ -81,10 +81,10 @@ RUN apk add --no-cache \
 
 # TODO: Use versioned modules
 RUN --mount=type=cache,target=/go/pkg/mod/ \
-    go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.36.6 && \
-    go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.5.1 && \
-    go install github.com/grpc-ecosystem/grpc-health-probe@v0.4.38 && \
-    go install github.com/bokwoon95/wgo@v0.5.13
+    go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.36.11 && \
+    go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.6.2 && \
+    go install github.com/grpc-ecosystem/grpc-health-probe@v0.4.52 && \
+    go install github.com/bokwoon95/wgo@v0.6.4
 
 # Copy the executables from the "build" stage.
 COPY --chown=meower:meower --from=build-api /bin/api-server /opt/meower/

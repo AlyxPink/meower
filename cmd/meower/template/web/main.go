@@ -1,13 +1,20 @@
 package main
 
 import (
+	"context"
 	"os"
 	"time"
 
+	"TEMPLATE_MODULE_PATH/pkg/observability"
+	"TEMPLATE_MODULE_PATH/web/config"
 	"TEMPLATE_MODULE_PATH/web/grpc"
 	"TEMPLATE_MODULE_PATH/web/handlers"
+	"TEMPLATE_MODULE_PATH/web/middleware"
+	webobs "TEMPLATE_MODULE_PATH/web/observability"
 	"TEMPLATE_MODULE_PATH/web/routing"
 
+	"github.com/charmbracelet/log"
+	"github.com/gofiber/contrib/otelfiber/v2"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/compress"
 	"github.com/gofiber/fiber/v2/middleware/csrf"
@@ -20,12 +27,31 @@ import (
 )
 
 func main() {
+	ctx := context.Background()
+
+	// Load configuration and configure structured logging.
+	cfg := config.Load()
+	observability.ConfigureLogging(cfg.Environment, cfg.LogLevel)
+
+	// Initialize OpenTelemetry tracing (OTLP/HTTP). Spans export to
+	// OTEL_EXPORTER_OTLP_ENDPOINT (defaults to localhost:4318).
+	telemetry, err := webobs.InitTelemetry(ctx, webobs.DefaultConfig())
+	if err != nil {
+		log.Warn("Failed to initialize telemetry; continuing without tracing", "error", err)
+	} else {
+		defer func() {
+			if err := telemetry.Shutdown(context.Background()); err != nil {
+				log.Error("Failed to shut down telemetry", "error", err)
+			}
+		}()
+	}
+
 	// Connect to the internal gRPC API
 	GrpcClient := grpc.NewClient()
 
 	// Create Redis storage
 	redisStore := redis.New(redis.Config{
-		URL: os.Getenv("REDIS_URL"),
+		URL: cfg.RedisURL,
 	})
 
 	// Create session store with Redis storage
@@ -45,6 +71,14 @@ func main() {
 		ErrorHandler:      handlers.ErrorHandler,
 		EnablePrintRoutes: true,
 	})
+
+	// Observability middleware, mounted first so every request is traced:
+	//   otelfiber          — opens the request span
+	//   SetTraceIDHeader   — echoes the trace ID back as X-Trace-Id
+	//   EnrichTraceContext — decorates the span with request-shape attributes
+	fiberApp.Use(otelfiber.Middleware())
+	fiberApp.Use(middleware.SetTraceIDHeader())
+	fiberApp.Use(middleware.EnrichTraceWithContext())
 
 	// Add middlewares
 	if os.Getenv("ENV") == "production" {

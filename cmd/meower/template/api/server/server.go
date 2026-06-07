@@ -9,7 +9,9 @@ import (
 	pbMeowV1 "TEMPLATE_MODULE_PATH/api/proto/meow/v1"
 	pbUserV1 "TEMPLATE_MODULE_PATH/api/proto/user/v1"
 	"TEMPLATE_MODULE_PATH/api/observability"
+	"TEMPLATE_MODULE_PATH/api/server/config"
 	"TEMPLATE_MODULE_PATH/api/server/handlers"
+	"TEMPLATE_MODULE_PATH/api/server/middleware"
 
 	"github.com/charmbracelet/log"
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
@@ -23,8 +25,9 @@ func Serve() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	// Configure structured logging (JSON in production for Loki).
-	observability.ConfigureLogging(os.Getenv("ENVIRONMENT"), os.Getenv("LOG_LEVEL"))
+	// Load configuration and configure structured logging (JSON in prod for Loki).
+	cfg := config.Load()
+	observability.ConfigureLogging(cfg.Environment, cfg.LogLevel)
 
 	// Initialize OpenTelemetry tracing. Spans export over OTLP to the endpoint
 	// in OTEL_EXPORTER_OTLP_ENDPOINT (defaults to localhost:4317).
@@ -59,9 +62,19 @@ func Serve() {
 	}
 	defer lis.Close()
 
-	// gRPC server with OpenTelemetry instrumentation so every RPC is a span.
+	// gRPC server with OpenTelemetry instrumentation (every RPC is a span) plus
+	// the interceptor chain: recovery first (catches downstream panics), then
+	// trace enrichment (decorates the span once it exists).
 	g := grpc.NewServer(
 		grpc.StatsHandler(otelgrpc.NewServerHandler()),
+		grpc.ChainUnaryInterceptor(
+			middleware.RecoveryUnaryInterceptor(),
+			middleware.EnrichTraceUnary(),
+		),
+		grpc.ChainStreamInterceptor(
+			middleware.RecoveryStreamInterceptor(),
+			middleware.EnrichTraceStream(),
+		),
 	)
 	defer g.GracefulStop()
 
@@ -73,7 +86,7 @@ func Serve() {
 
 	// Create a traced PostgreSQL connection pool. Every query becomes a span
 	// nested under its gRPC request span.
-	db, err := observability.NewTracedPool(ctx, os.Getenv("DATABASE_URL"), observability.DefaultDBTracerConfig())
+	db, err := observability.NewTracedPool(ctx, cfg.DatabaseURL, observability.DefaultDBTracerConfig())
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Unable to connect to database: %v\n", err)
 	}

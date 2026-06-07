@@ -6,12 +6,21 @@ replace TEMPLATE_MODULE_PATH/api => ../api
 
 replace TEMPLATE_MODULE_PATH/pkg/urls => ../pkg/urls
 
+replace TEMPLATE_MODULE_PATH/pkg/observability => ../pkg/observability
+
 require (
 	github.com/a-h/templ v0.3.906
 	github.com/charmbracelet/log v0.4.2
+	github.com/gofiber/contrib/otelfiber/v2 v2.2.3
 	github.com/gofiber/fiber/v2 v2.52.8
+	github.com/gofiber/storage/redis/v3 v3.4.3
+	go.opentelemetry.io/otel v1.40.0
+	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp v1.40.0
+	go.opentelemetry.io/otel/sdk v1.40.0
+	go.opentelemetry.io/otel/trace v1.40.0
 	google.golang.org/grpc v1.73.0
 	TEMPLATE_MODULE_PATH/api v0.0.0-00010101000000-000000000000
+	TEMPLATE_MODULE_PATH/pkg/observability v0.0.0-00010101000000-000000000000
 	TEMPLATE_MODULE_PATH/pkg/urls v0.0.0-00010101000000-000000000000
 )
 

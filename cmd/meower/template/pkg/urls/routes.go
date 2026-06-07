@@ -137,3 +137,49 @@ var _meowEdit = func() Compiled {
 
 func (MeowEdit) Pattern() string { return _meowEdit.Pattern }
 func (MeowEdit) Name() string    { return _meowEdit.Name }
+
+// MeowUpdate saves edits to a meow — POST /meows/:id. (HTML forms can't issue
+// PUT/PATCH, so updates POST to the resource path.)
+type MeowUpdate struct {
+	ID string `param:"id"`
+}
+
+func (m *MeowUpdate) route() *Route {
+	return R(
+		"meows.update",
+		Lit("meows"), Param(&m.ID),
+	)
+}
+
+func (m MeowUpdate) URL() string { return (&m).route().Build() }
+
+var _meowUpdate = func() Compiled {
+	m := &MeowUpdate{}
+	return m.route().Compile(m)
+}()
+
+func (MeowUpdate) Pattern() string { return _meowUpdate.Pattern }
+func (MeowUpdate) Name() string    { return _meowUpdate.Name }
+
+// MeowDelete deletes a meow — POST /meows/:id/delete. (HTML forms can't issue
+// DELETE, so deletes POST to a dedicated sub-path.)
+type MeowDelete struct {
+	ID string `param:"id"`
+}
+
+func (m *MeowDelete) route() *Route {
+	return R(
+		"meows.delete",
+		Lit("meows"), Param(&m.ID), Lit("delete"),
+	)
+}
+
+func (m MeowDelete) URL() string { return (&m).route().Build() }
+
+var _meowDelete = func() Compiled {
+	m := &MeowDelete{}
+	return m.route().Compile(m)
+}()
+
+func (MeowDelete) Pattern() string { return _meowDelete.Pattern }
+func (MeowDelete) Name() string    { return _meowDelete.Name }

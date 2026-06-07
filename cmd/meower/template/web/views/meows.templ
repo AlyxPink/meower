@@ -6,52 +6,282 @@ import (
 	"TEMPLATE_MODULE_PATH/web/views/layouts"
 
 	"fmt"
+	"time"
+
 	"github.com/gofiber/fiber/v2"
 )
 
-templ CreateMeow(c *fiber.Ctx, r *meowV1.CreateMeowResponse) {
-	@layouts.Main(c) {
-		<h1>Meow Created</h1>
-		<ul>
-			<li class="py-2">
-				<span class="font-mono rounded bg-pink-200 p-2">#{ r.Meow.Id } { `@` } { r.Meow.CreatedAt.AsTime().String() }</span>
-				<span class="font-bold">{ r.Meow.Content }</span>
-			</li>
-		</ul>
-		<a class="underline" href={ templ.SafeURL(urls.MeowIndex{}.URL()) }>See all Meows</a>
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+
+// meowDOMID is the stable DOM id for a meow's card. Live SSE updates target it
+// by id (out-of-band swap to replace, delete to remove), so the server-rendered
+// card and the live-pushed fragment must agree on this id.
+func meowDOMID(id string) string { return "meow-" + id }
+
+// authorHandle returns the @username to show, falling back to "anonymous" for
+// legacy meows with no author.
+func authorHandle(m *meowV1.Meow) string {
+	if m.AuthorUsername == "" {
+		return "anonymous"
+	}
+	return "@" + m.AuthorUsername
+}
+
+// authorName returns the display name to show, falling back to the handle.
+func authorName(m *meowV1.Meow) string {
+	if m.AuthorDisplayName != "" {
+		return m.AuthorDisplayName
+	}
+	if m.AuthorUsername != "" {
+		return m.AuthorUsername
+	}
+	return "Anonymous"
+}
+
+// relativeTime renders a created_at timestamp as a short, Twitter-style
+// relative string ("3m", "2h", "5d"), falling back to a date for old meows.
+func relativeTime(m *meowV1.Meow) string {
+	if m.CreatedAt == nil {
+		return ""
+	}
+	t := m.CreatedAt.AsTime()
+	d := time.Since(t)
+	switch {
+	case d < time.Minute:
+		return "now"
+	case d < time.Hour:
+		return fmt.Sprintf("%dm", int(d.Minutes()))
+	case d < 24*time.Hour:
+		return fmt.Sprintf("%dh", int(d.Hours()))
+	case d < 7*24*time.Hour:
+		return fmt.Sprintf("%dd", int(d.Hours()/24))
+	default:
+		return t.Format("Jan 2")
 	}
 }
 
-templ IndexMeows(c *fiber.Ctx, r *meowV1.IndexMeowResponse) {
-	@layouts.Main(c) {
-		<h1>{ fmt.Sprint(len(r.Meows)) } Meows found</h1>
-		// Live updates via SSE: subscribe to the "meows" channel and append each
-		// "meow-created" event to the list. Uses the HTMX SSE extension
-		// (hx-ext="sse", loaded in the layout). A meow created in any tab shows
-		// up here in real time — see handlers.Meower.Create, which publishes to
-		// this channel.
-		<ul
-			hx-ext="sse"
-			sse-connect={ urls.SSEStream{}.URL() + "?channels=meows" }
-			sse-swap="meow-created"
-			hx-swap="beforeend"
-		>
-			for _, m := range r.Meows {
-				<li class="py-2 rounded bg-pink-200 p-2 my-4">
-					<p class="font-bold">{ m.Content }</p>
-					<p class="font-mono">#{ m.Id } { `@` } { m.CreatedAt.AsTime().String() }</p>
-				</li>
+// avatarInitial is the single uppercase letter shown in the avatar circle.
+func avatarInitial(m *meowV1.Meow) string {
+	name := authorName(m)
+	if name == "" {
+		return "?"
+	}
+	r := []rune(name)
+	return string(r[0:1])
+}
+
+// ─── Reusable card ───────────────────────────────────────────────────────────
+
+// MeowCard renders one timeline entry. It is the single source of truth for a
+// meow's markup: the timeline lists it, the show page embeds it, and the SSE
+// broadcast renders it to a string for live create/update swaps. The stable
+// id (meowDOMID) lets live updates target this exact card.
+//
+// canManage controls whether the edit/delete affordances render — the web
+// handler passes true only for the meow's author.
+templ MeowCard(m *meowV1.Meow, canManage bool) {
+	@meowCardOOB(m, canManage, false)
+}
+
+// meowCardOOB is MeowCard with an explicit out-of-band toggle. When oob is true
+// the card's own <article> carries hx-swap-oob="true" so an SSE update replaces
+// the existing #meow-<id> in place (OOB matches the top-level element's id, so
+// the attribute must live on the article, not a wrapper).
+templ meowCardOOB(m *meowV1.Meow, canManage bool, oob bool) {
+	<article
+		id={ meowDOMID(m.Id) }
+		if oob {
+			hx-swap-oob="true"
+		}
+		class="flex gap-3 px-4 py-3 border-b border-gray-200 hover:bg-gray-50 transition-colors"
+	>
+		<div class="shrink-0">
+			<div class="h-11 w-11 rounded-full bg-pink-500 text-white flex items-center justify-center font-bold text-lg select-none">
+				{ avatarInitial(m) }
+			</div>
+		</div>
+		<div class="min-w-0 flex-1">
+			<div class="flex items-center gap-1.5 text-sm">
+				<a href={ templ.SafeURL(meowShowURL(m.Id)) } class="font-bold text-gray-900 hover:underline truncate">
+					{ authorName(m) }
+				</a>
+				<span class="text-gray-500 truncate">{ authorHandle(m) }</span>
+				<span class="text-gray-500">·</span>
+				<a href={ templ.SafeURL(meowShowURL(m.Id)) } class="text-gray-500 hover:underline shrink-0">
+					{ relativeTime(m) }
+				</a>
+			</div>
+			<p class="mt-0.5 text-gray-900 whitespace-pre-wrap break-words">{ m.Content }</p>
+			if canManage {
+				<div class="mt-2 flex gap-4 text-sm text-gray-500">
+					<a href={ templ.SafeURL(meowEditURL(m.Id)) } class="hover:text-blue-600">Edit</a>
+					<form method="post" action={ templ.SafeURL(meowDeleteURL(m.Id)) } onsubmit="return confirm('Delete this meow?');">
+						<button type="submit" class="hover:text-red-600">Delete</button>
+					</form>
+				</div>
 			}
-		</ul>
+		</div>
+	</article>
+}
+
+// URL helpers keep the verbose urls.Xxx{ID: id}.URL() calls out of the markup.
+func meowShowURL(id string) string   { return urls.Meow{ID: id}.URL() }
+func meowEditURL(id string) string   { return urls.MeowEdit{ID: id}.URL() }
+func meowUpdateURL(id string) string { return urls.MeowUpdate{ID: id}.URL() }
+func meowDeleteURL(id string) string { return urls.MeowDelete{ID: id}.URL() }
+
+// ─── Timeline ────────────────────────────────────────────────────────────────
+
+// IndexMeows is the home timeline: a composer plus a live-updating feed.
+//
+// Real-time wiring: #timeline subscribes to the SSE "meows" channel and listens
+// for three events. Every pushed fragment is an out-of-band (hx-swap-oob) swap,
+// so a single connection drives all three behaviours:
+//   - meow-created → wrapper with hx-swap-oob="afterbegin:#timeline" prepends a card
+//   - meow-updated → a card with hx-swap-oob="true" replaces the matching #meow-<id>
+//   - meow-deleted → an element with hx-swap-oob="delete:#meow-<id>" removes the card
+//
+// See handlers.Meower.{Create,Update,Delete}, which publish these. currentUserID
+// is the viewer's id, used to decide which cards show edit/delete controls.
+templ IndexMeows(c *fiber.Ctx, r *meowV1.IndexMeowResponse, currentUserID string) {
+	@layouts.Main(c) {
+		<div class="max-w-xl mx-auto bg-white sm:rounded-xl sm:shadow sm:my-4 overflow-hidden">
+			<div class="px-4 py-3 border-b border-gray-200">
+				<h1 class="text-xl font-extrabold text-gray-900">Home</h1>
+			</div>
+			@MeowComposer()
+			<div
+				id="timeline"
+				hx-ext="sse"
+				sse-connect={ urls.SSEStream{}.URL() + "?channels=meows" }
+				sse-swap="meow-created,meow-updated,meow-deleted"
+				hx-swap="none"
+			>
+				if len(r.Meows) == 0 {
+					<p id="timeline-empty" class="px-4 py-10 text-center text-gray-500">No meows yet. Be the first!</p>
+				}
+				for _, m := range r.Meows {
+					@MeowCard(m, m.AuthorId == currentUserID && currentUserID != "")
+				}
+			</div>
+		</div>
 	}
 }
 
+// MeowComposer is the inline "what's happening" box that posts a new meow.
+templ MeowComposer() {
+	<form
+		method="post"
+		action={ templ.SafeURL(urls.MeowCreate{}.URL()) }
+		class="flex gap-3 px-4 py-3 border-b border-gray-200"
+	>
+		<div class="shrink-0">
+			<div class="h-11 w-11 rounded-full bg-gray-300 flex items-center justify-center text-gray-600">🐱</div>
+		</div>
+		<div class="flex-1">
+			<textarea
+				name="content"
+				rows="2"
+				required
+				maxlength="280"
+				placeholder="What's happening?"
+				class="w-full resize-none text-lg placeholder-gray-400 focus:outline-none"
+			></textarea>
+			<div class="flex justify-end">
+				<button
+					type="submit"
+					class="bg-pink-500 hover:bg-pink-600 text-white font-bold py-1.5 px-5 rounded-full transition-colors"
+				>
+					Meow
+				</button>
+			</div>
+		</div>
+	</form>
+}
+
+// ─── Single meow ─────────────────────────────────────────────────────────────
+
+// ShowMeow is the permalink page for one meow at /meows/:id.
+templ ShowMeow(c *fiber.Ctx, m *meowV1.Meow, canManage bool) {
+	@layouts.Main(c) {
+		<div class="max-w-xl mx-auto bg-white sm:rounded-xl sm:shadow sm:my-4 overflow-hidden">
+			<div class="px-4 py-3 border-b border-gray-200 flex items-center gap-4">
+				<a href={ templ.SafeURL(urls.MeowIndex{}.URL()) } class="text-gray-500 hover:text-gray-900 text-xl leading-none">←</a>
+				<h1 class="text-xl font-extrabold text-gray-900">Meow</h1>
+			</div>
+			@MeowCard(m, canManage)
+			<div class="px-4 py-3 text-sm text-gray-500">
+				if m.CreatedAt != nil {
+					{ m.CreatedAt.AsTime().Format("3:04 PM · Jan 2, 2006") }
+				}
+			</div>
+		</div>
+	}
+}
+
+// ─── New / Edit forms ────────────────────────────────────────────────────────
+
+// NewMeow is the standalone composer page (also reachable inline on the timeline).
 templ NewMeow(c *fiber.Ctx) {
 	@layouts.Main(c) {
-		<h1 class="text-3xl font-black uppercase tracking-tight lg:leading-none lg:text-4xl mb-4">Create a meow</h1>
-		<form action={ templ.SafeURL(urls.MeowCreate{}.URL()) } method="post">
-			<input type="text" name="content" placeholder="What's up?" class="border border-1 border-black"/>
-			<button type="submit">Meow!</button>
-		</form>
+		<div class="max-w-xl mx-auto bg-white sm:rounded-xl sm:shadow sm:my-4 overflow-hidden">
+			<div class="px-4 py-3 border-b border-gray-200">
+				<h1 class="text-xl font-extrabold text-gray-900">Create a meow</h1>
+			</div>
+			@MeowComposer()
+		</div>
 	}
+}
+
+// EditMeow is the edit form for an existing meow.
+templ EditMeow(c *fiber.Ctx, m *meowV1.Meow) {
+	@layouts.Main(c) {
+		<div class="max-w-xl mx-auto bg-white sm:rounded-xl sm:shadow sm:my-4 overflow-hidden">
+			<div class="px-4 py-3 border-b border-gray-200 flex items-center gap-4">
+				<a href={ templ.SafeURL(meowShowURL(m.Id)) } class="text-gray-500 hover:text-gray-900 text-xl leading-none">←</a>
+				<h1 class="text-xl font-extrabold text-gray-900">Edit meow</h1>
+			</div>
+			<form method="post" action={ templ.SafeURL(meowUpdateURL(m.Id)) } class="px-4 py-3">
+				<textarea
+					name="content"
+					rows="3"
+					required
+					maxlength="280"
+					class="w-full resize-none text-lg border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-pink-400"
+				>{ m.Content }</textarea>
+				<div class="flex justify-end gap-3 mt-3">
+					<a href={ templ.SafeURL(meowShowURL(m.Id)) } class="py-1.5 px-5 rounded-full text-gray-600 hover:bg-gray-100">Cancel</a>
+					<button type="submit" class="bg-pink-500 hover:bg-pink-600 text-white font-bold py-1.5 px-5 rounded-full transition-colors">Save</button>
+				</div>
+			</form>
+		</div>
+	}
+}
+
+// ─── SSE fragments ───────────────────────────────────────────────────────────
+//
+// These render the out-of-band wrappers the SSE handler streams to the browser.
+// They wrap MeowCard so the live markup is identical to the server-rendered
+// markup. canManage is intentionally false here: a broadcast fans out to every
+// connected viewer, so per-viewer edit/delete controls can't be baked into a
+// shared fragment. The author still gets controls on their own full-page loads.
+
+// MeowCreatedFragment prepends a new card to the top of #timeline for everyone.
+// It also OOB-removes the "no meows yet" placeholder if it's present (a no-op
+// once the timeline already has cards).
+templ MeowCreatedFragment(m *meowV1.Meow) {
+	<div hx-swap-oob="afterbegin:#timeline">
+		@MeowCard(m, false)
+	</div>
+	<div hx-swap-oob="delete:#timeline-empty"></div>
+}
+
+// MeowUpdatedFragment replaces the matching card in place via id (OOB true).
+templ MeowUpdatedFragment(m *meowV1.Meow) {
+	@meowCardOOB(m, false, true)
+}
+
+// MeowDeletedFragment removes the matching card.
+templ MeowDeletedFragment(id string) {
+	<div hx-swap-oob={ "delete:#" + meowDOMID(id) }></div>
 }

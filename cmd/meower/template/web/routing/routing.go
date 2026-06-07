@@ -38,12 +38,19 @@ func RegisterRoutes(app *handlers.App) {
 	router.Register(web, fiber.MethodPost, urls.Logout{},
 		handlers.AuthMiddleware(app.SessionStore), auth.Logout)
 
-	// Meows (authenticated users only)
+	// Meows (authenticated users only).
+	//
+	// Order matters: the static /meows/new must register before the
+	// parameterized /meows/:id, or Fiber would match "new" as an :id.
 	authed := handlers.AuthMiddleware(app.SessionStore)
 	meower := handlers.Meower{App: app}
 	router.Register(web, fiber.MethodGet, urls.MeowIndex{}, authed, meower.Index)
 	router.Register(web, fiber.MethodGet, urls.MeowNew{}, authed, meower.New)
 	router.Register(web, fiber.MethodPost, urls.MeowCreate{}, authed, meower.Create)
+	router.Register(web, fiber.MethodGet, urls.Meow{}, authed, meower.Show)
+	router.Register(web, fiber.MethodGet, urls.MeowEdit{}, authed, meower.Edit)
+	router.Register(web, fiber.MethodPost, urls.MeowUpdate{}, authed, meower.Update)
+	router.Register(web, fiber.MethodPost, urls.MeowDelete{}, authed, meower.Delete)
 
 	// Server-sent events: the browser subscribes at /events/stream and the hub
 	// fans published events out to it. /events/health exposes hub metrics.

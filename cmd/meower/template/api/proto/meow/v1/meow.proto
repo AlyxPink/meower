@@ -6,20 +6,33 @@ import "google/protobuf/timestamp.proto";
 
 option go_package = "TEMPLATE_MODULE_PATH/api/proto/meow/v1";
 
+// MeowService is the worked-example CRUD resource. It backs the Twitter-style
+// timeline in the web app, including live create/update/delete over SSE.
 service MeowService {
   rpc CreateMeow(CreateMeowRequest) returns (CreateMeowResponse) {}
   rpc GetMeow(GetMeowRequest) returns (GetMeowResponse) {}
   rpc IndexMeow(IndexMeowRequest) returns (IndexMeowResponse) {}
+  rpc UpdateMeow(UpdateMeowRequest) returns (UpdateMeowResponse) {}
+  rpc DeleteMeow(DeleteMeowRequest) returns (DeleteMeowResponse) {}
 }
 
 message Meow {
   string id = 1;
   string content = 2;
   google.protobuf.Timestamp created_at = 3;
+
+  // Author, denormalized from the users table via a JOIN at read time. These
+  // are empty for legacy meows created without an author (user_id is nullable).
+  string author_id = 4;
+  string author_username = 5;
+  string author_display_name = 6;
 }
 
 message CreateMeowRequest {
   string content = 1;
+  // author_id is the id of the user posting the meow (set from the web
+  // session). Empty means anonymous.
+  string author_id = 2;
 }
 
 message CreateMeowResponse {
@@ -39,3 +52,18 @@ message IndexMeowRequest {}
 message IndexMeowResponse {
   repeated Meow meows = 1;
 }
+
+message UpdateMeowRequest {
+  string id = 1;
+  string content = 2;
+}
+
+message UpdateMeowResponse {
+  Meow meow = 1;
+}
+
+message DeleteMeowRequest {
+  string id = 1;
+}
+
+message DeleteMeowResponse {}

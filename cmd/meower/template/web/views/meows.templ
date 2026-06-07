@@ -25,7 +25,17 @@ templ CreateMeow(c *fiber.Ctx, r *meowV1.CreateMeowResponse) {
 templ IndexMeows(c *fiber.Ctx, r *meowV1.IndexMeowResponse) {
 	@layouts.Main(c) {
 		<h1>{ fmt.Sprint(len(r.Meows)) } Meows found</h1>
-		<ul>
+		// Live updates via SSE: subscribe to the "meows" channel and append each
+		// "meow-created" event to the list. Uses the HTMX SSE extension
+		// (hx-ext="sse", loaded in the layout). A meow created in any tab shows
+		// up here in real time — see handlers.Meower.Create, which publishes to
+		// this channel.
+		<ul
+			hx-ext="sse"
+			sse-connect={ urls.SSEStream{}.URL() + "?channels=meows" }
+			sse-swap="meow-created"
+			hx-swap="beforeend"
+		>
 			for _, m := range r.Meows {
 				<li class="py-2 rounded bg-pink-200 p-2 my-4">
 					<p class="font-bold">{ m.Content }</p>

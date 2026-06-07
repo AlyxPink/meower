@@ -1,8 +1,12 @@
 package handlers
 
 import (
+	"fmt"
+	"html"
+
 	meowV1 "TEMPLATE_MODULE_PATH/api/proto/meow/v1"
 
+	"TEMPLATE_MODULE_PATH/web/sse"
 	"TEMPLATE_MODULE_PATH/web/views"
 
 	"github.com/gofiber/fiber/v2"
@@ -21,6 +25,21 @@ func (h *Meower) Create(c *fiber.Ctx) error {
 	resp, err := h.API.MeowService.CreateMeow(c.Context(), req)
 	if err != nil {
 		return err
+	}
+
+	// Demo of the SSE hub: publish the new meow to the "meows" channel so every
+	// browser subscribed at /events/stream?channels=meows live-appends it. The
+	// event Data is the HTML fragment the browser inserts into the list.
+	if h.Hub != nil {
+		fragment := fmt.Sprintf(
+			`<li class="py-2 rounded bg-pink-200 p-2 my-4"><p class="font-bold">%s</p></li>`,
+			html.EscapeString(resp.Meow.Content),
+		)
+		h.Hub.Broadcast("meows", sse.SSEEvent{
+			Event: "meow-created",
+			ID:    resp.Meow.Id,
+			Data:  fragment,
+		})
 	}
 
 	return renderTempl(c, views.CreateMeow(c, resp))

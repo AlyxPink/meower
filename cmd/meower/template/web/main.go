@@ -12,6 +12,7 @@ import (
 	"TEMPLATE_MODULE_PATH/web/middleware"
 	webobs "TEMPLATE_MODULE_PATH/web/observability"
 	"TEMPLATE_MODULE_PATH/web/routing"
+	"TEMPLATE_MODULE_PATH/web/sse"
 
 	"github.com/charmbracelet/log"
 	"github.com/gofiber/contrib/otelfiber/v2"
@@ -92,10 +93,15 @@ func main() {
 		Key: os.Getenv("COOKIE_SECRET_KEY"),
 	}))
 
+	// Create the SSE hub and start its reaper (evicts stale connections).
+	hub := sse.NewHub()
+	go hub.StartReaper(ctx.Done())
+
 	app := &handlers.App{
 		Web:          fiberApp,
 		API:          GrpcClient,
 		SessionStore: sessionStore,
+		Hub:          hub,
 	}
 
 	// Mount public routes

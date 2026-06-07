@@ -44,4 +44,10 @@ func RegisterRoutes(app *handlers.App) {
 	router.Register(web, fiber.MethodGet, urls.MeowIndex{}, authed, meower.Index)
 	router.Register(web, fiber.MethodGet, urls.MeowNew{}, authed, meower.New)
 	router.Register(web, fiber.MethodPost, urls.MeowCreate{}, authed, meower.Create)
+
+	// Server-sent events: the browser subscribes at /events/stream and the hub
+	// fans published events out to it. /events/health exposes hub metrics.
+	sseHandler := &handlers.SSEHandler{App: app, Hub: app.Hub}
+	router.Register(web, fiber.MethodGet, urls.SSEStream{}, sseHandler.Stream)
+	router.Register(web, fiber.MethodGet, urls.SSEHealth{}, sseHandler.Health)
 }

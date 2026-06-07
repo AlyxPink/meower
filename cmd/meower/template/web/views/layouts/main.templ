@@ -28,6 +28,11 @@ templ Main(c *fiber.Ctx) {
 			</main>
 			@components.Footer()
 			<script src="/static/js/hello-world.js"></script>
+			// HTMX + its SSE extension power the live-updating views (see the
+			// meows list, which subscribes to the SSE hub). Pinned versions via
+			// CDN for the template demo; vendor them into /static for production.
+			<script src="https://unpkg.com/htmx.org@2.0.4/dist/htmx.min.js"></script>
+			<script src="https://unpkg.com/htmx-ext-sse@2.2.2/sse.js"></script>
 		</body>
 	</html>
 }

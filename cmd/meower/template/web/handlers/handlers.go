@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"TEMPLATE_MODULE_PATH/web/grpc"
+	"TEMPLATE_MODULE_PATH/web/sse"
 	"TEMPLATE_MODULE_PATH/web/views"
 
 	"github.com/a-h/templ"
@@ -18,6 +19,7 @@ type App struct {
 	Web          *fiber.App
 	API          *grpc.Client
 	SessionStore *session.Store
+	Hub          *sse.Hub
 }
 
 func ErrorHandler(ctx *fiber.Ctx, err error) error {

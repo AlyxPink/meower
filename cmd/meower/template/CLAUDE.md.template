@@ -117,9 +117,13 @@ instance; put Redis pub/sub in front of `Broadcast` for multi-instance fan-out.
 
 🟡 The api emits OTLP traces (gRPC, `:4317`), the web emits OTLP traces (HTTP,
 `:4318`), both configure structured logging (JSON in production for Loki), and
-the api serves Prometheus metrics on `:9091`. Endpoints default to localhost and
-read from `OTEL_EXPORTER_OTLP_ENDPOINT`. Use `observability.LogWithTrace(ctx)`
-to get a logger with trace/span IDs attached.
+the api serves Prometheus metrics on `:9091`. The trace endpoint reads from
+`OTEL_EXPORTER_OTLP_ENDPOINT` and defaults to `tempo:4317`/`tempo:4318` — the
+monitoring stack, which is opt-in via the `monitoring` compose profile
+(`docker compose --profile monitoring up`; see `monitoring/README.md`). With the
+profile off, the exporter degrades silently (one warning, then quiet) instead of
+spamming connection errors. Use `observability.LogWithTrace(ctx)` to get a
+logger with trace/span IDs attached.
 
 ## Middleware
 

@@ -60,6 +60,11 @@ type Telemetry struct {
 // InitTelemetry initializes OpenTelemetry with a trace provider exporting over
 // OTLP/HTTP. Call Shutdown on server exit to flush buffered spans.
 func InitTelemetry(ctx context.Context, cfg TelemetryConfig) (*Telemetry, error) {
+	// Install the deduplicating error handler before the trace provider starts so
+	// a down collector (e.g. the monitoring stack isn't running) logs a single
+	// warning instead of a "connection refused" line on every batch tick.
+	sharedobs.SetQuietErrorHandler()
+
 	res, err := resource.New(
 		ctx,
 		resource.WithAttributes(

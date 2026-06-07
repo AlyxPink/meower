@@ -32,9 +32,14 @@ services:
       REDIS_URL: "redis://redis:6379"
       ENVIRONMENT: "development"
       LOG_LEVEL: "debug"
-      # OpenTelemetry: the web exports traces over OTLP/HTTP (Tempo on 4318 in
-      # the monitoring overlay). See the api service note about connecting them.
-      OTEL_EXPORTER_OTLP_ENDPOINT: "tempo:4318"
+      # OpenTelemetry: the web exports traces over OTLP/HTTP to Tempo on 4318.
+      # Tempo only runs under the `monitoring` compose profile (see below), so
+      # by default this points at a collector that isn't up and the exporter
+      # degrades silently (no log spam, spans dropped). Run
+      # `docker compose --profile monitoring up` to get traces with zero further
+      # config, or set OTEL_EXPORTER_OTLP_ENDPOINT in .env to ship them to a
+      # collector of your own.
+      OTEL_EXPORTER_OTLP_ENDPOINT: "${OTEL_EXPORTER_OTLP_ENDPOINT:-tempo:4318}"
     ports:
       - "3000:3000"
       - "7331:7331"
@@ -95,11 +100,14 @@ services:
       ENVIRONMENT: "development"
       LOG_LEVEL: "debug"
       GRPC_REFLECTION_ENABLED: "true"
-      # OpenTelemetry: traces export here. The monitoring overlay
-      # (monitoring/docker-compose.monitoring.yml) runs Tempo on 4317. It's a
-      # separate compose/network, so connect them or point at a reachable
-      # collector to see traces; the app degrades gracefully if it's unreachable.
-      OTEL_EXPORTER_OTLP_ENDPOINT: "tempo:4317"
+      # OpenTelemetry: the api exports traces over OTLP/gRPC to Tempo on 4317.
+      # Tempo only runs under the `monitoring` compose profile (see below), so
+      # by default this points at a collector that isn't up and the exporter
+      # degrades silently (no log spam, spans dropped). Run
+      # `docker compose --profile monitoring up` to get traces with zero further
+      # config, or set OTEL_EXPORTER_OTLP_ENDPOINT in .env to ship them to a
+      # collector of your own.
+      OTEL_EXPORTER_OTLP_ENDPOINT: "${OTEL_EXPORTER_OTLP_ENDPOINT:-tempo:4317}"
     ports:
       - "50051:50051"
       - "9091:9091" # Prometheus metrics
@@ -210,5 +218,82 @@ services:
       timeout: 3s
       retries: 5
 
+  # ===========================================
+  # Monitoring stack (Prometheus, Loki, Tempo, Grafana)
+  # ===========================================
+  # Opt-in: these services only start under the `monitoring` profile. Run
+  # `docker compose --profile monitoring up` to bring them up alongside the app.
+  # They share the project's default network, so the app reaches Tempo at
+  # `tempo:4317`/`tempo:4318` with no extra config. A plain `docker compose up`
+  # leaves them stopped and the app's trace exporter degrades silently.
+  # See monitoring/README.md for details.
+
+  prometheus:
+    image: prom/prometheus:v2.48.0
+    container_name: TEMPLATE_PROJECT_NAME-prometheus
+    profiles: ["monitoring"]
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.enable-lifecycle'
+      - '--storage.tsdb.retention.time=15d'
+    restart: unless-stopped
+
+  loki:
+    image: grafana/loki:2.9.0
+    container_name: TEMPLATE_PROJECT_NAME-loki
+    profiles: ["monitoring"]
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./monitoring/loki/loki-config.yml:/etc/loki/local-config.yaml:ro
+      - loki_data:/loki
+    command: -config.file=/etc/loki/local-config.yaml
+    restart: unless-stopped
+
+  tempo:
+    image: grafana/tempo:2.3.0
+    container_name: TEMPLATE_PROJECT_NAME-tempo
+    profiles: ["monitoring"]
+    ports:
+      - "3200:3200"   # Tempo HTTP API
+      - "4317:4317"   # OTLP gRPC receiver (api)
+      - "4318:4318"   # OTLP HTTP receiver (web)
+    volumes:
+      - ./monitoring/tempo/tempo-config.yml:/etc/tempo/tempo.yaml:ro
+      - tempo_data:/tmp/tempo
+    command: ["-config.file=/etc/tempo/tempo.yaml"]
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:10.2.0
+    container_name: TEMPLATE_PROJECT_NAME-grafana
+    profiles: ["monitoring"]
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      # Development-only default password; set GRAFANA_ADMIN_PASSWORD in prod.
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-admin}
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_AUTH_ANONYMOUS_ENABLED=false
+    volumes:
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+      - grafana_data:/var/lib/grafana
+    depends_on:
+      - prometheus
+      - loki
+      - tempo
+    restart: unless-stopped
+
 volumes:
   go_modules:
+  prometheus_data:
+  loki_data:
+  tempo_data:
+  grafana_data:

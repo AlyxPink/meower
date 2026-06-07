@@ -770,6 +770,30 @@ func TestFeatureFlags(t *testing.T) {
 			if exists("api/server/workers_wiring.noworkers.go") {
 				t.Errorf("stray workers_wiring.noworkers.go left behind")
 			}
+
+			// CLAUDE.md exists; its feature sections appear iff the feature is on.
+			// No marker comments survive in either case.
+			claude, err := os.ReadFile(filepath.Join(projectDir, "CLAUDE.md"))
+			if err != nil {
+				t.Fatalf("CLAUDE.md missing: %v", err)
+			}
+			claudeStr := string(claude)
+			if strings.Contains(claudeStr, "SECTION -->") {
+				t.Errorf("CLAUDE.md still contains marker comments")
+			}
+			if strings.Contains(claudeStr, "## Authentication") != tc.auth {
+				t.Errorf("auth=%v but CLAUDE.md has Authentication section=%v", tc.auth, !tc.auth)
+			}
+			if strings.Contains(claudeStr, "## Background workers") != tc.workers {
+				t.Errorf("workers=%v but CLAUDE.md has Background workers section=%v", tc.workers, !tc.workers)
+			}
+
+			// AGENTS.md is a symlink to CLAUDE.md.
+			if target, err := os.Readlink(filepath.Join(projectDir, "AGENTS.md")); err != nil {
+				t.Errorf("AGENTS.md is not a symlink: %v", err)
+			} else if target != "CLAUDE.md" {
+				t.Errorf("AGENTS.md -> %q, want CLAUDE.md", target)
+			}
 		})
 	}
 }

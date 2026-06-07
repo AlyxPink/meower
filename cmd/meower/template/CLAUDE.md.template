@@ -1,0 +1,160 @@
+# CLAUDE.md
+
+Guidance for Claude Code (and other AI agents) working in this repository.
+
+This project was generated from the [Meower](https://github.com/AlyxPink/meower)
+template. It's a starting point, not a framework — you're meant to drift from it
+freely as the project grows. Update this file as the architecture diverges.
+
+## How to read these rules
+
+- 🔴 **Invariant** — follow without exception. Security, data integrity, cross-layer contracts.
+- 🟡 **Default** — follow unless the current task has a specific reason not to. State the reason briefly if you deviate.
+- 🟢 **Preference** — apply when it serves the task. Judgment call.
+
+Words like "always", "never", "must" inside a 🟡 or 🟢 rule describe the
+*default*, not an absolute. If uncertain, ask.
+
+## Stack & Structure
+
+| Layer | Tech |
+|-------|------|
+| Web | Fiber + Templ + HTMX + TailwindCSS |
+| API | Go + gRPC + PostgreSQL (SQLC) |
+| Observability | OpenTelemetry + Prometheus + structured logs (charmbracelet/log) |
+| Dev | Docker Compose + `wgo` (hot reload) |
+
+**Flow**: Browser → Web (Fiber) → gRPC → API → PostgreSQL
+
+This is a multi-module Go workspace (a root `go.work` ties the modules
+together):
+
+```
+TEMPLATE_PROJECT_NAME/
+├── api/                 # gRPC API server
+│   ├── proto/           #   Protocol Buffer definitions (.proto)
+│   ├── db/              #   SQL schema + queries → SQLC-generated Go
+│   ├── observability/   #   metrics server, traced DB pool, telemetry init
+│   └── server/          #   gRPC services, middleware, config, workers
+├── web/                 # Fiber web server
+│   ├── handlers/        #   request handlers
+│   ├── views/           #   Templ templates (.templ)
+│   ├── routing/         #   route registration
+│   ├── router/          #   the urls-kit → Fiber registry
+│   ├── sse/             #   server-sent-events hub
+│   └── observability/   #   web tracing init
+├── pkg/
+│   ├── urls/            #   type-safe URL builder (shared by web + api)
+│   └── observability/   #   shared logging + trace helpers
+├── scripts/
+└── go.work
+```
+
+## Quick Start
+
+```bash
+docker compose up
+```
+
+| Service | URL |
+|---------|-----|
+| Web | http://localhost:3000 |
+| gRPC API | localhost:50051 |
+| gRPC UI | http://localhost:50050 |
+| pgweb (DB UI) | http://localhost:5430 |
+| Mailpit | http://localhost:8025 |
+
+`wgo` regenerates `.go`, `.templ`, `.proto`, `.sql`, and CSS/JS automatically on
+change. The metrics endpoint is on `:9091/metrics`.
+
+🟢 Prefer `go vet ./...` over `go build` during dev — faster, no stray binaries.
+
+## Code Standards
+
+🔴 `.go` and `.templ` files use **tabs** (enforced by `gofmt` / `templ fmt`).
+
+🔴 **No raw SQL in Go application code** — use SQLC. Write queries in
+`api/db/*.sql`, run `sqlc generate`, call the generated methods. Raw SQL is fine
+in migrations, one-off scripts, and test fixtures.
+
+🟡 Regenerate code after changing its source: `.proto` → `buf`/protoc (or
+`./scripts/generate_protobuf.sh`), `.sql` → `sqlc generate`, `.templ` →
+`templ generate`. Under `docker compose up`, `wgo` does this for you.
+
+🟢 Tests use stdlib `testing` — this base avoids a testify dependency. Match that
+unless you have reason to add one.
+
+## Routing — the urls kit
+
+🟡 Routes are defined as typed structs in `pkg/urls`, which is the single source
+of truth for both URLs and Fiber patterns. Define a route once; build its URL
+with `urls.X{...}.URL()` and register it with `router.Register(...)`. Rename a
+route and the build breaks instead of silently 404ing.
+
+```go
+// pkg/urls — define once
+type Meow struct{ ID string `param:"id"` }   // URL()="/meows/abc", Pattern()="/meows/:id"
+
+// routing.go — register
+router.Register(web, fiber.MethodGet, urls.Meow{}, handler)
+
+// anywhere — build a link
+urls.Meow{ID: id}.URL()
+```
+
+🟢 To normalize parameter values in URLs (e.g. dashless UUIDs), set
+`urls.ParamTransform` once at startup. It's nil (verbatim) by default.
+
+## Real-time — the SSE hub
+
+🟡 `web/sse` is an in-process hub: handlers publish events to a named channel
+with `app.Hub.Broadcast(channel, sse.SSEEvent{...})`, and browsers subscribe at
+`/events/stream?channels=...` via the HTMX SSE extension. See the meows list +
+`handlers.Meower.Create` for a worked example. The hub fans out within one web
+instance; put Redis pub/sub in front of `Broadcast` for multi-instance fan-out.
+
+## Observability
+
+🟡 The api emits OTLP traces (gRPC, `:4317`), the web emits OTLP traces (HTTP,
+`:4318`), both configure structured logging (JSON in production for Loki), and
+the api serves Prometheus metrics on `:9091`. Endpoints default to localhost and
+read from `OTEL_EXPORTER_OTLP_ENDPOINT`. Use `observability.LogWithTrace(ctx)`
+to get a logger with trace/span IDs attached.
+
+## Middleware
+
+🟢 gRPC interceptors live in `api/server/middleware` (recovery, trace
+enrichment, a Redis rate limiter). Web middleware lives in `web/middleware`
+(trace enrichment, trace-ID response header). Recovery runs first in the chain.
+
+<!-- AUTH-SECTION -->
+## Authentication
+
+🟡 Session-based auth (login/signup/logout) lives in `web/handlers/auth.go` and
+`web/handlers/middleware.go` (`AuthMiddleware`, `GuestMiddleware`,
+`OptionalAuthMiddleware`), backed by the Redis session store. This is a minimal
+starting point — extend it (password reset, email verification, OAuth) as
+needed. *(Omitted when generated with `--no-auth`.)*
+<!-- /AUTH-SECTION -->
+
+<!-- WORKERS-SECTION -->
+## Background workers
+
+🟡 `api/server/workers` is a periodic-worker harness: implement the `Worker`
+interface (`Name`/`Interval`/`Run`), register it in
+`api/server/workers_wiring.go`, and the `Manager` runs it on its interval with
+panic recovery. See `HeartbeatWorker` for the pattern. *(Omitted when generated
+with `--no-workers`.)*
+<!-- /WORKERS-SECTION -->
+
+## Git Workflow
+
+🔴 Work on feature branches, never directly on `main`.
+
+🟡 Use conventional-commit messages (`feat:`, `fix:`, `refactor:`, `docs:`…).
+Commit in logical increments; review the diff before staging.
+
+## Documentation
+
+🟢 Keep this file current as the project diverges from the template — it's the
+first thing an AI agent reads. Put longer design notes in `docs/`.

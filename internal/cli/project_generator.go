@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/AlyxPink/meower/internal/templates"
 	"github.com/AlyxPink/meower/internal/validation"
@@ -119,7 +120,76 @@ func (pg *ProjectGenerator) PostProcess() error {
 	// Copy guide to generated project
 	copyGuideToProject(pg.config.DestDir)
 
+	// Finalize the generated CLAUDE.md: drop feature sections for disabled
+	// features and create the AGENTS.md -> CLAUDE.md symlink.
+	pg.finalizeAgentDocs()
+
 	return nil
+}
+
+// finalizeAgentDocs strips the auth/workers sections from the generated
+// CLAUDE.md when those features are disabled, then symlinks AGENTS.md to it.
+// Best-effort: a missing CLAUDE.md (it has no effect on a working project) is
+// not fatal.
+func (pg *ProjectGenerator) finalizeAgentDocs() {
+	claudePath := filepath.Join(pg.config.DestDir, "CLAUDE.md")
+	content, err := os.ReadFile(claudePath)
+	if err != nil {
+		return // no CLAUDE.md; nothing to finalize
+	}
+
+	doc := string(content)
+	// Remove a section entirely when its feature is off; otherwise just strip
+	// the marker comments so the kept section reads cleanly.
+	if pg.config.Auth {
+		doc = stripDocMarkers(doc, "AUTH-SECTION")
+	} else {
+		doc = stripDocSection(doc, "AUTH-SECTION")
+	}
+	if pg.config.Workers {
+		doc = stripDocMarkers(doc, "WORKERS-SECTION")
+	} else {
+		doc = stripDocSection(doc, "WORKERS-SECTION")
+	}
+	if doc != string(content) {
+		if err := os.WriteFile(claudePath, []byte(doc), 0o644); err != nil {
+			fmt.Printf("Warning: failed to update CLAUDE.md: %v\n", err)
+		}
+	}
+
+	// AGENTS.md -> CLAUDE.md (matches the convention many agents look for).
+	agentsPath := filepath.Join(pg.config.DestDir, "AGENTS.md")
+	_ = os.Remove(agentsPath) // ignore if absent
+	if err := os.Symlink("CLAUDE.md", agentsPath); err != nil {
+		fmt.Printf("Warning: failed to create AGENTS.md symlink: %v\n", err)
+	}
+}
+
+// stripDocSection removes the block between <!-- NAME --> and <!-- /NAME -->
+// markers (inclusive) from a markdown document.
+func stripDocSection(doc, name string) string {
+	start := "<!-- " + name + " -->"
+	end := "<!-- /" + name + " -->"
+	si := strings.Index(doc, start)
+	ei := strings.Index(doc, end)
+	if si == -1 || ei == -1 || ei < si {
+		return doc
+	}
+	ei += len(end)
+	// Also consume a trailing newline left by the removed block.
+	if ei < len(doc) && doc[ei] == '\n' {
+		ei++
+	}
+	return doc[:si] + doc[ei:]
+}
+
+// stripDocMarkers removes just the <!-- NAME --> / <!-- /NAME --> marker
+// comment lines, leaving the section content in place.
+func stripDocMarkers(doc, name string) string {
+	for _, marker := range []string{"<!-- " + name + " -->\n", "<!-- /" + name + " -->\n"} {
+		doc = strings.Replace(doc, marker, "", 1)
+	}
+	return doc
 }
 
 // ShowSuccessMessage displays the success message and next steps

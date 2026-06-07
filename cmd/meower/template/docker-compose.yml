@@ -33,10 +33,18 @@ services:
   web:
     image: meower:development-web
     pull_policy: never
+    # Run dev tooling as the host user so generated files (templ .go, protobuf,
+    # sqlc, the built CSS/JS) land owned by you on the bind mount instead of
+    # root. Defaults to 1000:1000; override by putting UID/GID in a .env file
+    # (`echo "UID=$(id -u)\nGID=$(id -g)" >> .env`) if yours differ.
+    user: "${UID:-1000}:${GID:-1000}"
     tty: true
     stop_signal: SIGINT # Graceful shutdown will cleanup the txt files created
     stop_grace_period: 3s
     environment:
+      # GOCACHE must live somewhere the host user (see `user:`) can write. The
+      # image's default cache path is root-owned, so point it at /tmp.
+      GOCACHE: /tmp/go-build
       API_ENDPOINT: "api:50051"
       COOKIE_SECRET_KEY: "5TIyDD81Laz/xdxEw2yJVPKdJYyPqxmyONaSVJHs6jY="
       REDIS_URL: "redis://redis:6379"
@@ -60,7 +68,9 @@ services:
       # The web module replaces ../api, ../pkg/urls and ../pkg/observability,
       # so the pkg sub-modules must be mounted for `go run` to resolve them.
       - ./pkg/:/src/pkg/
-      - go_modules:/go/pkg/mod/
+      # Host-owned module cache so the host-user services can write to it (a
+      # named volume would be root-owned and break `go run` under `user:`).
+      - ./.cache/go-modules:/go/pkg/mod/
     depends_on:
       - api
       - development-web
@@ -73,6 +83,15 @@ services:
   tailwind:
     image: meower:development-assets
     pull_policy: never
+    user: "${UID:-1000}:${GID:-1000}" # see `web` — keep built CSS host-owned
+    # Tailwind v4's `@tailwindcss/cli --watch` (and `bun build --watch`) treat a
+    # closed stdin as a shutdown signal: without an open stdin they print the
+    # version banner and exit immediately — no initial build, no file written,
+    # leaving static/public/css/ empty so /static/css/main.css 404s. Keeping
+    # stdin open (tty + stdin_open) makes the watcher do its initial build and
+    # keep running. See `bunx @tailwindcss/cli --help`: `--watch[=always]`.
+    tty: true
+    stdin_open: true
     stop_signal: SIGKILL
     working_dir: /src/web/
     volumes:
@@ -86,6 +105,11 @@ services:
   javascript:
     image: meower:development-assets
     pull_policy: never
+    user: "${UID:-1000}:${GID:-1000}" # see `web` — keep built JS host-owned
+    # See the tailwind service above: `bun build --watch` also exits when stdin
+    # is closed, so keep it open here too.
+    tty: true
+    stdin_open: true
     stop_signal: SIGKILL
     working_dir: /src/web/
     volumes:
@@ -101,6 +125,7 @@ services:
   formatter:
     image: meower:development-web
     pull_policy: never
+    user: "${UID:-1000}:${GID:-1000}" # see `web` — formats files in place
     stop_signal: SIGKILL
     working_dir: /src/
     volumes:
@@ -114,8 +139,10 @@ services:
   api:
     image: meower:development-api
     pull_policy: never
+    user: "${UID:-1000}:${GID:-1000}" # see `web` — writes generated proto/sqlc .go
     tty: true
     environment:
+      GOCACHE: /tmp/go-build # see `web` — host user can't write the default cache
       DATABASE_URL: "postgres://meower:meower@db:5432/meower?sslmode=disable"
       REDIS_URL: "redis://redis:6379"
       ENVIRONMENT: "development"
@@ -139,7 +166,9 @@ services:
       # must be mounted for `go run` to resolve them at runtime.
       - ./pkg/:/src/pkg/
       - ./scripts/:/src/scripts/
-      - go_modules:/go/pkg/mod/
+      # Host-owned module cache so the host-user services can write to it (a
+      # named volume would be root-owned and break `go run` under `user:`).
+      - ./.cache/go-modules:/go/pkg/mod/
     healthcheck:
       test: [ "CMD", "grpc-health-probe", "-addr=:50051" ]
       interval: 1s
@@ -163,6 +192,7 @@ services:
   proto:
     image: meower:development-api
     pull_policy: never
+    user: "${UID:-1000}:${GID:-1000}" # see `web` — regenerates protobuf .go
     working_dir: /src/
     volumes:
       - ./api/:/src/api/
@@ -184,11 +214,16 @@ services:
   sqlc:
     image: meower:development-api
     pull_policy: never
+    user: "${UID:-1000}:${GID:-1000}" # see `web` — regenerates sqlc .go
     tty: true
+    environment:
+      GOCACHE: /tmp/go-build # see `web` — host user can't write the default cache
     working_dir: /src/api/db/
     volumes:
       - ./api/db/:/src/api/db/
-      - go_modules:/go/pkg/mod/
+      # Host-owned module cache so the host-user services can write to it (a
+      # named volume would be root-owned and break `go run` under `user:`).
+      - ./.cache/go-modules:/go/pkg/mod/
     depends_on:
       - development-api
     command: "wgo -file=sqlc.yaml -file=.sql -xfile=.go -dir /src/api/db sqlc generate -f /src/api/db/sqlc.yaml"
@@ -313,7 +348,6 @@ services:
     restart: unless-stopped
 
 volumes:
-  go_modules:
   prometheus_data:
   loki_data:
   tempo_data:

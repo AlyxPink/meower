@@ -1,0 +1,34 @@
+# --- Dependencies ---
+# Web JS deps: restored with `bun install`, never committed.
+web/node_modules/
+node_modules/
+
+# --- Dev caches ---
+# Host-mounted Go module + build cache shared by the docker-compose dev
+# services (see the `./.cache/go-modules` mounts in docker-compose.yml).
+.cache/
+
+# --- Build outputs ---
+# Tailwind/bun emit into static/public from sources in static/src — generated,
+# rebuilt by `bun run build` (or the watchers in dev). Source lives in static/src/.
+web/static/public/
+
+# Compiled Go binaries (dev builds; we prefer `go vet`/`go run`).
+/api/api
+/web/web
+*.exe
+
+# --- Local env / secrets ---
+.env
+.env.local
+*.local.env
+
+# --- OS / editor noise ---
+.DS_Store
+*.swp
+.idea/
+.vscode/
+
+# NOTE: generated Go stubs (api/proto/**/*.pb.go, api/db/*.sql.go) and Templ
+# output (web/views/*_templ.go) ARE committed — matching the project convention
+# so a fresh clone builds without a codegen step. Do not ignore them.

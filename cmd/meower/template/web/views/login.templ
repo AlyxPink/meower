@@ -1,7 +1,7 @@
 package views
 
 import (
-	"TEMPLATE_MODULE_PATH/web/routes"
+	"TEMPLATE_MODULE_PATH/pkg/urls"
 	"TEMPLATE_MODULE_PATH/web/views/layouts"
 	"github.com/gofiber/fiber/v2"
 )
@@ -15,7 +15,7 @@ templ Login(c *fiber.Ctx, errorMessage ...string) {
 					{ errorMessage[0] }
 				</div>
 			}
-			<form method="POST" action={ templ.SafeURL(c.App().GetRoute(routes.Login.Name).Path) } class="space-y-4">
+			<form method="POST" action={ templ.SafeURL(urls.Login{}.URL()) } class="space-y-4">
 				<div>
 					<label for="username_or_email" class="block text-sm font-medium text-gray-700 mb-2">
 						Username or Email
@@ -52,7 +52,7 @@ templ Login(c *fiber.Ctx, errorMessage ...string) {
 			<div class="text-center mt-6">
 				<p class="text-sm text-gray-600">
 					Don't have an account?
-					<a href={ templ.SafeURL(c.App().GetRoute(routes.SignupShow.Name).Path) } class="text-blue-600 hover:text-blue-800 font-medium">Sign up</a>
+					<a href={ templ.SafeURL(urls.SignupShow{}.URL()) } class="text-blue-600 hover:text-blue-800 font-medium">Sign up</a>
 				</p>
 			</div>
 		</div>

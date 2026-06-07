@@ -1,7 +1,7 @@
 package components
 
 import (
-	"TEMPLATE_MODULE_PATH/web/routes"
+	"TEMPLATE_MODULE_PATH/pkg/urls"
 	"fmt"
 	"github.com/gofiber/fiber/v2"
 )
@@ -11,7 +11,7 @@ templ Navigation(c *fiber.Ctx) {
 		<div class="max-w-7xl mx-auto">
 			<div class="flex justify-between items-center">
 				<div class="flex items-center space-x-4">
-					<a href={ templ.SafeURL(c.App().GetRoute(routes.Homepage.Name).Path) } class="text-2xl font-bold hover:text-blue-100">
+					<a href={ templ.SafeURL(urls.Homepage{}.URL()) } class="text-2xl font-bold hover:text-blue-100">
 						<h1 class="text-3xl font-black uppercase tracking-tight lg:leading-none lg:text-6xl">Meower</h1>
 					</a>
 				</div>
@@ -21,23 +21,23 @@ templ Navigation(c *fiber.Ctx) {
 						<span class="text-blue-200">
 							Welcome, { fmt.Sprint(c.Locals("display_name")) }!
 						</span>
-						<a class="hover:text-blue-200 underline" href={ templ.SafeURL(c.App().GetRoute(routes.MeowIndex.Name).Path) }>
+						<a class="hover:text-blue-200 underline" href={ templ.SafeURL(urls.MeowIndex{}.URL()) }>
 							See Meows
 						</a>
-						<a class="hover:text-blue-200 underline" href={ templ.SafeURL(c.App().GetRoute(routes.MeowNew.Name).Path) }>
+						<a class="hover:text-blue-200 underline" href={ templ.SafeURL(urls.MeowNew{}.URL()) }>
 							Create a Meow
 						</a>
-						<form action={ templ.SafeURL(c.App().GetRoute(routes.Logout.Name).Path) } method="POST" class="inline">
+						<form action={ templ.SafeURL(urls.Logout{}.URL()) } method="POST" class="inline">
 							<button type="submit" class="bg-red-500 hover:bg-red-600 px-3 py-1 rounded transition duration-200">
 								Logout
 							</button>
 						</form>
 					} else {
 						// User is not logged in
-						<a class="hover:text-blue-200 underline" href={ templ.SafeURL(c.App().GetRoute(routes.LoginShow.Name).Path) }>
+						<a class="hover:text-blue-200 underline" href={ templ.SafeURL(urls.LoginShow{}.URL()) }>
 							Login
 						</a>
-						<a class="bg-green-600 hover:bg-green-700 px-3 py-1 rounded transition duration-200" href={ templ.SafeURL(c.App().GetRoute(routes.SignupShow.Name).Path) }>
+						<a class="bg-green-600 hover:bg-green-700 px-3 py-1 rounded transition duration-200" href={ templ.SafeURL(urls.SignupShow{}.URL()) }>
 							Sign Up
 						</a>
 					}
@@ -60,26 +60,26 @@ templ Navigation(c *fiber.Ctx) {
 				<div class="space-y-3">
 					if c.Locals("user_id") != nil {
 						// User is logged in
-						<a class="block py-2 hover:text-blue-200 underline" href={ templ.SafeURL(c.App().GetRoute(routes.MeowIndex.Name).Path) }>
+						<a class="block py-2 hover:text-blue-200 underline" href={ templ.SafeURL(urls.MeowIndex{}.URL()) }>
 							See Meows
 						</a>
-						<a class="block py-2 hover:text-blue-200 underline" href={ templ.SafeURL(c.App().GetRoute(routes.MeowNew.Name).Path) }>
+						<a class="block py-2 hover:text-blue-200 underline" href={ templ.SafeURL(urls.MeowNew{}.URL()) }>
 							Create a Meow
 						</a>
 						<div class="text-blue-200 font-bold text-lg py-2">
 							Welcome, { fmt.Sprint(c.Locals("display_name")) }!
 						</div>
-						<form action={ templ.SafeURL(c.App().GetRoute(routes.Logout.Name).Path) } method="POST" class="block">
+						<form action={ templ.SafeURL(urls.Logout{}.URL()) } method="POST" class="block">
 							<button type="submit" class="w-full text-left bg-red-500 hover:bg-red-600 px-3 py-2 rounded transition duration-200">
 								Logout
 							</button>
 						</form>
 					} else {
 						// User is not logged in
-						<a class="block py-2 hover:text-blue-200 underline" href={ templ.SafeURL(c.App().GetRoute(routes.LoginShow.Name).Path) }>
+						<a class="block py-2 hover:text-blue-200 underline" href={ templ.SafeURL(urls.LoginShow{}.URL()) }>
 							Login
 						</a>
-						<a class="block bg-green-600 hover:bg-green-700 px-3 py-2 rounded transition duration-200 text-center" href={ templ.SafeURL(c.App().GetRoute(routes.SignupShow.Name).Path) }>
+						<a class="block bg-green-600 hover:bg-green-700 px-3 py-2 rounded transition duration-200 text-center" href={ templ.SafeURL(urls.SignupShow{}.URL()) }>
 							Sign Up
 						</a>
 					}

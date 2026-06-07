@@ -2,7 +2,7 @@ package views
 
 import (
 	meowV1 "TEMPLATE_MODULE_PATH/api/proto/meow/v1"
-	"TEMPLATE_MODULE_PATH/web/routes"
+	"TEMPLATE_MODULE_PATH/pkg/urls"
 	"TEMPLATE_MODULE_PATH/web/views/layouts"
 
 	"fmt"
@@ -18,7 +18,7 @@ templ CreateMeow(c *fiber.Ctx, r *meowV1.CreateMeowResponse) {
 				<span class="font-bold">{ r.Meow.Content }</span>
 			</li>
 		</ul>
-		<a class="underline" href={ templ.SafeURL(c.App().GetRoute(routes.MeowIndex.Name).Path) }>See all Meows</a>
+		<a class="underline" href={ templ.SafeURL(urls.MeowIndex{}.URL()) }>See all Meows</a>
 	}
 }
 
@@ -39,7 +39,7 @@ templ IndexMeows(c *fiber.Ctx, r *meowV1.IndexMeowResponse) {
 templ NewMeow(c *fiber.Ctx) {
 	@layouts.Main(c) {
 		<h1 class="text-3xl font-black uppercase tracking-tight lg:leading-none lg:text-4xl mb-4">Create a meow</h1>
-		<form action={ templ.SafeURL(c.App().GetRoute(routes.MeowCreate.Name).Path) } method="post">
+		<form action={ templ.SafeURL(urls.MeowCreate{}.URL()) } method="post">
 			<input type="text" name="content" placeholder="What's up?" class="border border-1 border-black"/>
 			<button type="submit">Meow!</button>
 		</form>

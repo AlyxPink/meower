@@ -1,0 +1,3 @@
+module TEMPLATE_MODULE_PATH/pkg/urls
+
+go 1.24.3

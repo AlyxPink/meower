@@ -76,12 +76,15 @@ func TestCLIProjectGeneration(t *testing.T) {
 		t.Errorf("Project directory was not created: %s", projectDir)
 	}
 
-	// Test core files exist
+	// Test core files exist. The template uses a multi-module layout (api/,
+	// web/, and pkg/urls each own their go.mod); there is no root go.mod.
 	coreFiles := []string{
 		".meowed",
-		"go.mod",
 		"docker-compose.yml",
 		"README.md",
+		"api/go.mod",
+		"web/go.mod",
+		"pkg/urls/go.mod",
 	}
 
 	for _, file := range coreFiles {
@@ -91,14 +94,14 @@ func TestCLIProjectGeneration(t *testing.T) {
 		}
 	}
 
-	// Verify go.mod contains correct module path
-	goModPath := filepath.Join(projectDir, "go.mod")
+	// Verify web/go.mod contains correct (suffixed) module path
+	goModPath := filepath.Join(projectDir, "web/go.mod")
 	content, err := os.ReadFile(goModPath)
 	if err != nil {
-		t.Errorf("Failed to read go.mod: %v", err)
+		t.Errorf("Failed to read web/go.mod: %v", err)
 	} else {
-		if !strings.Contains(string(content), "module "+modulePath) {
-			t.Errorf("go.mod does not contain correct module path.\nExpected: module %s\nContent: %s",
+		if !strings.Contains(string(content), "module "+modulePath+"/web") {
+			t.Errorf("web/go.mod does not contain correct module path.\nExpected: module %s/web\nContent: %s",
 				modulePath, string(content))
 		}
 	}
@@ -326,15 +329,16 @@ func TestMeowerCLIComprehensive(t *testing.T) {
 			t.Fatalf("Project generation failed: %v\nOutput: %s", err, string(output))
 		}
 
-		// Verify critical files exist
+		// Verify critical files exist. The template uses a multi-module layout
+		// (api/, web/, pkg/urls each own their go.mod); there is no root go.mod.
 		criticalFiles := []string{
 			".meowed",
-			"go.mod",
 			"docker-compose.yml",
 			"api/main.go",
 			"web/main.go",
 			"api/go.mod",
 			"web/go.mod",
+			"pkg/urls/go.mod",
 		}
 
 		for _, file := range criticalFiles {
@@ -345,9 +349,9 @@ func TestMeowerCLIComprehensive(t *testing.T) {
 		}
 
 		// Verify module paths are correct
-		verifyModulePath(t, filepath.Join(projectDir, "go.mod"), modulePath)
 		verifyModulePath(t, filepath.Join(projectDir, "api/go.mod"), modulePath+"/api")
 		verifyModulePath(t, filepath.Join(projectDir, "web/go.mod"), modulePath+"/web")
+		verifyModulePath(t, filepath.Join(projectDir, "pkg/urls/go.mod"), modulePath+"/pkg/urls")
 	})
 
 	// Subtest 2: Handler Generation (1-2 seconds)

@@ -126,6 +126,13 @@ func (efp *EmbeddedFileProcessor) shouldSkipEmbedded(path string, d fs.DirEntry)
 		}
 	}
 
+	// Skip dependency directories that may be regenerated locally (e.g. by a
+	// developer running `bun install` in the template's web dir). These are
+	// build artifacts regenerated from lockfiles post-scaffold, never shipped.
+	if d.Name() == "node_modules" {
+		return true
+	}
+
 	// Skip hidden files (except .gitkeep which we want, and "." which is root)
 	if strings.HasPrefix(d.Name(), ".") && d.Name() != ".meowed" && d.Name() != ".gitkeep" && d.Name() != "." {
 		return true

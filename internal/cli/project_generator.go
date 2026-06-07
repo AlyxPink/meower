@@ -3,6 +3,7 @@ package cli
 import (
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
 
 	"github.com/AlyxPink/meower/internal/templates"
@@ -109,7 +110,45 @@ func (pg *ProjectGenerator) PostProcess() error {
 	// Copy guide to generated project
 	copyGuideToProject(pg.config.DestDir)
 
+	// Install web dependencies from the committed lockfile. The template ships
+	// package.json + bun.lockb but no node_modules (it would bloat the embedded
+	// CLI binary), so deps are installed here instead of vendored.
+	pg.installWebDependencies()
+
 	return nil
+}
+
+// installWebDependencies runs `bun install` in the generated web directory.
+//
+// This is best-effort: a missing `bun` binary or a failed install never aborts
+// project generation. The lockfile is committed, so the user can always run the
+// install themselves later. We only emit a hint when it can't be done for them.
+func (pg *ProjectGenerator) installWebDependencies() {
+	webDir := filepath.Join(pg.config.DestDir, "web")
+	if _, err := os.Stat(filepath.Join(webDir, "package.json")); err != nil {
+		// No web package.json (unexpected, but don't fail) — nothing to install.
+		return
+	}
+
+	bunPath, err := exec.LookPath("bun")
+	if err != nil {
+		fmt.Println(warningStyle.Render("⚠️  bun not found — skipping web dependency install."))
+		fmt.Println(subtitleStyle.Render("    Run 'cd " + pg.config.ProjectName + "/web && bun install' before starting the web server."))
+		return
+	}
+
+	fmt.Println(subtitleStyle.Render("📦 Installing web dependencies (bun install)..."))
+
+	cmd := exec.Command(bunPath, "install")
+	cmd.Dir = webDir
+	if output, err := cmd.CombinedOutput(); err != nil {
+		fmt.Println(warningStyle.Render("⚠️  'bun install' failed — install web dependencies manually."))
+		fmt.Println(subtitleStyle.Render("    cd " + pg.config.ProjectName + "/web && bun install"))
+		fmt.Printf("%s\n", string(output))
+		return
+	}
+
+	fmt.Println(successStyle.Render("✅ Web dependencies installed"))
 }
 
 // ShowSuccessMessage displays the success message and next steps

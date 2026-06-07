@@ -1,0 +1,13 @@
+go 1.24.3
+
+// This Go workspace ties the project's modules together so they resolve each
+// other during local development and `wgo` hot-reload without publishing. Each
+// module also keeps its own `replace` directive (in its go.mod) so Docker
+// builds — which build one module at a time without the workspace — still
+// resolve the sub-modules from the relative paths.
+use (
+	./api
+	./pkg/observability
+	./pkg/urls
+	./web
+)

@@ -13,13 +13,20 @@ WORKDIR /src/api
 # Copy sqlc binary from the sqlc image
 COPY --from=sqlc-version /workspace/sqlc /usr/local/bin/sqlc
 
+# Download deps. The api module has `replace => ../pkg/observability`, so that
+# sub-module must be present (at /src/pkg/observability) for resolution. go.mod
+# is mounted read-write because `go mod download` may reconcile the module graph
+# (the replace'd local module) and rewrite it; the change is discarded with the
+# ephemeral mount.
 RUN --mount=type=cache,target=/go/pkg/mod/ \
-    --mount=type=bind,source=./api/go.sum,target=./go.sum \
-    --mount=type=bind,source=./api/go.mod,target=./go.mod \
+    --mount=rw,type=bind,source=./api/go.sum,target=./go.sum \
+    --mount=rw,type=bind,source=./api/go.mod,target=./go.mod \
+    --mount=type=bind,source=./pkg/observability/,target=/src/pkg/observability/ \
     go mod download -x
 
 RUN --mount=type=cache,target=/go/pkg/mod/ \
     --mount=rw,type=bind,source=./api/,target=/src/api/ \
+    --mount=type=bind,source=./pkg/observability/,target=/src/pkg/observability/ \
     sqlc generate -f /src/api/db/sqlc.yaml && \
     go build -o /bin/api-server ./
 

@@ -77,14 +77,17 @@ func TestCLIProjectGeneration(t *testing.T) {
 	}
 
 	// Test core files exist. The template uses a multi-module layout (api/,
-	// web/, and pkg/urls each own their go.mod); there is no root go.mod.
+	// web/, and pkg/* each own their go.mod) tied together by a root go.work;
+	// there is no root go.mod.
 	coreFiles := []string{
 		".meowed",
 		"docker-compose.yml",
 		"README.md",
+		"go.work",
 		"api/go.mod",
 		"web/go.mod",
 		"pkg/urls/go.mod",
+		"pkg/observability/go.mod",
 	}
 
 	for _, file := range coreFiles {
@@ -330,15 +333,18 @@ func TestMeowerCLIComprehensive(t *testing.T) {
 		}
 
 		// Verify critical files exist. The template uses a multi-module layout
-		// (api/, web/, pkg/urls each own their go.mod); there is no root go.mod.
+		// (api/, web/, pkg/* each own their go.mod) tied together by a root
+		// go.work; there is no root go.mod.
 		criticalFiles := []string{
 			".meowed",
 			"docker-compose.yml",
+			"go.work",
 			"api/main.go",
 			"web/main.go",
 			"api/go.mod",
 			"web/go.mod",
 			"pkg/urls/go.mod",
+			"pkg/observability/go.mod",
 		}
 
 		for _, file := range criticalFiles {

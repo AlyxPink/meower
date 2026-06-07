@@ -6,8 +6,12 @@ FROM golang:${GO_VERSION}-alpine AS build-web
 ENV CGO_ENABLED=0
 WORKDIR /src/web
 
+# Download deps. The web module replaces ../api, ../pkg/urls and
+# ../pkg/observability, so all three sub-modules must be present for resolution.
 RUN --mount=type=cache,target=/go/pkg/mod/ \
     --mount=type=bind,source=./api/,target=/src/api/ \
+    --mount=type=bind,source=./pkg/urls/,target=/src/pkg/urls/ \
+    --mount=type=bind,source=./pkg/observability/,target=/src/pkg/observability/ \
     --mount=type=bind,source=./web/go.sum,target=./go.sum \
     --mount=type=bind,source=./web/go.mod,target=./go.mod \
     go mod download -x
@@ -22,6 +26,8 @@ COPY --from=ghcr.io/a-h/templ:v0.3.924 /ko-app/templ /usr/local/bin/templ
 RUN --mount=type=cache,target=/go/pkg/mod/ \
     --mount=rw,type=bind,source=./web/,target=/src/web/ \
     --mount=type=bind,source=./api/,target=/src/api/ \
+    --mount=type=bind,source=./pkg/urls/,target=/src/pkg/urls/ \
+    --mount=type=bind,source=./pkg/observability/,target=/src/pkg/observability/ \
     templ generate -path /src/web/views && \
     go build -o /bin/web-server /src/web/
 

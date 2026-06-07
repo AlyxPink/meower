@@ -34,6 +34,7 @@ var featurePaths = map[string][]string{
 		"web/handlers/debug.go",
 		"web/views/login.templ",
 		"web/views/signup.templ",
+		"scripts/generate_jwt_key.sh",
 	},
 	"workers": {
 		"api/server/workers",

@@ -1,0 +1,40 @@
+#!/bin/bash
+# Resets the test database by dropping and recreating it with the current schema.
+# Use this when the schema changes or you need a clean test database.
+#
+# Usage:
+#   ./scripts/reset-test-db.sh           # via docker compose exec
+#   ./scripts/reset-test-db.sh --local   # via local psql (for CI)
+
+set -e
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+SCHEMA_FILE="$PROJECT_ROOT/api/db/schema.sql"
+
+DB_HOST="${TEST_DB_HOST:-localhost}"
+DB_PORT="${TEST_DB_PORT:-5432}"
+DB_USER="${TEST_DB_USER:-TEMPLATE_PROJECT_NAME}"
+DB_NAME="TEMPLATE_PROJECT_NAME_test"
+
+if [ "$1" == "--local" ]; then
+    echo "Resetting test database using local psql..."
+    psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d postgres <<-EOSQL
+        DROP DATABASE IF EXISTS $DB_NAME;
+        CREATE DATABASE $DB_NAME;
+EOSQL
+    psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" -f "$SCHEMA_FILE"
+else
+    echo "Resetting test database using docker compose..."
+    if ! docker compose ps db 2>/dev/null | grep -q "Up"; then
+        echo "Error: db container is not running. Start it with: docker compose up db -d"
+        exit 1
+    fi
+    docker compose exec -T db psql -U "$DB_USER" -d postgres <<-EOSQL
+        DROP DATABASE IF EXISTS $DB_NAME;
+        CREATE DATABASE $DB_NAME;
+EOSQL
+    docker compose exec -T db psql -U "$DB_USER" -d "$DB_NAME" < "$SCHEMA_FILE"
+fi
+
+echo "Test database '$DB_NAME' has been reset successfully."

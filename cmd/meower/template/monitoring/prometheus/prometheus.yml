@@ -1,0 +1,15 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  # API server — Prometheus metrics on :9091 (see api/observability/metrics.go).
+  - job_name: 'api'
+    static_configs:
+      - targets: ['api:9091']
+    metrics_path: /metrics
+
+  # Prometheus self-monitoring.
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']

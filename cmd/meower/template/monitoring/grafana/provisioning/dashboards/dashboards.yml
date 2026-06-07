@@ -1,0 +1,17 @@
+apiVersion: 1
+
+providers:
+  - name: 'default'
+    orgId: 1
+    folder: ''
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 10
+    allowUiUpdates: true
+    options:
+      # foldersFromFilesStructure tells Grafana to mirror the on-disk directory
+      # layout in its UI. dashboards/metrics/*.json land in a "metrics" folder,
+      # dashboards/traces/*.json in a "traces" folder. Add a new subdirectory
+      # to add a new top-level folder.
+      path: /etc/grafana/provisioning/dashboards
+      foldersFromFilesStructure: true

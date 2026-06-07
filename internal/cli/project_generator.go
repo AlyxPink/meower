@@ -124,7 +124,31 @@ func (pg *ProjectGenerator) PostProcess() error {
 	// features and create the AGENTS.md -> CLAUDE.md symlink.
 	pg.finalizeAgentDocs()
 
+	// Make shell scripts executable (the template processor writes 0644).
+	pg.makeScriptsExecutable()
+
 	return nil
+}
+
+// makeScriptsExecutable sets the executable bit on generated shell scripts. The
+// template processor writes every file as 0644, but scripts/*.sh are invoked
+// directly (e.g. ./scripts/generate_protobuf.sh in docker-compose), so they
+// need +x. Best-effort: a missing scripts dir is not fatal.
+func (pg *ProjectGenerator) makeScriptsExecutable() {
+	scriptsDir := filepath.Join(pg.config.DestDir, "scripts")
+	entries, err := os.ReadDir(scriptsDir)
+	if err != nil {
+		return // no scripts dir
+	}
+	for _, e := range entries {
+		if e.IsDir() || !strings.HasSuffix(e.Name(), ".sh") {
+			continue
+		}
+		path := filepath.Join(scriptsDir, e.Name())
+		if err := os.Chmod(path, 0o755); err != nil {
+			fmt.Printf("Warning: failed to chmod %s: %v\n", path, err)
+		}
+	}
 }
 
 // finalizeAgentDocs strips the auth/workers sections from the generated

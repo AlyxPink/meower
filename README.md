@@ -1,261 +1,143 @@
-# Meower Framework
+# Meower
 
-**An opinionated CLI framework for generating production-ready Go web applications with modern architecture and developer-friendly tooling.**
+**A CLI that generates a solid, opinionated Go web-app starting point — then gets out of your way.**
 
-Meower provides a comprehensive solution for building full-stack Go applications with gRPC APIs, server-side rendering, and type-safe database queries. Generate complete project scaffolding and components with simple CLI commands.
+Meower is a project *generator*, not a framework. `meower new` scaffolds a
+complete, multi-module Go application — gRPC API, server-rendered web frontend,
+type-safe database access, observability, and a Docker dev environment — wired
+together and ready to run. From there it's plain, idiomatic Go that you own and
+change freely. There's no framework to stay inside and no upgrade treadmill;
+the generated code is yours to drift from.
 
-## Features
+This makes it a good fit for LLM-assisted development: a known-good, fully-wired
+base an agent can extend without first learning a bespoke framework.
 
-### Full-Stack Go Architecture
-- **API Server**: gRPC-based microservice architecture with Protocol Buffers
-- **Web Server**: GoFiber HTTP server with server-side rendering
-- **Type Safety**: End-to-end type safety from database to frontend using SQLC and Templ
+## What you get
 
-### Developer Experience
-- **One Command Setup**: Generate complete projects with `meower new`
-- **Code Generators**: Create services, handlers, and models instantly
-- **Hot Reload**: Live reloading for both backend and frontend development
-- **Docker Integration**: Complete development environment with Docker Compose
+A generated project is a Go workspace (`go.work`) with these modules:
 
-### Technology Stack
-- **Backend**: Go + gRPC + PostgreSQL + SQLC
-- **Frontend**: GoFiber + Templ templates + TailwindCSS
-- **Development**: Docker Compose with hot reload
-- **API**: Protocol Buffers for type-safe service communication
+| Layer | Tech |
+|-------|------|
+| Web | Fiber + Templ + HTMX + TailwindCSS |
+| API | Go + gRPC + PostgreSQL (SQLC) |
+| Observability | OpenTelemetry traces + Prometheus metrics + structured logs |
+| Dev | Docker Compose + `wgo` hot reload |
 
-## Quick Start
+Out of the box it includes:
 
-### Installation
+- **Type-safe URL/routing kit** (`pkg/urls`) — routes are typed structs that are
+  the single source of truth for both URLs and Fiber patterns, so a renamed
+  route is a compile error, not a silent 404.
+- **Observability** (`pkg/observability` + `api/observability`) — OTLP tracing,
+  a traced database pool, a Prometheus `/metrics` endpoint, and JSON logging in
+  production (Loki-ready), all pre-wired.
+- **Server-sent events hub** (`web/sse`) — an in-process pub/sub hub with a
+  working HTMX live-update demo.
+- **Middleware** — gRPC recovery, rate limiting (Redis), and trace enrichment;
+  Fiber trace-ID headers.
+- **Session auth** (login/signup/logout) — optional, removable with `--no-auth`.
+- **Background workers** — a periodic-worker harness, removable with `--no-workers`.
+- **CLAUDE.md** — agent guidance using a 🔴 invariant / 🟡 default / 🟢 preference
+  rule taxonomy, documenting the generated structure and the kits above.
+- **Monitoring overlay** — an opt-in Grafana/Loki/Tempo/Prometheus stack that
+  pairs with the observability wiring.
+
+## Quick start
 
 ```bash
 go install github.com/AlyxPink/meower/cmd/meower@latest
-```
 
-### Create Your First Project
-
-```bash
-# Create a new project
-meower new my-app -m github.com/user/my-app
-
-# Start development environment
+# Generate a project (module path defaults to github.com/user/<name> if omitted)
+meower new my-app -m github.com/you/my-app
 cd my-app
-docker-compose up
+
+# Bring up the full dev environment (hot reload, codegen, db, redis, …)
+docker compose up
 ```
 
-Your app is now running at:
-- **Web Interface**: http://localhost:3000
-- **gRPC API**: localhost:50051
-- **Database UI**: http://localhost:5430
+| Service | URL |
+|---------|-----|
+| Web | http://localhost:3000 |
+| gRPC API | localhost:50051 |
+| gRPC UI | http://localhost:50050 |
+| Metrics | http://localhost:9091/metrics |
+| pgweb (DB UI) | http://localhost:5430 |
+| Mailpit | http://localhost:8025 |
 
-### Generate Components
+### Generation flags
 
 ```bash
-# Generate a complete gRPC service
-meower create handler PostService
+meower new my-app -m github.com/you/my-app   # batteries-included (default)
+meower new my-app --no-auth                   # omit the auth scaffold
+meower new my-app --no-workers                # omit the worker harness
+meower new my-app --no-auth --no-workers      # the lean base
+```
 
-# Generate with specific methods
+### Generate a service handler
+
+```bash
+meower create handler PostService
 meower create handler UserService -m Create,Get,Update,Delete,List
 ```
 
-## Project Structure
+## Generated project layout
 
 ```
 my-app/
-├── api/                      # gRPC API Server
-│   ├── proto/                # Protocol Buffer definitions
-│   │   ├── user/v1/          # Versioned service definitions
-│   │   └── post/v1/
-│   ├── server/handlers/      # gRPC service implementations
-│   ├── db/                   # Database layer (SQLC generated)
-│   │   ├── schema.sql        # Database schema
-│   │   ├── queries.sql       # SQL queries
-│   │   └── *.go              # Generated type-safe code
-│   └── main.go               # API server entry point
-│
-├── web/                      # Web Server
-│   ├── handlers/             # HTTP request handlers
-│   ├── views/                # Templ templates
-│   │   ├── layouts/          # Base layouts
-│   │   ├── pages/            # Page templates
-│   │   └── components/       # Reusable components
-│   ├── static/               # CSS, JS, images
-│   ├── routes/               # Route definitions
-│   └── main.go               # Web server entry point
-│
-├── docker-compose.yml        # Development environment
-└── scripts/                  # Build and utility scripts
+├── api/                 # gRPC API server
+│   ├── proto/           #   Protocol Buffer definitions (.proto)
+│   ├── db/              #   SQL schema + queries → SQLC-generated Go
+│   ├── observability/   #   metrics server, traced DB pool, telemetry
+│   └── server/          #   gRPC services, middleware, config, workers
+├── web/                 # Fiber web server
+│   ├── handlers/        #   request handlers
+│   ├── views/           #   Templ templates (.templ)
+│   ├── routing/         #   route registration (via the urls kit)
+│   ├── sse/             #   server-sent-events hub
+│   └── observability/   #   web tracing init
+├── pkg/
+│   ├── urls/            #   type-safe URL builder (shared)
+│   └── observability/   #   shared logging + trace helpers
+├── monitoring/          # opt-in Grafana/Loki/Tempo/Prometheus overlay
+├── scripts/
+├── docker-compose.yml
+└── go.work
 ```
 
-## Architecture
+## How it works
 
-### Split Architecture
-Meower uses a clean separation between API and web layers:
-- **API Server**: Business logic, database operations, and gRPC endpoints
-- **Web Server**: HTTP handlers, template rendering, and static assets
-- **Communication**: Type-safe gRPC calls between services
+The generated project ships source for its codegen (`.proto`, `.sql`, `.templ`)
+and generates the Go code on build / first run. Under `docker compose up`,
+`wgo` watches and regenerates on change:
 
-### Type Safety
-- **Database**: SQLC generates type-safe Go code from SQL queries
-- **API**: Protocol Buffers ensure type safety across service boundaries
-- **Frontend**: Templ provides type-safe HTML templating
+- `.proto` → protobuf Go (gRPC services + messages)
+- `.sql` → SQLC type-safe query methods
+- `.templ` → Templ Go (type-safe HTML)
+- CSS/JS → TailwindCSS + bundled assets
 
-### Convention Over Configuration
-- **Standard Structure**: Consistent project layout across all applications
-- **Naming Conventions**: Predictable file and package naming
-- **Code Generation**: Smart generators following established patterns
+The modules resolve each other through `go.work` (local dev) and `replace`
+directives (Docker builds), so the workspace builds without publishing anything.
 
-## Commands Reference
+## Development (working on Meower itself)
 
-### Project Management
-```bash
-# Create new project
-meower new <project-name> [flags]
-  -m, --module string   Go module path (e.g. github.com/user/project)
-  -f, --force          Force creation even if directory exists
-```
-
-### Code Generation
-```bash
-# Generate gRPC service handler
-meower create handler <ServiceName> [flags]
-  -m, --methods strings   Methods to generate (default: Create,Get,Update,Delete,List)
-
-# Examples
-meower create handler UserService
-meower create handler PostService -m Create,Get,List
-meower create handler AuthService -m Login,Logout,Register
-```
-
-## Development Workflow
-
-### 1. Start Development Environment
-```bash
-docker compose up
-```
-This starts all services with hot reload enabled:
-- API server with live recompilation
-- Web server with Templ template reloading
-- TailwindCSS with file watching
-- PostgreSQL database
-- Development tools (pgweb, mailpit)
-
-### 2. Make Changes
-- **API Changes**: Edit files in `api/`, server restarts automatically
-- **Frontend Changes**: Edit `.templ` files, browser refreshes automatically
-- **Database Changes**: Update `schema.sql`, run migrations
-- **Styles**: Edit CSS files, TailwindCSS rebuilds automatically
-
-### 3. Generate Code
-```bash
-# After adding new SQL queries
-sqlc generate
-
-# After modifying .proto files
-./scripts/generate_protobuf.sh
-
-# Add new services
-meower create handler PaymentService
-```
-
-## Configuration
-
-### Environment Variables
-```bash
-# API Configuration
-DATABASE_URL=postgres://user:pass@localhost:5432/dbname
-API_ENDPOINT=localhost:50051
-
-# Web Configuration
-COOKIE_SECRET_KEY=your-secret-key
-ENV=development  # or production
-```
-
-### Database Setup
-Meower uses PostgreSQL with SQLC for type-safe queries:
-
-1. **Define Schema**: Edit `api/db/schema.sql`
-2. **Write Queries**: Add queries to `api/db/queries.sql`
-3. **Generate Code**: Run `sqlc generate`
-4. **Use in Handlers**: Import and use generated functions
-
-## Frontend Development
-
-### Templ Templates
-Meower uses [Templ](https://templ.guide/) for type-safe HTML templating:
-
-```go
-// views/pages/home.templ
-package pages
-
-templ HomePage(title string, posts []Post) {
-    @layouts.Base(title) {
-        <div class="container mx-auto px-4">
-            <h1 class="text-3xl font-bold">{ title }</h1>
-            for _, post := range posts {
-                @components.PostCard(post)
-            }
-        </div>
-    }
-}
-```
-
-### TailwindCSS Integration
-- **Automatic Building**: CSS rebuilds on file changes
-- **Component Classes**: Organized in `web/static/src/css/`
-- **Production Optimization**: Minified builds for deployment
-
-## Deployment
-
-### Production Build
-```bash
-# Build API server
-cd api && go build -o api ./cmd/api
-
-# Build web server
-cd web && go build -o web ./cmd/web
-
-# Build assets
-npm run build-css-prod
-```
-
-### Docker Deployment
-```bash
-# Build production images
-docker build -f api/Dockerfile -t my-app-api .
-docker build -f web/Dockerfile -t my-app-web .
-```
-
-## Contributing
-
-We welcome contributions! Here's how to get started:
-
-1. **Fork the repository**
-2. **Create a feature branch**: `git checkout -b feature/amazing-feature`
-3. **Make your changes** and add tests
-4. **Run tests**: `go test ./...`
-5. **Submit a pull request**
-
-### Development Setup
 ```bash
 git clone https://github.com/AlyxPink/meower.git
 cd meower
-go mod tidy
 go build -o meower ./cmd/meower
+go test ./internal/...
 ```
+
+The complete project template lives under `cmd/meower/template/` and is embedded
+into the CLI binary via `go:embed`. Template files use `TEMPLATE_MODULE_PATH` /
+`TEMPLATE_PROJECT_NAME` placeholders that are substituted at generation time.
+
+> Heads-up: if you previously ran `go install`, an older `meower` may sit on your
+> `$PATH` and shadow a local `./meower` build. Run `./meower` during development,
+> or re-run `go install ./cmd/meower` to refresh the installed binary.
 
 ## License
 
-GNU Affero General Public License v3.0 - see [LICENSE](LICENSE) file for details.
-
-## Why Meower?
-
-Building web applications shouldn't require assembling 20 different tools. Meower provides:
-
-- **Batteries Included**: Complete development environment and toolchain
-- **Type Safety**: Catch errors at compile time across the entire stack
-- **Fast Feedback**: Hot reload and rapid development cycles
-- **Production Ready**: Built for real applications with performance in mind
-- **Pure Go**: Consistent language and patterns throughout
+GNU Affero General Public License v3.0 — see [LICENSE](LICENSE).
 
 ---
 

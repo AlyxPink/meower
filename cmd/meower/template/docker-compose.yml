@@ -30,6 +30,11 @@ services:
       API_ENDPOINT: "api:50051"
       COOKIE_SECRET_KEY: "5TIyDD81Laz/xdxEw2yJVPKdJYyPqxmyONaSVJHs6jY="
       REDIS_URL: "redis://redis:6379"
+      ENVIRONMENT: "development"
+      LOG_LEVEL: "debug"
+      # OpenTelemetry: the web exports traces over OTLP/HTTP (Tempo on 4318 in
+      # the monitoring overlay). See the api service note about connecting them.
+      OTEL_EXPORTER_OTLP_ENDPOINT: "tempo:4318"
     ports:
       - "3000:3000"
       - "7331:7331"
@@ -37,6 +42,9 @@ services:
     volumes:
       - ./web/:/src/web/
       - ./api/:/src/api/
+      # The web module replaces ../api, ../pkg/urls and ../pkg/observability,
+      # so the pkg sub-modules must be mounted for `go run` to resolve them.
+      - ./pkg/:/src/pkg/
       - go_modules:/go/pkg/mod/
     depends_on:
       - api
@@ -83,24 +91,45 @@ services:
     tty: true
     environment:
       DATABASE_URL: "postgres://meower:meower@db:5432/meower?sslmode=disable"
+      REDIS_URL: "redis://redis:6379"
+      ENVIRONMENT: "development"
+      LOG_LEVEL: "debug"
+      GRPC_REFLECTION_ENABLED: "true"
+      # OpenTelemetry: traces export here. The monitoring overlay
+      # (monitoring/docker-compose.monitoring.yml) runs Tempo on 4317. It's a
+      # separate compose/network, so connect them or point at a reachable
+      # collector to see traces; the app degrades gracefully if it's unreachable.
+      OTEL_EXPORTER_OTLP_ENDPOINT: "tempo:4317"
     ports:
       - "50051:50051"
+      - "9091:9091" # Prometheus metrics
     working_dir: /src/api/
     volumes:
       - ./api/:/src/api/
+      # The api module replaces ../pkg/observability, so the pkg sub-modules
+      # must be mounted for `go run` to resolve them at runtime.
+      - ./pkg/:/src/pkg/
+      - ./scripts/:/src/scripts/
       - go_modules:/go/pkg/mod/
     healthcheck:
       test: [ "CMD", "grpc-health-probe", "-addr=:50051" ]
       interval: 1s
       timeout: 10s
       retries: 10
+      # The first `go run` compiles the whole app + deps; give it time before
+      # failures count against the container's health.
+      start_period: 180s
     depends_on:
       development-api:
         condition: service_started
       db:
         condition: service_healthy
         restart: true
-    command: "wgo -file=.go go run main.go"
+    # Generate protobuf + sqlc code once before starting, then watch+run. This
+    # makes `docker compose up` work from a clean checkout (the template ships
+    # .proto/.sql sources, not generated .go); the `proto` and `sqlc` services
+    # keep them regenerated on subsequent edits.
+    command: sh -c "cd /src && ./scripts/generate_protobuf.sh && cd /src/api && sqlc generate -f db/sqlc.yaml && wgo -file=.go go run main.go"
 
   proto:
     image: meower:development-api

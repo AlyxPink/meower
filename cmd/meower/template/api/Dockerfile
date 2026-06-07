@@ -10,8 +10,11 @@ FROM golang:${GO_VERSION}-alpine AS build-api
 ENV CGO_ENABLED=0
 WORKDIR /src/api
 
-# Copy sqlc binary from the sqlc image
+# Code-generation toolchain — the template ships .proto and .sql sources, so the
+# build stage generates the Go code (protobuf + sqlc) before compiling.
 COPY --from=sqlc-version /workspace/sqlc /usr/local/bin/sqlc
+COPY --from=bufbuild/buf:1 /usr/local/bin/buf /usr/local/bin/buf
+RUN apk add --no-cache protoc protobuf-dev
 
 # Download deps. The api module has `replace => ../pkg/observability`, so that
 # sub-module must be present (at /src/pkg/observability) for resolution. go.mod
@@ -24,10 +27,18 @@ RUN --mount=type=cache,target=/go/pkg/mod/ \
     --mount=type=bind,source=./pkg/observability/,target=/src/pkg/observability/ \
     go mod download -x
 
+# Install the protobuf Go plugins (pinned), then generate protobuf + sqlc code
+# and build. The bind mount is read-write so generated .go files land alongside
+# the sources for the build; they're discarded with the ephemeral mount.
+RUN --mount=type=cache,target=/go/pkg/mod/ \
+    go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.36.6 && \
+    go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.5.1
 RUN --mount=type=cache,target=/go/pkg/mod/ \
     --mount=rw,type=bind,source=./api/,target=/src/api/ \
     --mount=type=bind,source=./pkg/observability/,target=/src/pkg/observability/ \
-    sqlc generate -f /src/api/db/sqlc.yaml && \
+    --mount=rw,type=bind,source=./scripts/,target=/src/scripts/ \
+    cd /src && PATH="$PATH:$(go env GOPATH)/bin" ./scripts/generate_protobuf.sh && \
+    cd /src/api && sqlc generate -f /src/api/db/sqlc.yaml && \
     go build -o /bin/api-server ./
 
 FROM alpine:3.21 AS production-api

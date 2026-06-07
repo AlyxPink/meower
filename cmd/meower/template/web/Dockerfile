@@ -16,19 +16,26 @@ RUN --mount=type=cache,target=/go/pkg/mod/ \
     --mount=type=bind,source=./web/go.mod,target=./go.mod \
     go mod download -x
 
-# Copy a-h/templ binary from the templ image
+# Code-generation toolchain. The web imports the api's protobuf packages, so
+# the build generates that Go code from the .proto sources before compiling.
 COPY --from=ghcr.io/a-h/templ:v0.3.924 /ko-app/templ /usr/local/bin/templ
+COPY --from=bufbuild/buf:1 /usr/local/bin/buf /usr/local/bin/buf
+RUN apk add --no-cache protoc protobuf-dev
+RUN --mount=type=cache,target=/go/pkg/mod/ \
+    go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.36.6 && \
+    go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.5.1
 
-# Build the application.
-# Leverage a cache mount to /go/pkg/mod/ to speed up subsequent builds.
-# Leverage a bind mount to the current directory to avoid having to copy the
-# source code into the container.
+# Build the application. The api/ and scripts/ mounts are read-write so the
+# generated protobuf .go files land alongside the api sources for the web build;
+# they're discarded with the ephemeral mounts.
 RUN --mount=type=cache,target=/go/pkg/mod/ \
     --mount=rw,type=bind,source=./web/,target=/src/web/ \
-    --mount=type=bind,source=./api/,target=/src/api/ \
+    --mount=rw,type=bind,source=./api/,target=/src/api/ \
+    --mount=rw,type=bind,source=./scripts/,target=/src/scripts/ \
     --mount=type=bind,source=./pkg/urls/,target=/src/pkg/urls/ \
     --mount=type=bind,source=./pkg/observability/,target=/src/pkg/observability/ \
-    templ generate -path /src/web/views && \
+    cd /src && PATH="$PATH:$(go env GOPATH)/bin" ./scripts/generate_protobuf.sh && \
+    cd /src/web && templ generate -path /src/web/views && \
     go build -o /bin/web-server /src/web/
 
 FROM oven/bun:alpine AS assets

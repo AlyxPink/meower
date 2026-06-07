@@ -1,3 +1,7 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+/* v4 scans these sources for utility classes. Covers the .templ views/layouts/
+   components and any classes referenced from first-party JS. Keep this in sync
+   with where markup lives so classes aren't purged from the production build. */
+@source "../../../views/**/*.templ";
+@source "../../src/js/**/*.js";

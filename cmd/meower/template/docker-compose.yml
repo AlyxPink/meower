@@ -20,6 +20,16 @@ services:
       dockerfile: ./api/Dockerfile
       target: development-api
 
+  # Bun-based image for the asset watchers (tailwind, javascript) with the web
+  # package's node_modules baked in. Built once, reused by those services.
+  development-assets:
+    image: meower:development-assets
+    pull_policy: never
+    build:
+      context: .
+      dockerfile: ./web/Dockerfile
+      target: development-assets
+
   web:
     image: meower:development-web
     pull_policy: never
@@ -54,41 +64,52 @@ services:
     depends_on:
       - api
       - development-web
+      - formatter
       - javascript
       - redis
-      - rustywind
       - tailwind
     command: 'templ generate -v --watch --proxy="http://localhost:3000" --proxybind="0.0.0.0" --open-browser=false --cmd="go run main.go"'
 
   tailwind:
-    image: meower:development-web
+    image: meower:development-assets
     pull_policy: never
     stop_signal: SIGKILL
     working_dir: /src/web/
     volumes:
-      - ./web/:/src/web/
+      # Mount source dirs but NOT node_modules — use the image's installed deps.
+      - ./web/static/:/src/web/static/
+      - ./web/views/:/src/web/views/
     depends_on:
-      - development-web
-    command: "tailwindcss -i ./static/src/css/main.css -o ./static/public/css/main.css --config ./tailwind.config.js --watch=always"
+      - development-assets
+    command: "bun run build-css"
 
   javascript:
-    image: oven/bun:alpine
-    stop_signal: SIGKILL
-    working_dir: /src/web/
-    volumes:
-      - ./web/:/src/web/
-    command: "bun run build-js"
-
-  rustywind:
-    image: meower:development-web
+    image: meower:development-assets
     pull_policy: never
     stop_signal: SIGKILL
     working_dir: /src/web/
     volumes:
+      - ./web/static/:/src/web/static/
+    depends_on:
+      - development-assets
+    command: "bun run build-js"
+
+  # Watches Go + templ sources and auto-formats them: gofumpt for Go across all
+  # modules, rustywind to sort Tailwind classes in the views, and `templ fmt`
+  # for the templates. Runs on the development-web image (has gofumpt, rustywind,
+  # templ, wgo). Replaces the v3-era standalone rustywind service.
+  formatter:
+    image: meower:development-web
+    pull_policy: never
+    stop_signal: SIGKILL
+    working_dir: /src/
+    volumes:
       - ./web/:/src/web/
+      - ./api/:/src/api/
+      - ./pkg/:/src/pkg/
     depends_on:
       - development-web
-    command: "wgo -verbose -file=\\.templ$ rustywind --write views/**/*.templ"
+    command: wgo -file=.go -file=.templ sh -c "/go/bin/gofumpt -w . & rustywind --write /src/web/views/ && /usr/local/bin/templ fmt . && wait"
 
   api:
     image: meower:development-api
@@ -173,7 +194,7 @@ services:
     command: "wgo -file=sqlc.yaml -file=.sql -xfile=.go -dir /src/api/db sqlc generate -f /src/api/db/sqlc.yaml"
 
   db:
-    image: postgres:16-alpine
+    image: postgres:17-alpine
     ports:
       - "5432:5432"
     environment:
